@@ -51,7 +51,7 @@ Description: ISPMan ISP management system agent
 
 Package: ispman-lib
 Architecture: all
-Depends: ${misc:Depends}, ${perl:Depends}, libconvert-asn1-perl, libauthen-sasl-perl, liburi-perl, libio-socket-ssl-perl, libio-stringy-perl, libparse-recdescent-perl, liblog-agent-perl, libcgi-session-perl, libimap-admin-perl, libnet-ldap-perl, libdns-zoneparse-perl, libunicode-string-perl, libtext-template-perl, liblocale-maketext-lexicon-perl, libsoap-lite-perl, libxml-sax-perl, libhtml-parser-perl, libmail-rfc822-address-perl, libdigest-perl, libcgi-perl, libstring-mkpasswd-perl, libdigest-sha-perl, perl-modules, libemail-valid-perl, perl-doc, ucf
+Depends: ${misc:Depends}, ${perl:Depends}, libconvert-asn1-perl, libauthen-sasl-perl, liburi-perl, libio-socket-ssl-perl, libio-stringy-perl, libparse-recdescent-perl, liblog-agent-perl, libcgi-session-perl, libimap-admin-perl, libnet-ldap-perl, libdns-zoneparse-perl, libunicode-string-perl, libtext-template-perl, liblocale-maketext-lexicon-perl, libsoap-lite-perl, libxml-sax-perl, libhtml-parser-perl, libmail-rfc822-address-perl, libdigest-perl, libcgi-perl | libcgi-pm-perl, libstring-mkpasswd-perl, libdigest-sha-perl, perl-modules, libemail-valid-perl, perl-doc, ucf
 Recommends: bind | bind9 
 Suggests: slapd | ldap-server
 Description: ISPMan ISP management system libraries
