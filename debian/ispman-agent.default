@@ -1,6 +1,6 @@
 START=false
 # SET THIS TO "true" if you want to start the ISPMan agent 
-# via the initscript.
+# via the initscript for sysvinit (ignored by systemd)
 # Alternatively let 'monit' run and supervise it.
 # a config snippet for monit can be found in the ispman-doc
 # package: 
