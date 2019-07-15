@@ -202,14 +202,18 @@ if ($thisDomainType){
        onmouseover="this.className='lightOver'; window.status='@{[_("Edit [_1]", $thisDomain)]}'"
        onmouseout="this.className='light'; window.status=''">
      <td><A class=menu HREF="#">Edit $thisDomain</a></td>
+   </tr>
 |;
   unless ($thisDomainType eq "replica"){
     $text.=qq|
+   <tr class="light" onclick="doThis('editWebmail')" 
+       onmouseover="this.className='lightOver'; window.status='@{[_("Edit Webmail Options for [_1]", $thisDomain)]}'"
+       onmouseout="this.className='light'; window.status=''">
      <td><A class=menu HREF="#">Edit Webmail Options</a></td>
+   </tr>
 |;
   }
     $text.=qq|
-   </tr>
 </table>
 |;
 
