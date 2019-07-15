@@ -1,0 +1,7 @@
+makedefs
+install-data/ispman.conf
+install-data/ldifs/ispmanVarSort.conf
+install-data/ldifs/ispman_install.ldif
+install-data/schema/ispman.at.schema
+install-data/schema/ispman.oc.schema
+install-data/schema/ispman.schema
