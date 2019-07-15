@@ -323,7 +323,7 @@ sub make_vhosts_conf {
             }
             else {
                 $vhostHash->{$domain}{$vh}{'ispmanVhostDocumentRootOption'} =
-                  "";
+                  "Options FollowSymLinks MultiViews";
             }
 
             if (
@@ -343,7 +343,8 @@ sub make_vhosts_conf {
                   );
             }
             else {
-                $vhostHash->{$domain}{$vh}{'ispmanVhostScriptDirOption'} = "";
+                $vhostHash->{$domain}{$vh}{'ispmanVhostScriptDirOption'} =
+                  "Options ExecCGI FollowSymLinks";
             }
 
             ### ACLS
