@@ -1,0 +1,11 @@
+sub delete_webmail_directories_handler{
+	my ($webmail, $home_directory)=@_;
+		my $command="rm -rf $home_directory/$webmail";
+		print "Running $command\n";
+		system ($command);
+
+
+}
+
+
+1;

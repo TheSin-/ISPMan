@@ -1,0 +1,87 @@
+##################################################
+#  Apache related attributes for Webmail
+##################################################
+
+attributeType ( 1.3.6.1.4.8833.2.1.1457 NAME 'ispmanWebmailDocumentRoot'
+	DESC 'The path to the webmail documentroot'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+attributeType ( 1.3.6.1.4.8833.2.1.1458 NAME 'ispmanWebmailDocumentRootOption'
+	DESC 'Apache options for the webmail documentroot'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributeType ( 1.3.6.1.4.8833.2.1.1459 NAME 'ispmanWebmailExtraConf'
+	DESC 'Extra apache conf parameters'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributeType ( 1.3.6.1.4.8833.2.1.1460 NAME 'ispmanWebmailServerAlias'
+	DESC 'Other hostnames for the webmail server'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributeType ( 1.3.6.1.4.8833.2.1.1461 NAME 'ispmanWebmailScriptDir'
+	DESC 'The path to the ispmanWebmailScriptDir'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+attributeType ( 1.3.6.1.4.8833.2.1.1462 NAME 'ispmanWebmailScriptDirOption'
+	DESC 'The options for ispmanWebmailScriptDir path'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributeType ( 1.3.6.1.4.8833.2.1.1463 NAME 'ispmanWebmailIpAddress'
+	DESC 'An IP address or a * '
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributeType ( 1.3.6.1.4.8833.2.1.1464 NAME 'ispmanWebmailName'
+	DESC 'Name of Webmail lhost. Eg: webmail'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributeType ( 1.3.6.1.4.8833.2.1.1465 NAME 'webmailHost'
+	DESC 'The host on which this webmailhost should be located'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributeType ( 1.3.6.1.4.8833.2.1.1466 NAME 'ispmanWebmailOrg'
+	DESC 'The Organization name of the webmail host for that domain'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributeType ( 1.3.6.1.4.8833.2.1.1467 NAME 'ispmanWebmailOrgURL'
+	DESC 'The Organization URL of the webmail host for that domain'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributeType ( 1.3.6.1.4.8833.2.1.1468 NAME 'ispmanWebmailThemeFile'
+	DESC 'Theme file name in the providided dir for that domain'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributeType ( 1.3.6.1.4.8833.2.1.1469 NAME 'ispmanWebmailLogoFile'
+	DESC 'Name of the logo image file to use'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributeType ( 1.3.6.1.4.8833.2.1.1470 NAME 'ispmanWebmailFooter'
+	DESC 'Custom footer for outgoing email per domain'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )

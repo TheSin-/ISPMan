@@ -1,0 +1,241 @@
+$apacheWebmailFile=$ispman->getConf("apacheWebmailFile");
+$apacheWebmailHeader=$ispman->getConf("apacheVhostsHeader");
+$apacheWebmailFooter=$ispman->getConf("apacheVhostsFooter");
+
+$apacheReloadCommand=$ispman->getConf("apacheReloadCommand");
+$apacheStopCommand=$ispman->getConf("apacheStopCommand");
+$apacheStartCommand=$ispman->getConf("apacheStartCommand");
+$sleepSecondsBetweenRestart = $ispman->getConf("sleepSecondsBetweenRestart");
+
+
+
+sub read_webmail_hash{
+	my $webmailFile=shift;
+	do  $webmailFile;
+	return $VAR1;
+}
+
+
+sub write_webmail_hash{
+	my ($file, $hash)=@_;
+	open "F", ">$file";
+	print F Dumper($hash);
+	print F "\n1;\n";
+	close("F");
+}
+
+
+sub add_webmail{
+	my ($webmail, $domain)=@_;
+	next unless $webmail and $domain;
+        
+        my $webmailInfo=$ispman->getWebmailInfo($domain);
+        
+	
+	
+	my $domainInfo=$ispman->getDomainInfo($domain);
+
+	$domain_replicas=$ispman->getReplicasOfDomain($domain);
+
+	print "Working on $webmail.$domain\n\n";
+
+	my @_serverAliases;
+	if ($domain_replicas){
+		my $_replica;
+		
+		for $_replica( keys %$domain_replicas){
+			print "\n\nWorking on Replica $_replica\n\n";
+                        push @_serverAliases, "$webmail.$_replica";
+			print "Pushed $webmail.$_replica as alias\n";
+
+			my $_serverAlias;
+			if (ref $webmailInfo->{'ispmanWebmailServerAlias'} eq "ARRAY"){
+				for $_serverAlias (@{$webmailInfo->{'ispmanWebmailServerAlias'}}){
+                                        print "Pushing $_serverAlias into \@_serverAliases\n";
+                                        push @_serverAliases, $_serverAlias;
+                                        $_thisAlias=$_serverAlias;
+
+                                        print "thisAlias before subs: $_thisAlias  /$domain/$_replica/ \n";
+                                        
+                                        $_thisAlias =~ s!$domain!$_replica!gei;
+                                        print "thisAlias after subs: $_thisAlias  /$domain/$_replica/ \n";
+                                        
+                                        
+                                        
+                                        push @_serverAliases, $_thisAlias;
+                		        print "Setting Alias $_thisAlias\n";
+				
+                                }
+			} else {
+					$_serverAlias=$webmailInfo->{'ispmanWebmailServerAlias'};
+					 push @_serverAliases, $_serverAlias;
+					$_serverAlias =~ s/$domain/$_replica/ge;
+					push @_serverAliases, $_serverAlias;
+			}				
+			
+                }
+	        $_x=();
+                for (@_serverAliases){
+                        $_x->{$_}++;
+                }
+		@_serverAliases=keys %$_x;
+                
+                $webmailInfo->{'ispmanWebmailServerAlias'}=\@_serverAliases;
+                
+        }
+	
+	
+	my $webmailHash=read_webmail_hash("$apacheWebmailFile.hash");
+	# delete this webmail from hash if it already exists
+	delete	$webmailHash->{$domain}{$webmail};
+	$webmailHash->{$domain}{$webmail}={
+	      servername => "$webmail.$domain",
+	      webmail => $webmail,
+              uidNumber => $domainInfo->{'uidNumber'},
+	      gidNumber => $domainInfo->{'gidNumber'},
+	      serverroot => $domainInfo->{'homeDirectory'},
+	      ispmanWebmailServerAlias => $webmailInfo->{'ispmanWebmailServerAlias'},
+	      ispmanWebmailIpAddress => $webmailInfo->{'ispmanWebmailIpAddress'},
+	      ispmanWebmailExtraConf => $webmailInfo->{'ispmanWebmailExtraConf'},
+	      ispmanWebmailDocumentRootOption => $webmailInfo->{'ispmanWebmailDocumentRootOption'},
+	      ispmanWebmailcriptDirOption => $webmailInfo->{'ispmanWebmailScriptDirOption'},
+              ispmanWebmailOrg => $webmailInfo->{'ispmanWebmailOrg'},
+              ispmanWebmailOrgURL => $webmailInfo->{'ispmanWebmailOrgURL'},
+              ispmanWebmailFooter => $webmailInfo->{'ispmanWebmailFooter'},
+              ispmanWebmailThemeFile => $webmailInfo->{'ispmanWebmailThemeFile'},
+              ispmanWebmailLogoFile => $webmailInfo->{'ispmanWebmailLogoFile'},
+              };
+	
+        
+              if ($webmailInfo->{'ispmanWebmailDocumentRoot'} !~ /^\//) {
+                 $webmailHash->{$domain}{$webmail}{'documentroot'}=join "/", ($domainInfo->{'homeDirectory'}, $webmailInfo->{'ispmanWebmailDocumentRoot'});
+              } else {
+				#its a static/non-relative directory. It starts with a "/"
+					$webmailHash->{$domain}{$webmail}{'documentroot'}=$webmailInfo->{'ispmanWebmailDocumentRoot'};
+					}
+              if ($webmailInfo->{'ispmanWebmailScriptDir'} !~ /^\//) {
+                 $webmailHash->{$domain}{$webmail}{'scriptdir'}=join "/", ($domainInfo->{'homeDirectory'}, $webmailInfo->{'ispmanWebmailScriptDir'});
+              } else {
+					#its a static/non-relative directory. It starts with a "/"
+					$webmailHash->{$domain}{$webmail}{'scriptdir'}=$webmailInfo->{'ispmanWebmailScriptDir'};
+				}
+	      $webmailHash->{$domain}{$webmail}{'logdir'}=join "/", ($domainInfo->{'homeDirectory'}, "vhosts", $vhost, "logs");
+              unless (-d $webmailHash->{$domain}{$webmail}{'logdir'}){
+                print "Logdir $webmailHash->{$domain}{$webmail}{'logdir'} did not exist. Creating now.\n";
+                print "mkdir -p $webmailHash->{$domain}{$webmail}{'logdir'} \n";
+                system "mkdir -p $webmailHash->{$domain}{$webmail}{'logdir'} \n";
+              }
+        print "Writting $apacheWebmailFile\.hash\n";
+        write_webmail_hash("$apacheWebmailFile.hash", $webmailHash);	   
+}
+
+
+
+sub modify_webmail{
+	my ($webmail, $domain)=@_;
+	return add_webmail($webmail, $domain);
+}
+
+
+sub delete_webmail{
+	my ($webmail, $domain)=@_;
+	my $webmailHash=read_webmail_hash("$apacheWebmailFile.hash");
+        delete 	$webmailHash->{$domain}{$webmail};
+	write_webmail_hash("$apacheWebmailFile.hash", $webmailHash);	   
+}
+
+
+sub make_webmail_conf {
+   my $template=shift;
+   my $webmailHash=read_webmail_hash("$apacheWebmailFile.hash");
+   my $webmailText="";
+
+   my $name;
+   do { $name = tmpnam() } until sysopen(WEBMAIL, $name, O_RDWR|O_CREAT|O_EXCL);                     	
+   print "Writting to tmpfile $name\n";
+
+
+   for my $domain (keys %$webmailHash){
+      for my $wm (keys %{$webmailHash->{$domain}}){
+        next unless $wm=~ /\S/;
+         
+         
+	# we dont pass an ARRAY ref to the poor template. 
+	# Lets keep the template simple and do complex stuff here
+	
+	if (ref $webmailHash->{$domain}{$wm}{'ispmanWebmailServerAlias'} eq "ARRAY"){
+		$webmailHash->{$domain}{$wm}{'ispmanWebmailServerAlias'}=join " ", @{$webmailHash->{$domain}{$wm}{'ispmanWebmailServerAlias'}};
+	}
+	
+        if (ref $webmailHash->{$domain}{$wm}{'ispmanWebmailFooter'} eq "ARRAY"){
+                $webmailHash->{$domain}{$wm}{'ispmanWebmailFooter'}=join " ", @{$webmailHash->{$domain}{$wm}{'ispmanWebmailFooter'}};
+        }
+
+        if (ref $webmailHash->{$domain}{$wm}{'ispmanWebmailDocumentRootOption'} eq "ARRAY"){
+                $webmailHash->{$domain}{$wm}{'ispmanWebmailDocumentRootOption'}=join " ", @{$webmailHash->{$domain}{$wm}{'ispmanWebmailDocumentRootOption'}};
+        }
+        if ($webmailHash->{$domain}{$wm}{'ispmanWebmailDocumentRootOption'}){
+                $webmailHash->{$domain}{$wm}{'ispmanWebmailDocumentRootOption'}=join " ", ("Options", $webmailHash->{$domain}{$wm}{'ispmanWebmailDocumentRootOption'});
+        } else {
+                #put your default options here
+                $webmailHash->{$domain}{$wm}{'ispmanWebmailDocumentRootOption'}="Options FollowSymLinks MultiViews";
+        }
+         
+        
+        if (ref $webmailHash->{$domain}{$wm}{'ispmanWebmailScriptDirOption'} eq "ARRAY"){
+                $webmailHash->{$domain}{$wm}{'ispmanWebmailScriptDirOption'}=join " ", @{$webmailHash->{$domain}{$wm}{'ispmanWebmailScriptDirOption'}};
+        }
+        if ($webmailHash->{$domain}{$wm}{'ispmanWebmailScriptDirOption'}){
+                $webmailHash->{$domain}{$wm}{'ispmanWebmailScriptDirOption'}=join " ", ("Options", $webmailHash->{$domain}{$wm}{'ispmanWebmailScriptDirOption'});
+        } else {
+                #put your default options here
+                $webmailHash->{$domain}{$wm}{'ispmanWebmailScriptDirOption'}="Options ExecCGI FollowSymLinks";
+        }
+         
+
+
+                        
+        $webmailHash->{$domain}{$gm}{'ispmanDomain'}=$domain;
+        $webmailHash->{$domain}{$gm}{'webmail'}=$wm;
+        $webmailHash->{$domain}{$wm}{'ldapBaseDN'}= $ispman->{'Config'}{'ldapBaseDN'};
+        $webmailHash->{$domain}{$wm}{'ldapHost'}= $ispman->{'Config'}{'ldapHost'};
+        
+        
+        $webmailText.= $template->fill_in(HASH => $webmailHash->{$domain}{$wm});
+      };
+   };
+   print WEBMAIL "\n$webmailText\n";
+   close("WEBMAIL");
+
+   #uncomment this if you want checking of the generated file and replace "/opt/ispman/bin/httpd -T -f  $name" 
+   #with whatever the command on your system is to check the integrity of the conf.
+   #perhaps cat /etc/httpd/httpd.conf $name | httpd -T
+   # $name is name of the temporary file that is generated.
+   #return 0 unless  (system("/opt/ispman/bin/httpd -T -f  $name  >/dev/null") == 0) ;
+
+   if(system("diff -q $apacheWebmailFile $name > /dev/null")) {
+      system("mv -f $name $apacheWebmailFile");
+      print "File $name moved to $apacheWebmailFile\n";
+   } else {
+   	unlink("$name");
+   	print "No Changes. File $name removed\n";
+   }
+   return 1;
+};
+
+
+sub reloadApache {
+   if ($apacheReloadCommand) {
+       print "Reloading Apache\n";
+       system($apacheReloadCommand);
+   } else {
+      print "Stopping Apache\n";
+      system($apacheStopCommand);
+      sleep $sleepSecondsBetweenRestart ;
+      print "Starting Apache\n";
+      system($apacheStartCommand);
+   }
+   print $?;
+}
+
+1;

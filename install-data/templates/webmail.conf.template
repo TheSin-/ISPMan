@@ -1,0 +1,33 @@
+<VirtualHost <perl>$ispmanWebmailIpAddress</perl>>
+	ServerName      <perl>$servername</perl>
+	<perl>if ($ispmanWebmailServerAlias){
+			if (ref $ispmanWebmailServerAlias eq "ARRAY"){
+				$WebmailAliases=join " ", @$ispmanWebmailServerAlias;
+			} else {
+				$WebmailAliases=join " ", split(/\s\s*/, $ispmanWebmailServerAlias);
+			}
+			
+			$WebmailAliases="ServerAlias $WebmailAliases ";
+		}
+		$WebmailAliases </perl>
+	DocumentRoot    <perl>$documentroot</perl>
+	Alias		/webmail/ <perl>$serverroot</perl>/webmail/
+	ScriptAlias     /cgi-bin/ <perl>$scriptdir</perl>/
+	CustomLog       <perl>"$logdir/$servername.access"</perl> combined
+	ErrorLog        <perl>"$logdir/$servername.errors"</perl>
+	<perl>$ispmanVhostExtraConf</perl>
+	<Directory <perl>$documentroot</perl>>
+                <perl>$ispmanWebmailDocumentRootOption</perl>
+	</Directory>
+	<Directory <perl>$scriptdir</perl>>
+		<perl>$ispmanWebmailScriptDirOption</perl>
+	</Directory>
+	<Directory <perl>$serverroot</perl>/webmail>
+		<perl>$ispmanWebmailDocumentRootOption</perl>
+	</Directory>
+	<Directory <perl>$serverroot</perl>/webmail/data>
+		Options None
+		Order deny,allow
+		Deny from all
+	</Directory>
+</VirtualHost>

@@ -1,0 +1,188 @@
+<script>
+     function Disable(){
+     if (confirm("Are you sure you want to disable webmail from this host?")) 
+        self.location="<perl>$r->url</perl>?mode=disableWebmail&domain=<perl>$r->param("domain")</perl>&name=<perl>$ispman->{'webmail'}->{'ispmanWebmailName'}</perl>";
+  }
+</script>
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+
+   
+<br>
+<table border=0>
+<form>
+<tr><td colspan=2>
+    Webmail Options for
+    
+    <perl>$r->param('domain')</perl>
+    <br><hr noshade></td></tr>
+
+    
+
+<tr>
+    <td>Webmail Package </td>
+    <td>
+        <SELECT  NAME="ispmanWebmailPackage" onChange="get_form_vals(this.options)">
+          <perl>
+        my $packages=$ispman->getWebmailPackages();
+        my $ispman->{'webmail'}->{"ispmanWebmailPackage"};
+
+        my $text="";
+        for (@$packages){
+            $text.="<option ";
+            $text.=" selected " if $selectedOption eq $_;
+            $text.=">$_</option>\n";
+        }
+
+        $text
+          </perl>
+        </select>
+    </td>
+</tr>
+<tr>
+    <td>Webmail Root Directory Options </td>
+    <td>
+        <select name=ispmanWebmailDocumentRootOption MULTIPLE>
+	<perl>
+	my $allOptions=[qw(Indexes ExecCGI FollowSymLinks MultiViews Includes)];
+	
+	my $directoryOptions=$ispman->{'webmail'}->{"ispmanWebmailDocumentRootOption"};
+	my $selectedOptions;
+	if (ref $directoryOptions eq "ARRAY"){
+	    for (@$directoryOptions){
+		$selectedOptions->{$_}++;
+	    }
+	} else {
+		$selectedOptions->{$directoryOptions}++;
+	}
+	
+	my $text="";
+	for (@$allOptions){
+	    $text.="<option ";
+	    $text.=" selected " if $selectedOptions->{$_};
+	    $text.=">$_</option>\n";
+	}
+	
+	
+	$text
+	
+	</perl>
+	
+	</select>
+    </td>
+</tr>
+
+<tr>
+    <td>Script Directory Options </td>
+    <td>
+        <select name=ispmanWebmailScriptDirOption MULTIPLE>
+	<perl>
+	my $allOptions=[qw(Indexes ExecCGI FollowSymLinks MultiViews Includes)];
+	
+	my $directoryOptions=$ispman->{'webmail'}->{"ispmanWebmailScriptDirOption"};
+	my $selectedOptions;
+	if (ref $directoryOptions eq "ARRAY"){
+	    for (@$directoryOptions){
+		$selectedOptions->{$_}++;
+	    }
+	} else {
+		$selectedOptions->{$directoryOptions}++;
+	}
+	
+	my $text="";
+	for (@$allOptions){
+	    $text.="<option ";
+	    $text.=" selected " if $selectedOptions->{$_};
+	    $text.=">$_</option>\n";
+	}
+	
+	
+	$text
+	
+	</perl>
+	
+	</select>
+    </td>
+</tr>
+
+
+<tr>
+    <td valign=top>Webmail Server Aliases<br>(Optional)</td>
+    <td colspan=2>
+        <textarea cols=35 rows=3 name=ispmanWebmailServerAlias><perl>
+       my $text="";
+       if (ref $ispman->{'webmail'}->{"ispmanWebmailServerAlias"} eq "ARRAY"){
+        my @aliases=@{$ispman->{'webmail'}->{"ispmanWebmailServerAlias"}};
+           for   (@aliases){
+              $text.= "$_\n";
+           }
+        } else {
+            $text=$ispman->{'webmail'}->{"ispmanWebmailServerAlias"};
+        }
+               
+       
+       $text;
+       </perl></textarea>
+   </td>                                                                                                                                        
+</tr>
+
+<tr>
+    <td>Webmail Organization Name</td>
+    <td>
+        <input  size=35 type=text name=ispmanWebmailOrg value="<perl>$ispman->{'webmail'}->{'ispmanWebmailOrg'}</perl>">
+    </td>
+</tr>
+<tr>
+    <td>Webmail Organization URL</td>
+    <td>
+        <input  size=35 type=text name=ispmanWebmailURL value="<perl>$ispman->{'webmail'}->{'ispmanWebmailOrgURL'}</perl>">
+    </td>
+</tr>
+<tr>
+    <td valign=top>Webmail Footer<br>(Optional)</td>
+    <td colspan=2>
+        <textarea wrap=virtual cols=65 rows=5 name=ispmanWebmailFooter><perl>$ispman->{'webmail'}->{'ispmanWebmailFooter'}</perl></textarea>
+   </td>                                                                         
+</tr>
+<tr>
+    <td colspan=2>
+    <table width=450 border=0>
+    <tr>
+    <td>
+        <strong>
+        The next two value are filenames (no path) and should be uploaded
+        to <perl>$ispman->getConf('defaultHomeDirectoryPath')</perl>/<perl>$r->param('domain')</perl>/webmail.  They
+        are only enable is the files are present and loadable.
+        </strong>
+    </td>
+    </tr>
+    </table>
+    </td>
+</tr>
+<tr>
+    <td>Webmail Theme File Name (css)</td>
+    <td>
+        <input  size=35 type=text name=ispmanWebmailThemeFile value="<perl>$ispman->{'webmail'}->{'ispmanWebmailThemeFile'}</perl>">
+    </td>
+</tr>
+<tr>    
+    <td>Webmail Logo File (image)</td>
+    <td>
+        <input  size=35 type=text name=ispmanWebmailLogoFile value="<perl>$ispman->{'webmail'}->{'ispmanWebmailLogoFile'}</perl>">
+    </td>
+</tr>
+
+        <input  size=35 type=hidden  name=ispmanWebmailIpAddress value="<perl>$ispman->getConf('apacheVhostsIP')</perl>">
+        <input  size=35 type=hidden name=ispmanWebmailDocumentRoot value="<perl>$ispman->getConf('webmailroot')</perl>">
+        <input size=35 type=hidden name=ispmanWebmailScriptDir value="<perl>$ispman->getConf('webmailscriptdir')</perl>">
+
+        <input type=hidden name=ispmanWebmailExtraConf" value="">
+
+        <input type=hidden name=ispmanWebmailName value="<perl>$ispman->{'webmail'}->{'ispmanWebmailName'}</perl>">
+        <input type=hidden name="mode" value="updateWebmail">
+        <input type=hidden name="domain" value="<perl>$r->param("domain")</perl>">
+   <tr><td align=left colspan=2>  
+         <input type=button class="button" onClick="document.forms[0].reset()" value="Reset">
+         <input type=button class="button" onClick="Disable()" value="Disable">
+         <input type=button class="button" onClick="document.forms[0].submit()" value="Update">
+      </td></tr>
+   </form></table>

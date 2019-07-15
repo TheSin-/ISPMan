@@ -1,0 +1,93 @@
+dn: ispmanModule=webmail_vars, ou=conf, %%ldapBaseDN%%
+ispmanModule: webmail_vars
+ispmanModuleAlias: Webmail config
+objectclass: ispmanConfModule
+description: These are Webmail specific variables
+
+dn: ispmanVar=apacheWebmailFile, ispmanModule=webmail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheWebmailFile
+ispmanVarAlias: Apache Webmail File
+ispmanModule: webmail_vars
+objectclass: ispmanConfVar
+ispmanVal: /etc/httpd/conf/webmail.conf
+ispmanQuestion: The file where I should create Webmail Entries
+
+dn: ispmanVar=webmailHostTemplate, ispmanModule=webmail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: webmailHostTemplate
+ispmanVarAlias: Webmail Host Template
+ispmanModule: webmail_vars
+objectclass: ispmanConfVar
+ispmanVal: %%installDir%%/templates/webmail.template
+ispmanQuestion: This is the template that will be used when creating config for the Webmail Virtualhost<br>If it does not exists then it will be created for you
+
+dn: ispmanVar=webmailPackage, ispmanModule=webmail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: webmailPackage
+ispmanVarAlias: Webmail Software Used
+ispmanModule: webmail_vars
+objectclass: ispmanConfVar
+ispmanVal: SquirrelMail
+ispmanQuestion: Name of the webmail package.  At the moment only the SquirrelMail and RoundCube templates are provided, but we will add more...
+
+dn: ispmanVar=webmailroot, ispmanModule=webmail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: webmailroot
+ispmanVarAlias: Webmail HTTP Root
+ispmanModule: webmail_vars
+objectclass: ispmanConfVar
+ispmanVal: /usr/share/squirrelmail
+ispmanQuestion: Default webmail htdocs root
+
+dn: ispmanVar=webmailscriptdir, ispmanModule=webmail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: webmailscriptdir
+ispmanVarAlias: Webmail Script Dir
+ispmanModule: webmail_vars
+objectclass: ispmanConfVar
+ispmanVal: /usr/share/squirrelmail/cgi-bin
+ispmanQuestion: Default webmail script dir (cgi-bin)
+
+dn: ispmanVar=webmailHost, ispmanModule=webmail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: webmailHost
+ispmanVarAlias: Webmail Hostname
+ispmanModule: webmail_vars
+objectclass: ispmanConfVar
+ispmanVal: webmail
+ispmanQuestion: Default webmail hostname (ie: webmail which would be http://webmail.example.com/)
+
+dn: ispmanVar=webmailOrg, ispmanModule=webmail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: webmailOrg
+ispmanVarAlias: Webmail Organization
+ispmanModule: webmail_vars
+objectclass: ispmanConfVar
+ispmanVal: Name To Display
+ispmanQuestion: Default webmail organiztion displayed throughout the webmail program
+
+dn: ispmanVar=webmailOrgURL, ispmanModule=webmail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: webmailOrgURL
+ispmanVarAlias: Webmail Organization URL
+ispmanModule: webmail_vars
+objectclass: ispmanConfVar
+ispmanVal: URL name for the organization
+ispmanQuestion: Default webmail organiztion URL used with organization name for links
+
+dn: ispmanVar=webmailFooter, ispmanModule=webmail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: webmailFooter
+ispmanVarAlias: Webmail SMTP Footer
+ispmanModule: webmail_vars
+objectclass: ispmanConfVar
+ispmanVal: Webmail brought to you by <org name>
+ispmanQuestion: Default webmail footer, added to the bottom of emails sent with webmail.
+
+dn: ispmanVar=webmailThemeFile, ispmanModule=webmail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: webmailThemeFile
+ispmanVarAlias: Webmail Theme File
+ispmanModule: webmail_vars
+objectclass: ispmanConfVar
+ispmanVal: theme.css
+ispmanQuestion: Default webmail theme filename if present
+
+dn: ispmanVar=webmailLogoFile, ispmanModule=webmail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: webmailLogoFile
+ispmanVarAlias: Webmail Logo File
+ispmanModule: webmail_vars
+objectclass: ispmanConfVar
+ispmanVal: logo.jpg
+ispmanQuestion: Default webmail logo filename if present

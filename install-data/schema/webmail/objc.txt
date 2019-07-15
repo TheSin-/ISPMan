@@ -1,0 +1,10 @@
+objectClass ( 1.3.6.1.4.8833.2.1.1252 NAME 'ispmanWebmailHost'
+	SUP top AUXILIARY
+	DESC 'Ispman http mail data'
+	MAY (  ispmanDomain $ ispmanWebmailServerAlias $ ispmanWebmailScriptDir 
+		$ ispmanWebmailIpAddress $ ispmanWebmailDocumentRoot
+		$ ispmanWebmailExtraConf $ ispmanWebmailThemeFile
+                $ ispmanWebmailDocumentRootOption $ ispmanWebmailScriptDirOption
+		$ webmailHost $ ispmanWebmailOrg $ ispmanWebmailOrgURL
+                $ ispmanWebmailName $ ispmanWebmailLogoFile
+		$ ispmanWebmailFooter ))

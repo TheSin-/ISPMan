@@ -1,0 +1,31 @@
+sub create_webmail_directories_handler{
+	
+	my ($webmail, $home_directory, $owner, $group, $apache_user)=@_;
+	
+	my @directories=();
+	push @directories, "$home_directory/$webmail";
+        my @wwwdirs=();
+        push @wwwdirs, "$home_directory/$webmail/data";
+
+
+	my @commands=();
+	for (@directories){
+		push @commands, "mkdir -p $_";
+		push @commands, "chown  $owner  $_";
+		push @commands, "chgrp  $group  $_";
+	}
+        for (@wwwdirs){
+                push @commands, "mkdir -p $_";
+                push @commands, "chown  $apache_user  $_";
+                push @commands, "chgrp  $group $_";
+        }
+			
+	for (@commands){
+		print "Running: $_ \n";
+		system($_) == 0 or return "ERROR: $?";
+	}
+		return 1;
+}
+
+
+1;

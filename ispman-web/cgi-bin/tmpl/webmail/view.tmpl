@@ -1,0 +1,18 @@
+<script>
+     function Enable(){
+        self.location="<perl>$r->url</perl>?mode=newWebmail&domain=<perl>$r->param("domain")</perl>";
+  }
+</script>
+
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+
+   
+<br>
+<table border=0>
+<form>
+<tr class=line0><td align="center">
+    Webmail for <perl>$r->param('domain')</perl> is currently disabled.<BR>
+    <BR> 
+    <input type=button class="button" onClick="Enable()" value="Enable">
+</td></tr>
+</form></table>

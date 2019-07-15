@@ -1,0 +1,170 @@
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+
+   
+<b>Enabling Webmail for <perl>$r->param('domain')</perl>
+</b>
+<p>
+
+<table border=0>
+<form>
+<tr>
+    <td>Webmail Package </td>
+    <td>
+        <SELECT  NAME="ispmanWebmailPackage" onChange="get_form_vals(this.options)">
+          <perl>
+        my $packages=$ispman->getWebmailPackages();
+
+        my $text="";
+        for (@$packages){
+            $text.="<option ";
+            $text.=">$_</option>\n";
+        }
+
+        $text
+          </perl>
+        </select>
+    </td>
+</tr>
+<tr>
+    <td>Webmail Sever IP Address</td>
+    <td>
+        <perl>$ispman->getConf("apacheVhostsIP")</perl>
+        <input  size=35 type=hidden  name=ispmanWebmailIpAddress value="<perl>$ispman->getConf("apacheVhostsIP")</perl>">
+    </td>
+</tr>
+<tr>
+    <td>Webmail Hostname</td>
+    <td>
+        <input  size=35 type=text name=ispmanWebmailName value="<perl>$ispman->getConf("webmailHost")</perl>">
+    </td>
+</tr>
+
+<tr>
+    <td>Webmail Root Directoy</td>
+    <td>
+        <perl>$ispman->getConf("webmailroot")</perl>
+        <input  size=35 type=hidden name=ispmanWebmailDocumentRoot value="<perl>$ispman->getConf("webmailroot")</perl>">
+    </td>
+</tr>
+
+<tr>
+    <td>Webmail Root Directory Options </td>
+    <td>
+        <select name=ispmanWebmailDocumentRootOption MULTIPLE>
+	<option value="Indexes">Show Indexes in Directories</option>
+	<option value="ExecCGI">Execute CGIs</option>
+	<option value="Includes">Allow Includes</option>
+	<option value="FollowSymLinks" selected>FollowSymLinks</option>
+	<option value="MultiViews" selected>MultiViews</option>
+	</select>
+    </td>
+</tr>
+
+<tr>
+    <td>Webmail Script Directory </td>
+    <td>
+        <perl>$ispman->getConf("webmailscriptdir")</perl>
+        <input size=35 type=hidden name=ispmanWebmailScriptDir value="<perl>$ispman->getConf("webmailscriptdir")</perl>">
+    </td>
+</tr>
+
+
+<tr>
+    <td>Webmail Script Directory Options </td>
+    <td>
+	<select name=ispmanWebmailScriptDirOption MULTIPLE>
+	<option value="Indexes">Show Indexes in Directories</option>
+	<option value="ExecCGI" selected>Execute CGIs</option>
+	<option value="Includes">Allow Includes</option>
+	<option value="FollowSymLinks">FollowSymLinks</option>
+	<option value="MultiViews">MultiViews</option>
+	</select>
+    </td>
+</tr>
+
+
+<tr>
+    <td valign=top>Webmail Server Aliases <br>(Optional)</td>
+    <td colspan=2>
+        <textarea cols=35 rows=3 name=ispmanWebmailServerAlias></textarea>
+   </td>                                                                                                                                        
+</tr>
+
+<tr>
+    <td>Webmail Organization Name</td>
+    <td>
+        <input  size=35 type=text name=ispmanWebmailOrg value="<perl>$ispman->getConf("webmailOrg")</perl>">
+    </td>
+</tr>
+<tr>
+    <td>Webmail Organization URL</td>
+    <td>
+        <input  size=35 type=text name=ispmanWebmailOrgURL value="<perl>$ispman->getConf("webmailOrgURL")</perl>">
+    </td>
+</tr>
+<tr>
+    <td valign=top>Webmail Footer<br>(Optional)</td>
+    <td colspan=2>
+        <textarea wrap=virtual cols=65 rows=5 name=ispmanWebmailFooter></textarea>
+   </td>                                                                         
+</tr>
+<tr>
+    <td colspan=2>
+    <table width=450 border=0>
+    <tr>
+    <td>
+        <strong>
+        The next two value are filenames (no path) and should be uploaded
+        to <perl>$ispman->getConf('defaultHomeDirectoryPath')</perl>/<perl>$r->param('domain')</perl>/webmail.  They
+        are only enable is the files are present and loadable.
+        </strong>
+    </td>
+    </tr>
+    </table>
+    </td>
+</tr>
+<tr>
+    <td>Webmail Theme File Name (css)</td>
+    <td>
+        <input  size=35 type=text name=ispmanWebmailThemeFile value="<perl>$ispman->getConf("webmailThemeFile")</perl>">
+    </td>
+</tr>
+<tr>
+    <td>Webmail Logo File (image)</td>
+    <td>
+        <input  size=35 type=text name=ispmanWebmailLogoFile value="<perl>$ispman->getConf("webmailLogoFile")</perl>">
+    </td>
+</tr>
+<tr>
+    <td valign=center>Webmail Server To Use</td>
+    <td>
+        <select name="webmailHost">
+        <perl>
+        my $text="";
+        my @webmailhosts=$ispman->getGroupMembers("webmailgroup");
+
+        for (@webmailhosts){
+            $text.="<option VALUE='$_'>$_</option>";
+        }
+
+        if  ($#webmailhosts<0){
+            $text.="<option VALUE=''>WARNING: No members in group webmailhosts defined</option>";
+        }
+
+
+        $text
+        </perl>
+        </select>
+   </td>
+
+</tr>
+        <input type=hidden name=ispmanWebmailExtraConf" value="">
+
+        <input type=hidden name="mode" value="enableWebmail">
+        <input type=hidden name="domain" value="<perl>$r->param('domain')</perl>">
+        
+   <tr><td align=left colspan=2>  
+         <input type=button class="button" onClick="document.forms[0].reset()" value="Reset">
+         <input type=button class="button" onClick="document.forms[0].submit()" value="Enable">
+      </td></tr>
+   </form></table>
