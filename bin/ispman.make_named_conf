@@ -14,7 +14,8 @@ BEGIN {
 
 use File::Path;
 use Fcntl;
-use POSIX qw(tmpnam setsid);
+use File::Temp qw(:POSIX);
+use POSIX qw(setsid);
 use ISPMan;
 $ispman = ISPMan->new();
 

@@ -32,7 +32,8 @@ $VERBOSE = 1;
 use Data::Dumper;
 use File::Path;
 use Fcntl;
-use POSIX qw(tmpnam setsid);
+use File::Temp qw(:POSIX);
+use POSIX qw(setsid);
 use Sys::Hostname;
 use Log::Agent;
 

@@ -25,7 +25,7 @@ use ISPMan;
 use File::Path;
 use Data::Dumper;
 use Fcntl;
-use POSIX qw(tmpnam);
+use File::Temp qw(:POSIX);
 
 # defind log_message.
 # This is defined in ispman-agent and we should redefine here
