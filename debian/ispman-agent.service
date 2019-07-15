@@ -1,0 +1,19 @@
+[Unit]
+Description=ispman-agent
+Documentation=http://ispman.sourceforge.net
+After=var-run.mount nss-lookup.target network.target local-fs.target remote-fs.target time-sync.target
+Before=getty@tty1.service plymouth-quit.service xdm.service
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=simple
+Restart=on-abort
+PIDFile=/run/ispman-agent.pid
+EnvironmentFile=-/etc/default/ispman-agent
+ExecStart=/usr/share/ispman/bin/ispman-agent nodetach ${DAEMON_OPTS}
+ExecReload=/usr/share/ispman/bin/ispman-agent restart
+ExecStop=/usr/share/ispman/bin/ispman-agent stop
+ExecStopPost=/bin/rm -f /run/ispman-agent.pid
+PrivateTmp=true
