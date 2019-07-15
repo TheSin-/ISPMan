@@ -19,7 +19,6 @@ You may start with a single server to manage user's mailboxes and add more as yo
 ISPMan is writtin mostly in Perl and is based on four major components. All these components are based on open standards and are easily customizable.
 
 * **LDAP-directory** works as a central registry of information about users, hosts, dns, processes etc. All information related to resources is kept in this directory.  
-  
 The LDAP directory can be replicated to multiple machines to balance the load.
 
 * **ISPMan-webinterface** is an intuitive Iinterface to manage informations about your ISP infrastructure. This interface allows you to edit your LDAP registry to change different informations about your resources such as adding a new domain, deleting a user etc.  
