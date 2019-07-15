@@ -215,8 +215,8 @@ sub encryptPassWithMethod {
         }
         if ( $method eq 'sha' or $method eq 'sha1' ) {
             unless ( $pass =~ /^{sha}/ ) {
-                require Digest::SHA1;
-                import Digest::SHA1 qw(sha1_base64);
+                require Digest::SHA;
+                import Digest::SHA qw(sha1_base64);
                 $pass = sha1_base64($pass);
                 while ( ( length($pass) % 4 ) != 0 ) { $pass .= '='; }
                 $pass = '{sha}' . $pass;

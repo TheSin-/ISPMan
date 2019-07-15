@@ -3,7 +3,7 @@ package ISPMan::DBMan;
 use strict;
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
 
-use Digest::SHA1;
+use Digest::SHA;
 
 require Exporter;
 
@@ -160,8 +160,8 @@ sub add_database {
     # treat password
     if (lc($dbhash->{'ispmanDBType'}) eq "mysql") {
        # generate MySQL password hash
-       my $digest=Digest::SHA1->new->add($dbhash->{'ispmanDBPass'})->digest;
-       $dbhash->{'ispmanDBPass'} = "*".uc(Digest::SHA1->new->add($digest)->hexdigest);
+       my $digest=Digest::SHA->new->add($dbhash->{'ispmanDBPass'})->digest;
+       $dbhash->{'ispmanDBPass'} = "*".uc(Digest::SHA->new->add($digest)->hexdigest);
     }
 
     # prepare branch
@@ -205,8 +205,8 @@ sub modify_database {
     if ($dbInfo->{'ispmanDBPass'} ne $dbNew->{'ispmanDBPass'} &&
         lc($dbNew->{'ispmanDBType'}) eq "mysql") {
        # generate MySQL password hash
-       my $digest=Digest::SHA1->new->add($dbNew->{'ispmanDBPass'})->digest;
-       $dbNew->{'ispmanDBPass'} = "*".uc(Digest::SHA1->new->add($digest)->hexdigest);
+       my $digest=Digest::SHA->new->add($dbNew->{'ispmanDBPass'})->digest;
+       $dbNew->{'ispmanDBPass'} = "*".uc(Digest::SHA->new->add($digest)->hexdigest);
     }
 
     # do we have a move? (ispmanDBName changed)
