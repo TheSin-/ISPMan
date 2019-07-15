@@ -1,0 +1,42 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'flcmr', \%opts );
+    unless ( $opts{'r'} && $ARGV[0] ) {
+        print
+"$FindBin::Script -r ResellerID [-f firstname] [-l lastname] [-m maxdomains]  [-c displayname]  ClientName ";
+        print "\n";
+        exit;
+    }
+}
+
+
+use ISPMan;
+
+use CGI;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+$user   = shift @ARGV;
+
+my $r = new CGI();
+
+$opts{'f'} ||= $user;
+$opts{'l'} ||= $user;
+$opts{'p'} ||= "secret";
+$opts{'c'} ||= join " ", ( $opts{'f'}, $opts{'l'} );
+
+$r->param( "givenName",              $opts{"f"} );
+$r->param( "sn",                     $opts{"l"} );
+$r->param( "cn",                     $opts{"c"} );
+$r->param( "uid",                    $user );
+$r->param( "userPassword",           $opts{"p"} );
+$r->param( "ispmanResellerId",       $opts{'r'} );
+$r->param( "ispmanClientName",       $user );
+$r->param( "ispmanClientMaxDomains", $opts{'m'} ) if $opts{'m'};
+
+$ispman->addClient($r);
+print $ispman->{'message'}, "\n";
+

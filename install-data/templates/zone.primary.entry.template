@@ -1,0 +1,5 @@
+zone "<perl>$domain</perl>" IN {
+	type master;
+	file "<perl>$file</perl>";
+};
+

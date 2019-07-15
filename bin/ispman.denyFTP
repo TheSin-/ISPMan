@@ -1,0 +1,92 @@
+#!/usr/bin/perl
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopts( 'r:h:', \%opts );
+    if ( $opts{'h'} || !$ARGV[1] ) {
+        print "Usage: $FindBin::Script [-r] user|vhost|domain name\n\n";
+        print "Examples:\n";
+        print "----------\n";
+
+        print
+"$FindBin::Script    user   atif\@ispman.org   # deny ftp to user atif in domain ispman.org\n";
+        print
+"$FindBin::Script    vhost  www\@ispman.org    # deny ftp to vhost www in domain ispman.org\n";
+        print
+"$FindBin::Script    domain ispman.org        # deny ftp to domain ispman.org\n";
+        print
+"$FindBin::Script -r domain ispman.org        # deny ftp to domain ispman.org and all users, vhosts under ispman.org\n";
+        print "\n";
+        exit;
+    }
+}
+
+use vars qw ($ispman);
+
+my $obj = $ARGV[0];
+
+use ISPMan;
+$ispman = ISPMan->new();
+
+if ( $obj eq "user" ) {
+    &denyUserFTP( $ARGV[1] );
+}
+
+if ( $obj eq "vhost" ) {
+    &denyVhostFTP( $ARGV[1] );
+}
+
+if ( $obj eq "domain" ) {
+    &denyDomainFTP( $ARGV[1] );
+}
+
+sub denyUserFTP {
+    my $user = shift;
+    ( $domain, $ispmanUserId ) = split( '@', $user );
+    my $dn = &getUserDN( $ispmanUserId, $domain );
+    if ( $ispman->entryExists($dn) ) {
+        $self->updateEntryWithData( $dn, { "FTPStatus" => "disabled" } );
+    }
+}
+
+sub getUserDN {
+    my ( $user, $domain ) = @_;
+    $uid = join( '_', ( $user, $domain ) );
+    $uid =~ s/\./_/g;
+    return join ',',
+      (
+        "uid=$uid", "ou=users", "ispmanDomain=$domain",
+        $ispman->{'Config'}{'ldapBaseDN'}
+      );
+}
+
+sub denyVhostFTP {
+    my $vhost = shift;
+    ( $domain, $ispmanVhostName ) = split( '@', $vhost );
+    my $dn = &getVhostDN( $ispmanUserId, $domain );
+    if ( $ispman->entryExists($dn) ) {
+        $self->updateEntryWithData( $dn, { "FTPStatus" => "disabled" } );
+    }
+}
+
+sub getVhostDN {
+    my ( $vhost, $domain ) = @_;
+    return join ',',
+      (
+        "ispmanVhostName=$vhost", "ou=httpdata", "ispmanDomain=$domain",
+        $ispman->{'Config'}{'ldapBaseDN'}
+      );
+}
+
+sub denyDomainFTP {
+    my $domain = shift;
+    my $dn     = join ',',
+      ( "ispmanDomain=$domain", $ispman->{'Config'}{'ldapBaseDN'} );
+    if ( $ispman->entryExists($dn) ) {
+        $self->updateEntryWithData( $dn, { "FTPStatus" => "disabled" } );
+    }
+}
+

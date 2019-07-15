@@ -1,0 +1,278 @@
+<script type="text/javascript" language="JavaScript">
+<!--
+
+    function deleteVhost(){
+        if (confirm("Are you sure you want to permanently delete this virtualhost?")) 
+        location=cgiurl+"?mode=deleteVhost&"+cgidata
+    }
+     
+    function suspendVhost(){
+        location=cgiurl+"?mode=suspendVhost&"+cgidata
+    }
+
+    function unsuspendVhost(){
+        location=cgiurl+"?mode=unsuspendVhost&"+cgidata
+    }
+
+    function checkVhost(f){
+        rc = true;
+	    
+        if (f.homeDirectory.value==""){
+            alert('<perl>_("vhost homedirectory is empty!")</perl>');
+            rc = false;
+        }
+	    
+        if (f.ispmanVhostDocumentRoot.value==""){
+            alert('<perl>_("DocumentRoot is empty")</perl>');
+            rc = false;
+        }
+        
+        if (f.ispmanVhostScriptDir.value==""){
+            alert('<perl>_("ScriptDirectory is empty")</perl>');
+            rc = false;
+        }
+        
+        if (f.ispmanVhostLogdir.value==""){
+            alert('<perl>_("LogDirectory is empty")</perl>');
+            rc = false;
+        }
+        
+        if (f.ispmanVhostStatdir.value==""){
+            alert('<perl>_("StatDirectory is empty")</perl>');
+            rc = false;
+        }
+        
+        return rc;
+    }
+
+//-->
+</script>
+
+
+<table>
+<form action="<perl>$ENV{'SCRIPT_NAME'}</perl>" method="POST" onSubmit="return checkVhost(this);">
+
+<tr>
+    <td>IP address </td>
+    <td>
+        <input size=35 type=text name=ispmanVhostIpAddress value="<perl>$ispman->{'vhost'}->{"ispmanVhostIpAddress"}</perl>">
+    </td>
+</tr>
+
+
+<tr>
+    <td>Web server </td>
+    <td>
+        <input size=35 type=hidden name=webHost value="<perl>$ispman->{'vhost'}->{"webHost"}</perl>">
+        <perl>
+        my $text="";
+        my @webhosts=$ispman->as_array($ispman->{'vhost'}{'webHost'});
+
+        for (@webhosts){ 
+	   if ($text) { $text.=", $_<br>"; } else { $text="$_"; }
+        }
+
+        $text;
+        </perl>
+    </td>
+</tr>
+<tr>
+    <td>File host </td>
+    <td>
+        <input size=35 type=hidden name=fileHost value="<perl>$ispman->{'vhost'}->{"fileHost"}</perl>">
+        <perl>$ispman->{'vhost'}->{"fileHost"}</perl>
+    </td>
+</tr>
+
+<tr>
+    <td>Vhost's Home</td>
+    <td>
+        <input size=35 type=hidden name=homeDirectory value="<perl>$ispman->{'vhost'}->{"homeDirectory"}</perl>">
+	<perl>$ispman->{'vhost'}->{"homeDirectory"}</perl>
+    </td>
+</tr>
+
+<tr>
+    <td>DocumentRoot </td>
+    <td>
+        <input size=35 type=hidden name=ispmanVhostDocumentRoot value="<perl>$ispman->{'vhost'}->{"ispmanVhostDocumentRoot"}</perl>">
+        <perl>$ispman->{'vhost'}->{"ispmanVhostDocumentRoot"}</perl>
+    </td>
+</tr>
+
+<tr>
+    <td>DocumentRoot directory options</td>
+    <td>
+        <select name=ispmanVhostDocumentRootOption MULTIPLE>
+	<perl>
+        my @all_options=split ",",$ispman->getConf("apacheDocumentRootOptions");
+        my @dir_options=$ispman->as_array($ispman->{'vhost'}->{"ispmanVhostDocumentRootOption"});
+        my $selectedOptions;
+        for (@dir_options){
+          $selectedOptions->{$_}++;
+        }
+        my $text="";
+        for (@all_options){
+          $_ =~ s/\*//;
+          $text.="	<option";
+          $text.=" selected" if $selectedOptions->{$_};
+          $text.=">$_</option>\n";
+        }
+	
+        $text
+	</perl>
+	</select>
+    </td>
+</tr>
+
+<tr>
+    <td>ScriptDirectory (/cgi-bin/)</td>
+    <td>
+        <input size=35 type=hidden name=ispmanVhostScriptDir value="<perl> $ispman->{'vhost'}->{"ispmanVhostScriptDir"}</perl>">
+        <perl> $ispman->{'vhost'}->{"ispmanVhostScriptDir"}</perl>
+    </td>
+</tr>
+
+
+<tr>
+    <td>Script directory options</td>
+    <td>
+        <select name=ispmanVhostScriptDirOption MULTIPLE>
+	<perl>
+        my @all_options=split ",",$ispman->getConf("apacheScriptDirOptions");
+        my @dir_options=$ispman->as_array($ispman->{'vhost'}->{"ispmanVhostScriptDirOption"});
+        my $selectedOptions;
+        for (@dir_options){
+	  $selectedOptions->{$_}++;
+        }
+	
+	my $text="";
+	for (@all_options){
+          $_ =~ s/\*//;
+	  $text.="	<option";
+	  $text.=" selected" if $selectedOptions->{$_};
+	  $text.=">$_</option>\n";
+	}
+	
+        $text
+        </perl>
+	</select>
+    </td>
+</tr>
+
+
+<tr>
+    <td>Vhost features</td>
+    <td>
+        <select name=ispmanVhostFeature MULTIPLE>
+	<perl>
+        my @all_features=split ",",$ispman->getConf("apacheVhostsFeatures");
+        my @vhost_features=$ispman->as_array($ispman->{'vhost'}->{"ispmanVhostFeature"});
+        my $selectedFeatures;
+        for (@vhost_features){
+          $selectedFeatures->{$_}++;
+        }
+        my $text="";
+        for (@all_features){
+          $_ =~ s/\*//;
+          $text.="	<option";
+          $text.=" selected" if $selectedFeatures->{$_};
+          $text.=">$_</option>\n";
+        }
+	
+        $text
+	</perl>
+	</select>
+    </td>
+</tr>
+
+<tr>
+    <td valign=top>Extra configurations<br>(Optional)</td>
+    <td colspan=2>
+        <textarea wrap=off cols=60 rows=8 name=ispmanVhostExtraConf><perl>$ispman->{'vhost'}{'ispmanVhostExtraConf'}</perl></textarea>
+   </td>                                                                                                                                        
+</tr>
+
+<tr>
+    <td>Log Directory </td>
+    <td>
+        <perl>
+          $substmap={ vhost => $r->param("ispmanVhostName"), domain => $r->param("ispmanDomain")};
+
+          if ($ispman->{'vhost'}->{'ispmanVhostLogdir'}) {
+            $logdir = $ispman->{'vhost'}->{'ispmanVhostLogdir'};
+          } else {
+              $logdir = $ispman->substitute($ispman->getConf('apacheLogsDirectory'),$substmap);
+	  }
+          $logdir
+        </perl>
+        <input size=35 type=hidden name=ispmanVhostLogdir value="<perl> $logdir</perl>">
+    </td>
+</tr>
+<tr>    
+    <td>Stats Directory (/stats/) </td>
+    <td>
+        <perl>
+          if ($ispman->{'vhost'}->{'ispmanVhostStatdir'}) {
+            $statdir = $ispman->{'vhost'}->{'ispmanVhostStatdir'};
+          } else {
+            $statdir = $ispman->substitute($ispman->getConf('apacheStatDirectory'),$substmap);
+          }
+          $statdir
+        </perl>
+        <input size=35 type=hidden name=ispmanVhostStatdir value="<perl> $statdir</perl>">
+    </td>
+</tr>
+
+<tr>
+    <td>Web Stats</td>
+    <td>
+    <perl>$webstats=$ispman->{'vhost'}{'ispmanVhostStats'}; ""</perl>
+    <select name="ispmanVhostStats">
+    <option value="enable" <perl>($webstats eq "enable")?" selected ":""</perl>>Enable</option>
+    <option value="disable" <perl>($webstats eq "disable")?" selected ":""</perl>>Disable</option>
+    </td>
+</tr>
+
+<tr>
+    <td>FTP Access</td>
+    <td> 
+    <perl>$ftpstatus=$ispman->{'vhost'}{'FTPStatus'}; ""</perl>
+    <select name="FTPStatus">
+    <option value="enabled" <perl>($ftpstatus eq "enabled")?" selected ":""</perl>>Enabled</option>
+    <option value="disabled" <perl>($ftpstatus eq "disabled")?" selected ":""</perl>>Suspended</option>
+    </td>
+</tr>
+
+<tr>
+    <td>Password </td>
+    <td> 
+    <input size=35 type=text name=userPassword value="<perl> $ispman->{'vhost'}->{"userPassword"}</perl>">
+    </td>
+</tr>
+
+<tr>
+    <td>Max Storage Space (in MB) </td>
+    <td> 
+    <input size=4 type=text name=FTPQuotaMBytes value="<perl>$ispman->{'vhost'}{'FTPQuotaMBytes'}</perl>">
+    </td>
+</tr>
+
+<tr><td align=left colspan=2>  
+        <input type=hidden name=ispmanVhostName value="<perl>$r->param("ispmanVhostName")</perl>">
+        <input type=hidden name=ispmanDomain value="<perl>$r->param("ispmanDomain")</perl>">
+        <input type=hidden name="mode" value="updateVhost">
+
+        <input type=submit class="button" value="Update">
+        <input type=button class="button" onClick="this.form.reset()" value="Reset">
+        <input type=button class="button" 
+         onClick="<perl>($ispman->{'vhost'}{'ispmanStatus'} eq "suspended")?"unsuspendVhost()": "suspendVhost()"</perl>"
+         value="<perl>($ispman->{'vhost'}{'ispmanStatus'} eq "suspended")?"Reactivate": "Suspend"</perl>"
+          >
+        <input type=button class="button" onClick="deleteVhost()" value="Delete">
+
+</td></tr>
+</form></table>
+ 
+ 
+

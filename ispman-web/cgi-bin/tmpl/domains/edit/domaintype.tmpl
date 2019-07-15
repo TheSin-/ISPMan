@@ -1,0 +1,31 @@
+
+<tr>
+    <td><perl>_("Domain type")</perl></td>
+    <td><perl>
+    my %description=(
+	'primary' => 'Primary domain (DNS will be managed by ISPMan)',
+	'slave' => 'Secondary domain (DNS will be managed by another Primary DNS server)',
+	'replica' => 'Replica domain (This domain points to another domain within ISPMan)',
+	'nodns' => 'No Dns Management for this domain'
+    );
+    my $text="";
+    my $domainType=$ispman->getDomainType($r->param('ispmanDomain'));
+    if (($domainType eq 'replica') or
+	# FIXME: support changing from primary
+	($domainType eq 'primary')) {
+	$text.=$description{$domainType};
+    } else {
+	$text.="<select name='ispmanDomainType'>\n";
+	foreach ('primary', 'slave', 'nodns') {
+	    $text.="<option value='$_'";
+	    $text.=" selected" if $domainType eq $_;
+	    $text.=">".$description{$_}."</option>\n";
+	}
+	$text.="</select>\n";
+    }
+    $text
+    </perl>
+    </td>
+</tr>
+
+

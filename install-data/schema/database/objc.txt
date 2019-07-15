@@ -1,0 +1,7 @@
+
+objectClass ( 1.3.6.1.4.1.8833.2.2.2101 NAME 'ispmanDatabaseData'
+    SUP top STRUCTURAL 
+    DESC 'Container to handle database info'
+    MUST ( ispmanDBName $ ispmanDBType $ ispmanDBHost ) 
+    MAY ( ispmanDBUser $ ispmanDBPass $ ispmanDBAccessFilter $ ispmanDBPrivilege ))
+

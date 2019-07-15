@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'r', \%opts );
+    unless ( $opts{'r'} && $ARGV[0] ) {
+        print
+"$FindBin::Script -r ResellerID DomainName [DomainName] [DomainName] ";
+        print "\n";
+        exit;
+    }
+}
+use ISPMan;
+
+my $ispman   = ISPMan->new();
+my $reseller = $ispman->getResellerById( $opts{'r'} );
+
+for (@ARGV) {
+    print "Setting ispmanResellerId for $_ to ",
+      $reseller->{'ispmanResellerId'}, "\n";
+    $ispman->setDomainAttribute( $_, "ispmanResellerId",
+        $reseller->{'ispmanResellerId'} );
+    print "Setting ispmanResellerName for $_ to ",
+      $reseller->{'ispmanResellerName'}, "\n";
+    $ispman->setDomainAttribute( $_, "ispmanResellerName",
+        $reseller->{'ispmanResellerName'} );
+}
+print "\n";
+

@@ -1,0 +1,44 @@
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+   
+<perl>
+my $text="";
+my $thisDomain=$r->param("ispmanDomain");
+
+$text.=qq|   
+@{[_("Readonly access granted.")]}
+<br>
+@{[_("This domain is locked and editable by [_1]", $ispman->{'domain'}{'ispmanDomainLockedBy'})]}
+
+<P>
+Viewing CNAME Records (Aliases) for $thisDomain
+<table border=1 cellpadding=0 cellspacing=5><tr>
+<th><a href='$ENV{'SCRIPT_NAME'}?mode=editDNScNAMERecords&ispmanDomain=$thisDomain&sortby=alias'>Alias</a></th>
+<th><a href='$ENV{'SCRIPT_NAME'}?mode=editDNScNAMERecords&ispmanDomain=$thisDomain&sortby=host'>Host</a></th>
+</tr>|;
+
+my $sortby=$r->param("sortby");
+my @sorted=();
+
+if ($sortby eq 'host') {
+	@sorted=sort { 
+		$a->{'host'} cmp $b->{'host'} ||
+		$a->{'alias'} cmp $b->{'alias'}
+		} @{$ispman->{'domain'}{'dns'}};
+} else {	
+	@sorted=sort {
+		$a->{'alias'} cmp $b->{'alias'} ||
+		$a->{'host'} cmp $b->{'host'} 
+		} @{$ispman->{'domain'}{'dns'}};
+}
+
+
+for (@sorted){
+        $text.="<tr>";
+        $text.="<td>$_->{'alias'}</td>";
+        $text.="<td>$_->{'host'}</td>";
+        $text.="</tr>";
+}
+$text
+</perl>
+</table>
+

@@ -1,0 +1,624 @@
+1.4 (01 Jan 2009)
+=================
+
+	Fixed ScriptDirOption issue in vhosts.conf.template
+
+	Recoding of install procedure according to common GNU software
+	development.
+	Configuration (besides specifying PREFIX) is moved out of
+	installation to manual postinstall procedures (see INSTALL doc)
+	
+	Multi-port vhost patch
+	Use "vhost:port" to have multiple vhost with same name but
+	different ports
+	
+	Added hostname param to loganalyzer and makelogs scripts
+
+	Removed /report suffix from statdir generation.
+	(Use vhosts.conf.template for individual path suffixes)
+	
+	Fixed session handling in admin/index.cgi
+	
+	Resolved posixGroup schema conflict for proper libnss resolution.
+	Each domain becomes a related posixGroup entry, defining the
+	group.
+
+	Updates to ldifupdate for checking related posixGroup entries and
+	ResellerIds on domains
+
+	Enhanced process management. Complete sessions can be committed.
+
+	DNS TXT record support added
+	
+	Disabled Customer Control Panel due to abandoned maintenance
+	
+	Added cyrus virtual domain support (see docs/CYRUS_VIRTDOMAINS)
+	
+	Added vhost "features" to allow tiggering predefined vhost
+	configuration.
+
+	Removed Amavis attributes from ispmanDomainUser Objectclass
+	Alternatively use provided amavis.schema and add AUXILIARY OC "amavisAccount"
+
+	Added MySQL database management support
+
+	Bugs fixed:
+	[ 938009 ] processe are removed but no account is created
+	[ 986136 ] reseller/client login does not work
+	[ 987602 ] CGI::Session incomplete
+	[ 987800 ] Port 80 is written to DNS zone
+	[ 989665 ] ispmanDomain cant make new user
+	[ 991466 ] postfix ldap-filter with "Bad search filter"
+	[ 1007605 ] problem with >creat www<
+	[ 1022518 ] edit user dishonors non-ispman objectclasses
+	[ 1037077 ] ExecCGI for ScriptDir always on
+	[ 1037283 ] unset vhost dir options
+	[ 1051065 ] insignificant error-message from ispman-agent
+	[ 1062127 ] delete user does not work
+	[ 1392390 ] Domain List
+	[ 1416653 ] UserMan.pm allows MailAliases for foreign domains
+	[ 1429276 ] Duplicate OID in ispman LDAP schema.
+	[ 1438036 ] ispman.ldap2apache and ispman-agent generates invalid hash
+	[ 1441324 ] Can't locate auto/ISPMan/getDomainUs.al
+	[ 1480698 ] mailgroups are not displayed
+	[ 1482716 ] bogus check of mail aliases
+	[ 1487865 ] webuser problem
+	[ 1495796 ] setting defaultUserFtpQuota to 0 generates an error
+	[ 1497206 ] ispman.dnsset - change of SOA does not work
+	[ 1500081 ] Problems with adding a secondary domain
+	[ 1501527 ] ispman.dsnset throws error when adding CNAME
+	[ 1510273 ] Replica domains are not sorted in alphabetic order in UI
+	[ 1516412 ] changing of existing mailgroups does not work
+	[ 1531695 ] SOA serial resets on SOA update
+	[ 1532701 ] Typo on vhosts.conf.template
+	[ 1553407 ] Adding a reseller/Required Fields check
+	[ 1554014 ] edit reseller bug
+	[ 1544512 ] WEB UI/ Agent should check ispman.createMailbox exit codes?
+	[ 1554051 ] hard-wired task execution of createMailbox
+	[ 1554986 ] inconsistence use of tasks and libs
+	[ 1561014 ] more CLI flaws
+	[ 1566589 ] vhost uid problems
+	[ 1566950 ] ispman.commitSession should return an error
+	[ 1562248 ] "Locked Domain" doesnt vanish after unchecking the checkbox
+	[ 1569403 ] Hardcoded Paths
+	[ 1553409 ] Web UI: Configure->Hosts and Configure->HostGroups
+	[ 1569808 ] add hostgroup is broken
+	[ 1570092 ] wrong display of confVars
+	[ 1577377 ] Alias and users
+	[ 1599829 ] failure on empty confVars
+	[ 1599834 ] illegal availableShells setting
+	[ 1608808 ] Mail Group Aliases are not shown
+	[ 1615613 ] cyrus quota times 1024 too big
+	[ 1652744 ] reseller unable to create domain
+	[ 1656167 ] Website alias of the type "mydomain.de"
+	[ 1630766 ] ispman.ldap2apache works only on $hostname, not on aliases' 'bin/ispman.ldap2apache
+	[ 1657823 ] modifyTransport tasks creates endless process loop
+	[ 1657912 ] vhost template should be prepared for apache 2.2
+	[ 1658359 ] Adding Replica-Domain to Domain w slave DNS -> fails!
+	[ 1693479 ] CLI Set quota in bytes
+	[ 1693680 ] Adding replica failed for resellers/clients
+	[ 1694116 ] Adjusting Quota from Admin UI takes wrong UID
+	[ 1703939 ] ispman.getMailboxQuota broken
+	[ 1715544 ] ispman.ldap2apache doesnt work
+	[ 1725624 ] vhosts.acl.template and mod_authnz_ldap.c fails to auth
+	[ 1734927 ] ispman.ldifupdate doesn't touch any vhosts
+	[ 1703832 ] 1.3rc2 hangs on make on FreeBSD 6.2
+	[ 1603290 ] hanging ispman-agent
+	[ 1754330 ] After Upgr. non-PAB branch to PAB Branch,add user throws err
+	[ 1693935 ] ispmanUrlPrefix is not honored
+	[ 1765210 ] vhost ACLs are buggy
+	[ 1828830 ] No syntax check before restart of apache is done
+	[ 1870758 ] mail alias check may fail
+	[ 1952308 ] user's loginshell selection defaults to wrong value
+	[ 2213932 ] Allow nodns/slave domains to be changed to to other types
+
+	Feature requests:
+	[ 1495682 ] Extra field in user creation/details, ie shell
+	[ 1577319 ] Update to user shell selection
+	[ 1658509 ] Provide a tab in the top menu for custom applications
+	[ 1483788 ] ipv6 support
+
+	Patches:
+	[ 1597818 ] Proof of concept for a ispman CLI wrapper with help support
+	[ 1500104 ] Cyrus unixhierarchysep and full email address logins
+	[ 1617504 ] redesigned ispman logo
+	[ 1692612 ] PAB per domain and per user support
+	[ 2455981 ] vhost actions
+	
+
+1.2 (20 Jun 2004)
+=================
+	fixed absolute paths to use ispmanUrlPrefix
+	
+	default a-record "localhost and cname-record "localnet"
+
+	new ldap config variable "dnsserialformat" (moved from
+	ispman.conf)
+
+	postfix map generation aligned to postfix config guidelines
+
+	redesign of vhost forms (aliases, acls, redirections)
+
+	switch to new vhostAlias logic complete (run ldifupdate for
+	upgrade)
+
+	major code cleanup (with perltidy)
+
+	new hostname alias retrieval for ispman-agent
+
+	several bugfixes in CCP, redesigned Webinfo options
+
+	new confVars apacheDocumentRootOptions and apacheScriptDirOptions
+	to make apache options configurable
+
+	added/reactivated feature to automatically create default vhost
+	and mail a-record when adding a new domain
+
+	CLI: ispman.warnNearQuotaMailboxes
+
+	moved vhost creation logic to new template vhost.ldif.template
+
+	separate loginShell confVars for domain, vhost and user
+
+	vhost loginShell was unset and sometimes allowed shell access
+
+	limits for vhosts and user accounts were not checked
+
+	Control Panel: removed automatic usernames in favor of freely
+	editable
+
+	Control Panel: removed "_" filter for usernames
+
+	Control Panel: sorting of maillist users
+
+	ispmanVhostLogdir/-Statdir have new relative base (vhost's
+	homedir). Run ldifupdate to migrate your data! 
+
+	fixed bogus LDAP attributes (mailHost/fileHost: undefined)
+
+	fixed several perl warnings that show up in apache errorlog
+
+	changed critical webforms to POST method for better security
+
+	some form fixes/rearrangements for add/edit domains to make it
+	more look-alike
+
+	vhost creation on non-dns domains failed
+
+	new ispmanConfVar "apacheVhostVIP" which will be used for A-record
+	generation when creating vhost for multiple webhosts
+
+	added logdir,statdir params to delete_vhost_directories.lib
+
+	several ldifupdate fixes/enhancements
+
+	made default values for maxAccounts, maxVhost and quotas
+	configurable 
+
+	changed parameter of ispman.addvhost to accept multiple webhosts
+
+	several small fixes
+	
+
+1.1 (18 Jan 2004)
+=================
+	added ispman.getVhostAttribute, ispman.setVhostAttribute to set
+	vhost attributes in CLI 
+
+	removed arbitrary ServerAlias dialog from new vhost form (foreign
+	domain aliases can be set via ispman.setVhostAttribute)
+
+	changes to schema to store non-ASCII chars
+
+	optional UTF8 conversion is available in config
+
+	selecting multiple webservers for a vhost will generate
+	appropriate default DNS A-records
+
+	deleting DNS record didn't create an agent process
+
+	SOA serial generation can be choosen in config (date or timestamp)
+
+	changed default SOA serial generation to date YYYYMMDDnn format
+
+	used LDAP protocol version is selectable by config
+
+	use Unicode::String instead of Text::IconvUnicode::String and
+	Unicode::Map have to be installed on the server already.
+	They are not packaged with ispman since they have to be
+	compiled.. hence platform dependent..
+
+	simplyfying the schema for all names. Inheriting the rules from
+	parent Attribute "name". Changing syntax and comapring rules for
+	DomainComment. Changes necessary for UTF conversions.
+
+	adding secondary uid "user@domain" for alternate logins
+
+	adding a mailing list with multiple recipients is ok now
+
+	English was missing in locale languages
+
+	missing locale install added
+
+	added WebACL form for Admin interface
+
+	Sort Order for ispmanConfig items
+
+	Multiple webserver for each vhost selectable (for loadbalanced/ha
+	environments)
+
+	Fixed bug #837441 (ispman.dnsunset doesn't create process)
+
+	fixed bug #739636 (deleteDomain does not delete vhosts)
+
+	unable to cleanout vhost ExtraConf on vhost update
+
+	completed domain/vhost forms for fileserver/webserver selection
+
+	Fixed bug #734938 (Should perform Apache config check before
+	reloading)
+
+	Fixed bug #707503 (Deselecting all domain services will not save)
+
+	removed obsolete controlpanelPassHashMethod from ldif
+
+	Fixed bug #520706 (no ModifyVirtualHost for new replicas)
+
+	vhost uid were set equal to domain uid on creation
+
+	added missing Logdir Statdir stuff (from experimental)
+
+	vhost ServerAliases generation in vhost.conf
+
+	add doc for Postfix md5 authentication
+
+	new CVS release/branch management
+
+
+1.0 (22 Nov 2003)
+=================
+	Removed dependency on makedefs to find out the installation
+	path.
+
+	There is no hardcoded path anymore such as /opt/ispman. It is just
+	the default path.
+	
+	Removed the InstallDir.pl dependency. The CLI utils as well the
+	web CGIs now figure out their own install path.
+	
+	ispman.dumpAllUsers:
+	Added script to list All users in the ISP in domain username
+	format. This can be useful for scripting.
+
+	ispman.createSubMailbox:
+	Added script to create Submailbox on user's mailbox (Cyrus
+	only). This can be used for creating same submailbox on all user's
+	mail such as Spam, VirusMails etc 
+
+	ispman.bumpMailboxQuota:
+	A script for bad times when every one is overQuota.
+	Temporarily bumps up Cyrus quota.
+
+	ispman.listOverQuotaMailboxes:
+	A script to list mailboxes that are over quota
+
+	ispman.listUsers:
+	Added  -d all possiblity to list users for all domains
+
+	Radius profiles
+
+	added new LogDir and StatDir logic
+
+	localisation support
+
+	several attribute renaming
+
+	
+0.9.7
+=====
+        Many schema changes to work with openldap 2.1.x
+
+	Changes to css, lookNFeel
+
+	Resellers, Clients management. Although not finished.. Its on the
+	right track
+
+	Session logging feature. User can login, login and login and can
+	still catch the same session and can commit it if previously forgot.
+
+	cvs repository cleanup. It was a mess. To upgrade from older
+	versions, you may want to run fixcvs script provided in the
+	scripts directory
+
+	Code cleanup. More command line scripts to automate jobs.
+        
+        Adding restrictions for admin to be able to delete a domain only
+	if he has minimun 70 admin level
+        
+        Removed the DeleteDomain button from the menu bar.
+        To delete a domain, click on edit domain and then click on the red
+	button to delete a domain.
+        
+        Resellers, Clients wont be able to run getDomainInfo for any
+	domain where they are not marked as Reseller or Admin
+        
+        Resellers, Clients will be blocked for performing admin functions
+        Normally they don't have acces via the web interface, but one with 
+        enough knowledge can pass URL Paramters. This will be now blocked.
+        
+        
+
+
+0.9.1
+=====
+	Added a script to recreate the directories of domains/users/vhosts
+        
+        Making ISPMan::LDAP.pm more forgiving
+        Don't complain when trying to add an entry that already exists.
+        Log this error to error log and return quietly.
+
+        Don't complain when trying to delete  an entry that does not exists.
+        Log this error to error log and return quietly.
+        
+        Replaced ispman-agents hostname method.
+	ispman-agent now uses Sys::Hostname to retrieve hostname
+
+	Added a script ispman.myhostname to get hostname.
+
+	Note For Developers: getEntry is changed/Fixed.
+        It only gets the entry that you passed the DN for.
+        It searches with scope "base" by default.
+        If you want it to search with another scope you have to define it
+	as the 4th param.
+        $object->getEntry(DN, filter, [attribues], scope)
+        
+        Added a imapPort option for IMAP driver.
+	This is useful if you are running your main imap servers on a
+	different port and a proxy on the standard port. 
+
+	Reworked ispman-agent a bit so it doesnt load ISPMan.pm on forking.
+	It should load it only when the fork is done.
+	This speeds up start/stop
+
+	Adding again domain.replica.ldif.template
+	This should fix the replica problems.
+	
+	Reworking a bit ispman.dnsset and adding verbose option
+	Adding ispman.unset. This command takes the same arguments as 
+	ispman.dnsset but removes the records instead of addming them
+
+	Adding ispman.getConf . This script simply gets the value of an
+	ispmanVar from LDAP. 
+	This script is handy and also a starting point for people hacking
+	ispman.
+
+	Adding functions as_arrayref and as_array and using these instead
+	of checking the type of value recieved every time. This should
+	reduce possibilities of adding bugs.
+
+	Adding functions to retrive the branch for the DNS records.
+	This is useful if you want to delete the record and not leave an
+	empty container behind
+
+	Changing function newDNSRecord.
+	If an entry exists, it should be left alone instead of a second
+	value of record being added to 
+	This change is neccessary since we are keeping each entry in its
+	own branch/container 
+
+	Unified modifyDomain from Primary/Slave/Replica/NoDNS.pm into
+	genericModifyDomain in DomainMan.pm 
+	So, less chances of errors again.
+
+	Adding the folloing CLI utilities
+		ispman.listSessions
+		  This list sessions, and number of processes under that
+		  session 
+
+		ispman.commitSession
+		  For those who forget to click on commitSession
+
+		ispman.deleteSession
+		  If a session and all processes under it should be deleted
+
+		ispman.removeEmptySessions
+		  This was added in 0.8 and mysteriously disappeared in 0.9
+
+		ispman.listSessionProcesses
+		  This utility lists the processes in the session
+                  
+		ispman.deleteHostGroup
+		  This utility  to delete a host group from CLI
+                
+		ispman.addHost2HostGroup
+		  This utility  to add a host to a hostgroup
+
+                
+		ispman.domainmail
+		  This utility sends an email from a text file to users of
+		  a domain 
+		  It also accepts "all" as domain name and in that case
+		  send to users of all domains 
+		  Handy for notifications about system upgrades etc
+		
+		ispman.(list|add|delete)Admins
+		  Lists|Adds|Deletes Admins
+
+	        ispman.myhostname
+                  tells you what the hostname is
+                  This is the hostname returned by Sys::Hostname and this
+	          name should be used for the hostname when adding host to
+	          ispman
+
+  
+
+		ispman.makeDomainDirectories
+		  (re)creates directories for domains/users/vhosts with
+		  the correct permission 
+		  perhaps usefull if you move the fileserver to another
+		  machine.
+
+
+0.9
+===
+	Removed apacheVhostsHeader and apacheVhostsFooter option
+
+	Added Local Authentification for ISPMan Administrator panel
+	remove htaccess.tmpl (no need of mod_ldap any more)
+	This removes the headache I get when people cant get mod_ldap to work.
+	Also there is speed benifit by using a local auth/session system.
+	
+	Added Logout option to ISPMan Administrator panel
+
+	Added webHost and ISPManDomainDefaultWebHost attributes to the schema
+	One can now choose which host the vhost should sit on.
+	The hosts that are in the httpgroup must have a public IP address
+	defined.
+
+	Added logic to add an A record when creating Vhosts.
+	Example: When adding a vhost called "www" for domain "ispman.org"
+	on webhost "lweb1" an A record for "www" is create in the domain
+	"ispman.org" pointing to the IP address of the webHost "lweb1"
+
+	Vhosts now are in PosixAccout objectclass. Authentification is
+	possible using vhostname and the associated password.
+
+	ispmanControlPanelPassword removed. This was added with the
+	scenario of a domain owner who wants to give FTP access to someone
+	else (example a web design company) to manage a website, but don't
+	want to give that entity total control over domain users, vhosts,
+	dns etc. 
+	Now this is solved by giving a userPassword to each vhost.
+	So one can login using username: www.ispman.org and the password
+	for that vhost.
+	This would chroot the user to /path/to/domains/ispman.org/vhosts/wwww
+
+	Added FTPStatus and FTPQuota for Domains, Users and Vhosts.
+	Each entitity gets a quota and can be allowed or denied FTP access.
+	
+	Example, you have deny user "atif_ispman_org" ftp access but allow 
+	"cypromis_ispman_org" to ftp.
+
+	Currently the relation between the domain-owner and its children for
+	Quota is not managed, but this will come soon on the front-end level.
+	
+	The Quota and ftpStatus requires pureftpd.
+	Also added schema of pureftpd.
+
+	ispman.dnsset: added possibility to add a dns record on all
+	domains at once.
+
+	Moved from mod_ldap settings to auth_ldap settings for Website ACLs
+	Moved from mod_ldap to auth_ldap for control-panel authentification
+	auth_ldap is avialable from http://www.rudedog.org/auth_ldap
+
+	Ok, managed to get rid of auth_ldap for control-panel too.
+	Both Admin panel and CustomerControl panel now work without
+	mod_ldap or auth_ldap 
+
+
+	Using mod_ldap_userdir for mapping /~username to vhosts
+	mod_ldap_userdir is available at
+	http://horde.net/~jwm/software/mod_ldap_userdir 
+
+
+
+0.8
+===
+	Moved to ldapv3.
+	Added prefix ispman. to all command line utilities
+	Added MailGroups for distribution lists
+	Added Session manager. No changes are sent to the server unless
+	you commit the session via the web.interface 
+	Added scripts to configure ispman variable from command line
+	Added summary page that shows number of domains, users, vhosts etc
+	Removed Netsaint code. will come back in 0.9
+	Removed GlobalDNSVars. too many problems
+	Added Admin manager. More than one admins can be setup to use ispman
+	Added Domain Lock possibility. Admin X can lock domainY so other
+	admins cannot change it 
+	Added multiple dns backend scripts bind8(default) tinydns,
+	bind9-sdbldap 
+	Using dnszone schema
+
+0.7.3
+=====	
+	Fixed reverse DNS bug in dns.lib
+	DNS files are now cleanly kept in
+	namedDirectory/namedIspmanDirectory/pri|sec|rev  etc 
+	Added a script (bin/revips) . This will just list all the rev
+	addresses that you have. Handy if you are not sitting on the DNS
+	server. 
+	SOA changes are back, you can change SOA per domain.
+	Added a script  (scripts/upgrade_from_ldif.pl) that will come
+	handy as we add stuf to ldifs. 
+
+
+0.7
+===
+	New LookNFeel
+	ControlPanel (for domain  customers)
+	Groups (not yet working)
+	Work on translating ControlPanel (Not yet ISPMan) is started. The
+	control panel works in en, fr, de, nl already. 
+
+	
+
+0.6
+===
+	Major enhancements, such as 
+	* larger part of configuration in the LDAP tree, modifying using
+	the web frontend 
+	* process management with host groups
+	* Changed the conf and temp files location from /etc/ispman to
+	$InstallDir 
+	* IMPORTANT: Virtual hosts are moved from
+		vhostDir/domain/ to vhostsDir/domain/vhosts
+	So if you had your vhosts in for example
+		/www/virtual/developer.ch/www
+		/www/virtual/developer.ch/dev
+		/www/virtual/developer.ch/ispman
+		you will have to move them to 
+		/www/virtual/developer.ch/vhosts/www
+		/www/virtual/developer.ch/vhosts/dev
+		/www/virtual/developer.ch/vhosts/ispman
+	I know it will be difficult, but it makes it possible to have
+	users home directories under the same domainRoot
+
+
+	
+
+0.4
+===
+	Changed ui so ISPMan is less pretty and more functional.
+	Added Modules directory that contains correct modules that need to
+	be installed 
+	changes install.pl a bit, added install-modules.pl
+	fixed install.pl so it build correct ldif file. there was a small
+	bug that was adding a blank line in the middle of a record. 
+
+0.3
+===
+	Minor changes, bug fixes
+
+
+0.2
+===
+	Added commands adddomain adduser addvhost deletedomain deletevhost
+	dnsshow 
+	showdomains showusers
+	These files can be found in INSTALLDIR/bin
+	
+	There was a bug in the install script that wasnt intalling 
+	the Bundle. Hopefully have fixed it now.
+
+	ldap2vhosts still not complete.
+
+
+0.1
+===
+	initial public release.
+	I know the code is dirty but its serving its purpose well for us
+	and our 
+	customers.
+

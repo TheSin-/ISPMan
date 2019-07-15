@@ -1,0 +1,69 @@
+--- /etc/imapd.conf.sav	2007-02-05 12:49:13.000000000 +0100
++++ /etc/imapd.conf	2007-02-05 14:06:08.000000000 +0100
+@@ -25,13 +25,13 @@
+ # slash "/" to delimit levels of the hierarchy. This is done by converting
+ # internally all dots to "^", and all "/" to dots. So the "rabbit.holes"
+ # mailbox of user "helmer.fudd" is stored in "user.elmer^fud.rabbit^holes"
+-unixhierarchysep: no
++unixhierarchysep: yes
+ 
+ # Rejecting illegal characters in headers
+ # Headers of RFC2882 messages must not have characters with the 8th bit
+ # set. However, too many badly-written MUAs generate this, including most
+ # spamware. Enable this to reject such messages.
+-#reject8bit: yes
++reject8bit: no 
+ 
+ # Munging illegal characters in headers
+ # Headers of RFC2882 messages must not have characters with the 8th bit
+@@ -50,12 +50,12 @@
+ 
+ # Uncomment the following and add the space-separated users who 
+ # have admin rights for all services.
+-#admins: cyrus
++admins: cyrus
+ 
+ # Space-separated list of users that have lmtp "admin" status (i.e. that
+ # can deliver email through TCP/IP lmtp). If specified, this parameter
+ # overrides the "admins" parameter above
+-#lmtp_admins: postman
++lmtp_admins: lmtp 
+ 
+ # Space-separated list of users that have mupdate "admin" status, in
+ # addition to those in the admins: entry above. Note that mupdate slaves and 
+@@ -132,7 +132,7 @@
+ # (you need to uncomment this if you are not using an auxprop-based SASL
+ # mechanism.  saslauthd users, that means you!). And pay attention to
+ # sasl_minimum_layer and allowapop below, too.
+-#sasl_mech_list: PLAIN
++sasl_mech_list: PLAIN
+ 
+ # Allow use of the POP3 APOP authentication command.
+ # Note that this command requires that the plaintext passwords are 
+@@ -144,7 +144,7 @@
+ # The minimum SSF that the server will allow a client to negotiate. A
+ # value of 1 requires integrity protection; any higher value requires some
+ # amount of encryption.
+-#sasl_minimum_layer: 0
++sasl_minimum_layer: 0
+ 
+ # The maximum SSF that the server will allow a client to negotiate. A
+ # value of 1 requires integrity protection; any higher value requires some
+@@ -166,7 +166,7 @@
+ # a reverse lookup on the IP address of the incoming network
+ # interface, otherwise the user is assumed to be in the default
+ # domain (if set).
+-#virtdomains: userid
++virtdomains: userid
+ 
+ # The default domain for virtual domain support
+ # If the domain of a user can't be taken from its login and it can't
+@@ -185,7 +185,7 @@
+ #
+ # Do note that, since sasl will be run as user cyrus, you may have a lot of
+ # trouble to set this up right.
+-sasl_pwcheck_method: auxprop
++sasl_pwcheck_method: saslauthd 
+ 
+ # What auxpropd plugins to load, if using sasl_pwcheck_method: auxprop
+ # by default, all plugins are tried (which is probably NOT what you want).

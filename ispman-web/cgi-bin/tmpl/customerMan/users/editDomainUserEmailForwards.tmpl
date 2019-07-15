@@ -1,0 +1,50 @@
+<tr>
+    <td valign=top>
+        <perl>$customer->getText("Email forwarding")</perl>
+    </td>
+</tr>
+<td>
+        <i><perl>$customer->getText("All emails coming to this user will be also forwarded to the following addresses")</perl></i>
+</td>
+</tr>
+<tr>
+    <td colspan=2>
+
+
+
+
+
+        <table>
+        <tr class=header>
+        <td>&nbsp;</td>
+        <td class=header>
+                <a class=header  href="javascript:addMailDrop()">New mail forward address</a>
+                &nbsp;|&nbsp; 
+                <a class=header href="javascript:document.forms['<perl>$r->param("section")</perl>'].submit()">Delete Selected</a> 
+        </td>                
+        </tr>
+        <input type=hidden name="mode" value="deleteMailDrop">
+        
+                    <perl>
+                        my $text="";
+                        my @maildrops=@{$customer->as_arrayref($ispman->{'user'}->{"mailForwardingAddress"})};
+                        
+                        if (scalar(@maildrops)){
+                                my $c="";
+                                for (@maildrops){
+                                        $text.="<tr class=item$c>\n";
+                                        if ($c eq ""){$c=1}else {$c=""};
+                                         
+                                        
+                                        $text.="<td><input type=checkbox name=mailForwardingAddress value='$_'></td>\n";
+                                        $text.="<td>$_</td>\n";
+                                        $text.="</tr>\n";
+                                }
+                        } else {
+                                $text="<tr><td>No mail forwards defined</td></tr>";
+                                }
+                        $text
+                    </perl>
+        </table>
+</td></tr>
+

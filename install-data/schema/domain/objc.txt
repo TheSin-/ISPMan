@@ -1,0 +1,40 @@
+#######################################
+# ISPMan Domain objectclass
+#######################################
+# in this objectclass we store information about the domain
+# this information has nothing to do with DNS etc.
+# Its simply a user account with some extra informations and 
+# the root for the domain
+# everything else that belongs to this domain should live undeneath
+# this branch
+
+
+# domain as a user
+# The domain gets a uid, a uidNumber, gidNumber, homeDirectory, etc
+# and can login to the root of the domainHome via ftp using
+# the uid (example ispman.org) as username and the value of
+# userPassword as the password
+
+# domain also gets a control panel password with which one
+# can administrate his own domain
+
+
+# Domain related items. Not DNS related.
+# objectClass   1.3.6.1.4.1.8833.2.2.1101 'ispmanDomain'
+
+
+objectClass ( 1.3.6.1.4.1.8833.2.2.1101 NAME 'ispmanDomain'
+	SUP top AUXILIARY
+	DESC 'An alternate ispmanDomain to ispmanAllow for ispmanDomain and ommission of dc in object'
+	MAY (ispmanDomain $ cn $ uid $ uidNumber $ gidNumber $ homeDirectory
+		$ userPassword $ ispmanControlPanelPassword $ loginShell
+		$ ispmanDomaintype $ ispmanDomainowner $ ispmanDomaincomment
+		$ ispmanDomainService $ ispmanDomaincustomer
+		$ ispmanDomainDefaultMailDropHost $ ispmanDomainSignature
+		$ ispmanReplicaMaster $ ispmanDomainMailDeliveryMethod
+		$ ispmanDomainLocked $ ispmanDomainLockedBy $ mailLocalAddress $ mailForwardingAddress
+		$ ispmanMaxAccounts $ ispmanMaxVhosts $ ispmanMaxDatabases $ ispmanDnsMasters $ ispmanDomainDefaultWebHost
+		$ ispmanClientId $ ispmanClientName $ ispmanDomainDefaultFileServer $ ispmanDomainDefaultDBHost
+		$ dnsHost $ smtpHost $ ispmanResellerId $ ispmanResellerName $ ispmanStatus $ ispmanCreateTimestamp
+		$ DestinationAddress $ DestinationPort $ fileHost))
+

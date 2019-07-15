@@ -1,0 +1,42 @@
+<script type="text/javascript" language="JavaScript">
+<!--
+
+    var ispmanDomain="<perl>$r->param("ispmanDomain")</perl>"
+    var ispmanVhostName="<perl>$r->param("ispmanVhostName")</perl>"
+    var cgiurl=window.location.pathname
+    var cgidata="ispmanDomain="+ispmanDomain+"&ispmanVhostName="+ispmanVhostName
+  
+    function gotoSubSection(section){
+        location=cgiurl+"?mode=editVhost&"+cgidata+"&section="+section
+    }
+
+//-->
+</script>
+
+<perl>($vhost,$port)=split ":", $ispman->{'vhost'}->{'ispmanVhostName'}; ""</perl>
+Editing vhost: <perl>$vhost.".".$ispman->{'vhost'}->{'ispmanDomain'}.($port?":$port":"")</perl>
+(<b><perl>($ispman->{'vhost'}{'ispmanStatus'} eq "suspended")?"<font color=red>suspended</font>": "<font color=green>active</font>"</perl></b>)
+
+<br>
+<form>
+   <select onChange="gotoSubSection(this.options[this.selectedIndex].value)">
+	<perl>
+    	$options={
+		"" => "General Info",
+		"redirects" => "URL Redirections",
+		"acls" => "Access controls",
+		"aliases" => "Website Aliases",
+	};
+        $selected=$r->param("section") || "";
+        $text="";
+	for (sort keys %$options) {
+		$text.= sprintf("<option value='%s' %s>%s</option>" , $_, ($selected eq $_)?" selected " :"" , $options->{$_});
+	}
+	$text
+	</perl>
+	
+	</select>
+
+    <hr noshade></td></tr>
+</form>
+

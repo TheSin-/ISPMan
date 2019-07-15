@@ -1,0 +1,32 @@
+# your primary domain
+mydomain = example.com
+myorigin = $mydomain
+
+# accept mail for this hosts/domains/networks (no virtual domains here!)
+mydestination = $myhostname, localhost.$mydomain, $mydomain
+mynetworks = $config_directory/mynetworks
+
+# lokal aliases for your primary domain
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+
+# optional canonical mapping (map replica domains to their master)
+canonical_maps = ldap:/etc/postfix/ldap-canonical-maps.cf
+
+# virtual_alias_maps
+virtual_alias_maps = ldap:/etc/postfix/ldap-virtual-alias-maps.cf
+
+# tell postfix about domains that we handle, both localy and those
+# that we relay to other MTA's
+relay_domains = ldap:/etc/postfix/ldap-relay-domains.cf
+
+# Tell postfix how we route the mail for every domains/addresses we host
+transport_maps = ldap:/etc/postfix/ldap-transport-maps.cf
+
+# Tell postfix the addresses we handle localy
+relay_recipient_maps = ldap:/etc/postfix/ldap-relay-recipient-maps.cf
+
+# We need the following to be able to route to cyrus lmtp server
+lmtp_sasl_auth_enable = yes
+lmtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+lmtp_sasl_security_options = noanonymous

@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    unless ( $ARGV[0] && $ARGV[0] =~ m/\w+@\w+\..*/ && $ARGV[1] ) {
+        print "Usage: $FindBin::Script user\@domain new_password\n\n";
+        print "Examples:\n";
+        print "----------\n";
+
+        print
+"$FindBin::Script atif\@ispman.org s3CreT \n\n# sets s3CreT as the password of user atif\@ispman.org\n";
+        print "\n";
+        exit;
+    }
+}
+
+use ISPMan;
+my $ispman = ISPMan->new();
+my ( $ispmanUserId, $domain ) = split( '@', $ARGV[0] );
+my $uid = join( '_', ( $ispmanUserId, $domain ) );
+$uid =~ s/\./_/g;
+$ispman->changePassword( $uid, $domain, $ARGV[1],
+    $ispman->getConf('userPassHashMethod') );
+__END__
+

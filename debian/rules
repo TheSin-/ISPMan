@@ -1,0 +1,102 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+#
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+#
+# Modified to make a template file for a multi-binary package with separated
+# build-arch and build-indep targets  by Bill Allombert 2001
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+config.status: patch-stamp configure
+	dh_testdir
+	# Add here commands to configure the package.
+	./configure --prefix=/
+
+
+#Architecture 
+build: build-indep
+
+
+build-indep: build-indep-stamp
+build-indep-stamp:  config.status
+	$(MAKE) 
+	touch build-indep-stamp
+
+clean: clean-patched unpatch
+
+clean-patched:
+	dh_testdir
+	dh_testroot
+	# Add here commands to clean up after the build process.
+	-$(MAKE) clean
+	rm -f makedefs build-indep-stamp 
+	rm -rf $(CURDIR)/debian/tmp
+	dh_clean 
+
+unpatch:
+	dpatch deapply-all
+	rm -rf patch-stamp debian/patched
+
+patch-stamp:
+	dpatch apply-all
+	touch patch-stamp
+
+install: install-indep 
+install-indep:
+	dh_testdir
+	dh_testroot
+	dh_clean -k -i 
+	dh_installdirs -i
+
+	$(MAKE) -i install DESTDIR=$(CURDIR)/debian/tmp 
+	
+	# distribute installed ispman to package dirs
+	dh_install --sourcedir=debian/tmp
+
+	dh_installchangelogs docs/ChangeLog
+	
+	# manage distribution specific files
+	cp debian/maintainer/ispman debian/ispman-agent/usr/sbin
+	
+	# remove obsolete files
+	find debian/ispman-doc -name CVS -exec rm -rf \{\} \;
+
+	
+# Must not depend on anything. This is to be called by
+# binary-arch/binary-indep
+# in another 'make' thread.
+binary-common:
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs 
+	dh_installdocs
+	dh_installexamples
+	dh_installdebconf	
+#	dh_installlogrotate	
+	dh_installinit
+#	dh_installcron
+	dh_installman
+	dh_link
+	dh_compress 
+	dh_fixperms
+	dh_perl
+	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+# Build architecture independant packages using the common target.
+binary-indep: build-indep install-indep
+	$(MAKE) -f debian/rules DH_OPTIONS=-i binary-common
+
+binary: binary-indep
+.PHONY: build clean binary-indep binary install install-indep 

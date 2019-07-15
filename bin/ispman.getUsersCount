@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+
+print $ispman->getUsersCount(), "\n";
+

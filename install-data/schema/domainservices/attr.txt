@@ -1,0 +1,37 @@
+
+# ISPMan domain services
+# These are used when you want to give extra services to your customers
+# you can then add services and set them on or off for domains
+# For example if you want to add a domain called foo.com and allow them
+# access to some internal app, then add a domain service via LDIF and check it for this domain
+# you have to build the logic in your app to check weather the service is on or off for this user/domain
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1701 'ispmanDomainServiceName'
+# attributeType 1.3.6.1.4.1.8833.2.1.1702 'ispmanDomainServiceAlias'
+# attributeType 1.3.6.1.4.1.8833.2.1.1703 'ispmanDomainServiceInfo'
+# attributeType 1.3.6.1.4.1.8833.2.1.1704 'ispmanDomainServiceDefault'
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1701 NAME 'ispmanDomainServiceName'
+	DESC 'A string naming a ispmanService available for ispmanDomains such as http'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1702 NAME 'ispmanDomainServiceAlias'
+	DESC 'A friendly name for the service such as Web Hosting'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1703 NAME 'ispmanDomainServiceInfo'
+	DESC 'Some informations about this service'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1704 NAME 'ispmanDomainServiceDefault'
+	DESC 'YES or NO. one of these two strings'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{5} )
+

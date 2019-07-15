@@ -1,0 +1,68 @@
+<HTML>
+<TITLE>ISPMan help</TITLE>
+<link HREF="/ispman.css" REL="stylesheet" TYPE="text/css">
+<BODY>
+<table class="table" cellspacing=5 border=0>
+<tr><td class=menuheader>Manage DNS</td>
+
+<tr><td>The Manage DNS option appears once you have selected a domain to
+manage AND that domain is a Primary domain. Manage DNS does not appear for
+replica domains, secondary (slave) domains, or replica domains.
+<tr><td>DNS is one of the most misunderstood services on the Internet. If
+you are not familiar with DNS, consult your ISP, local guru, or a good book
+for help. <B>YOU CAN MESS UP YOUR DOMAIN WEBSITE AND EMAIL WITH WRONG
+OPTIONS!</B> 
+<tr><td><b>SOA Record</b>
+<br>The SOA (start of authority) resource record. The SOA indicate that this
+name server is the authoritative source of information for this domain.
+There can be only one SOA for a domain.
+<ul>
+<li>Primary - what is the primary Start Of Authority for this domain
+<li>rootmail - who is to get mail for the domain master
+<li>Expire - seconds for secondary DNS server to expire it's
+data after failing to reach master
+<li>Retry - how often the secondary DNS server should try to
+connect after a refresh connect failure
+<li>Refresh - how often the secondary should check to insure
+it's data is current
+<li>Minimum - the time a RR can be cached before it should be
+discarded
+</ul>
+<tr><td><b>MX Records</b>
+<br>The MX Record specifies a mail exchanger, which should match an A
+record, that will accept mail for the domain.</pre>
+<ul>
+<li>Origin - domain mail is for
+<li>Host - host that will accept mail 
+<li>Priority - priority of this server in the list of mail
+servers for delivery, lowest priority number is the server that is the final
+destination. Higher priority numbers indicate forwarders. Any number is a
+valid value. Usually multiples of 10 are used for priority. 
+</ul>
+<tr><td><b>NS Record</b>
+<br>The NS (name server) record lists every name server that will answer for
+this domain.
+<ul>
+<li>Origin - domain this record applies
+<li>Name Server - name of the DNS server
+</ul>
+<tr><td><b>A Records</b>
+<br>A Records (address records) map host names to IP addresses.
+<ul>
+<li>Host Name - Authorotative Host Name
+<li>IP address - IP of host
+<li>check box if you want the address reverse mapped
+</ul>
+<tr><td><b>CNAME Records</b>
+<br>CNAME Records (canonical name records) are aliases for host names.
+<br>Here you can add an Alias for a host or another alias. Fully
+qualified hostnames should end with a period. Hostnames that do not end with
+a period are supposed to be relative names for this domain.
+<ul>
+<li>Alias - the alias name
+<li>Host - the A Record name for this host
+</ul>
+</BODY>
+</HTML>
+
+

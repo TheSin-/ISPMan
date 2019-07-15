@@ -1,0 +1,37 @@
+$dbadmin = $ispman->getConf("dbAdminName");
+$dbpass  = $ispman->getConf("dbAdminPass");
+
+
+# generate CMD for add database
+sub add_database {
+    my $params = shift;
+
+    return "/bin/false";
+}
+
+
+# generate CMD for update database
+sub update_database {
+    my $params = shift;
+
+    return "/bin/false";
+}
+
+
+# generate CMD for delete database
+sub delete_database {
+    my $params = shift;
+
+    return "/bin/false";
+}
+
+
+sub rename_database {
+    my $params = shift;
+
+    return "/bin/false";
+}
+
+
+1;
+

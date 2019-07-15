@@ -1,0 +1,65 @@
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+   
+
+   
+<perl>_("Editing SOA Records for domain:")</perl> <perl>$r->param("ispmanDomain")</perl>
+
+
+<form method=POST>
+<input type=hidden name=ispmanDomain value="<perl>$r->param("ispmanDomain")</perl>">
+<input type=hidden name=mode value="modifyDNSsOARecords">
+
+        
+ <P>
+<table border=0>
+<tr>
+    <td class=line0><perl>_("Primary")</perl></td>
+    <td class=line0>
+    <input type=text name="primary" value="<perl>$ispman->{'domain'}{'dns'}{'primary'}</perl>">
+    </td>
+</tr>
+<tr>
+    <td class=line0><perl>_("rootmail")</perl></td>
+    <td class=line0>
+    <input type=text name="rootmail" value="<perl>$ispman->{'domain'}{'dns'}{'rootmail'}</perl>">
+    
+    </td>
+</tr>
+<tr>
+    <td class=line0><perl>_("Expire")</perl></td>
+    <td class=line0>
+    <input type=text name="expire" value="<perl>$ispman->{'domain'}{'dns'}{'expire'}</perl>">
+    </td>
+</tr>
+<tr>
+    <td class=line0><perl>_("Retry")</perl></td>
+    <td class=line0>
+    <input type=text name="retry" value="<perl>$ispman->{'domain'}{'dns'}{'retry'}</perl>">
+    </td>
+</tr>
+<tr>
+    <td class=line0><perl>_("Refresh")</perl></td>
+    <td class=line0>
+    <input type=text name="refresh" value="<perl>$ispman->{'domain'}{'dns'}{'refresh'}</perl>">
+    </td>
+</tr>
+<tr>
+    <td class=line0><perl>_("Minimum")</perl></td>
+    <td class=line0>
+    <input type=text name="minimum" value="<perl>$ispman->{'domain'}{'dns'}{'minimum'}</perl>">
+    </td>
+</tr>
+
+<tr>
+
+<td colspan=2>
+         <input type=button class="button" onClick="document.forms[0].reset()" value="<perl>_("Discard Changes")</perl>">
+         <input type=button class="button" onClick="document.forms[0].submit()" value="<perl>_("Save Entry")</perl>">
+</td>
+<tr>
+</form>
+
+</table>
+ 
+ 
+

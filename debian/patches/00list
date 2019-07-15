@@ -1,0 +1,3 @@
+10-ispman.conf.dpatch
+20-liblocations.dpatch
+40-slapd.ldapv3.conf.dpatch

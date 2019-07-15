@@ -1,0 +1,61 @@
+#!/usr/bin/perl
+
+use File::Path;
+use Getopt::Long;
+
+GetOptions(
+    'prefix=s' => \$prefix,
+    'make=s' => \$make,
+    'help'     => \&help
+  )
+  || help();
+
+if ( -e "tmp/conf/ispman.conf" ) {
+    if ( !$prefix ) {
+        require "tmp/conf/ispman.conf";
+        $prefix = $ISPMan::Config->{'installDir'};
+    }
+}
+
+$prefix ||= "/opt/ispman";
+$make ||= "make";
+
+sub help {
+    print qq|
+Installation layout options:
+ --prefix=PREFIX        install allfiles under this PREFIX[/opt/ispman]
+ --make=PATH_TO_MAKE	use a different make. i-e gmake
+|;
+    exit;
+}
+
+print "Setting $prefix as PREFIX\n";
+print "Everything will be installed under $prefix\n";
+
+open F, "< makedefs";
+@lines = <F>;
+close(F);
+
+open F, "> makedefs";
+my $seen_ispman_install_path = 0;
+my $seen_make = 0;
+for (@lines) {
+    if (/PREFIX/) {
+        $seen_ispman_install_path = 1;
+        print F "PREFIX=$prefix\n";
+    } elsif (/MAKE/){
+	$seen_make=1;
+        print F "MAKE=$make\n";
+    } else {
+        print F "$_";
+    }
+}
+print F "PREFIX=$prefix\n" unless $seen_ispman_install_path;
+print F "MAKE=$make\n" unless $seen_make;
+
+
+
+close("F");
+
+print "Now please run make\n";
+

@@ -1,0 +1,13 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+use ISPMan;
+my $ispman = ISPMan->new();
+
+for (@ARGV) {
+    $ispman->deleteProcessByPID($_);
+}
+

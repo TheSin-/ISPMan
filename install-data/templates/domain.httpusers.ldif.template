@@ -1,0 +1,5 @@
+dn: ou=httpusers, ispmanDomain=<perl>$r->param("ispmanDomain")</perl>, <perl>$ispman->getConf("ldapBaseDN")</perl>
+ou: httpusers
+ispmanDomain: <perl>$r->param("ispmanDomain")</perl>
+objectclass: ispmanhttpusersgroup
+

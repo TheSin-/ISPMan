@@ -1,0 +1,38 @@
+dn: ou=counters, %%ldapBaseDN%%
+objectclass: ispmanBranch
+ou: counters
+
+dn: cn=pidcounter, ou=counters, %%ldapBaseDN%%
+objectclass: ispmanCounters
+cn: pidcounter
+ispmanCurrPid: 0
+
+dn: cn=uidcounter, ou=counters, %%ldapBaseDN%%
+objectclass: ispmanCounters
+cn: uidcounter
+ispmanCurrUid: 0
+ispmanMinUid:  10000
+ispmanMaxUid:  19999
+
+dn: cn=gidcounter, ou=counters, %%ldapBaseDN%%
+objectclass: ispmanCounters
+cn: gidcounter
+ispmanCurrGid: 0
+ispmanMinGid:  10000
+ispmanMaxGid:  19999
+
+dn: cn=aclidcounter, ou=counters, %%ldapBaseDN%%
+objectclass: ispmanCounters
+cn: aclidcounter
+currid: 0
+
+dn: cn=resellercounter,ou=counters,%%ldapBaseDN%%
+objectclass: ispmanCounters
+cn: resellercounter
+currid: 0
+
+dn: cn=clientcounter,ou=counters,%%ldapBaseDN%%
+objectclass: ispmanCounters
+cn: clientcounter
+currid: 0
+

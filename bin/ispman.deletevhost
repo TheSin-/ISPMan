@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'd', \%opts );
+    unless ( $opts{'d'} && $ARGV[0] ) {
+        print "$FindBin::Script -d domain vhost";
+        print "\n";
+        exit;
+    }
+}
+
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+$ispman->delete_vhost( shift @ARGV, $opts{'d'} );
+
+__END__
+

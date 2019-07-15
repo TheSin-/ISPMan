@@ -1,0 +1,137 @@
+<BODY onLoad="doLoad();">
+
+<script type="text/javascript">
+  var cgiurl=window.location.pathname
+  var hrefurl=window.location.href
+  
+  function doLoad(){
+    setTimeout( "refresh()", 30*1000 );
+  }
+
+  function refresh(){
+      window.location.href = hrefurl;
+  }
+  
+  function showSession(sess){
+      location=cgiurl+"?mode=manageProcesses&ispmanSession="+sess;
+  }
+  
+  function editProcess(sess,pid){
+      location=cgiurl+"?mode=editProcess&ispmanSession="+sess+"&ispmanPid="+pid;
+  }
+  
+  function deleteProcess(sess,pid){
+      location=cgiurl+"?mode=deleteProcess_web&ispmanSession="+sess+"&ispmanPid="+pid;
+  }
+
+  
+</script>
+
+<table border=0>
+  <tr>
+    <td>Pending sessions:</td>
+	<td><perl>
+      $session = $r->param("ispmanSession") || $ispman->{'sessID'};
+      $processes = $ispman->getProcesses();
+      my %sessions;
+      my @out = ();
+      
+      foreach (keys %$processes){
+        $sessions{$processes->{$_}{'ispmanSession'}}->{'count'}++;
+        $sessions{$processes->{$_}{'ispmanSession'}}->{ $processes->{$_}{'ispmanStatus'}}++;
+      }
+      
+      foreach (keys %sessions) {
+        my $text;
+        if (defined($sessions{$_}{'error'})) {
+           $text = "<a class=error";
+        } elsif (defined($sessions{$_}{'insession'})) {
+      	 $text = "<a class=insession";
+        } else {
+           $text = "<a class=new";
+        }
+        $text .= " href='javascript:showSession(\"$_\")'>";
+        if ($_ eq $session) {
+          $text .= "<u>$_($sessions{$_}{'count'})</u>";
+        } else {
+          $text .= "$_($sessions{$_}{'count'})";
+        }
+        $text .= "</a>";
+        push @out,$text;
+      }
+	  scalar(@out)==0?"(none)":join(", ",@out);
+      </perl>
+	</td>
+  </tr>
+  <tr>
+    <td></td>
+	<td><a href='javascript:showSession("<perl>$ispman->{'sessID'}</perl>")'>Current</a>, <a href='javascript:showSession("All")'>Show All</a></td>
+  </tr>
+</table>
+<br><hr noshade>
+
+<TABLE border=0 class=table>
+<tr>
+<th>session</th>
+<th>pid</th>
+<th>host</th>
+<th>domain</th>
+<th>process</th>
+<th>status</th>
+<th>Created by</th>
+<th>&nbsp;</th>
+</tr>
+
+<perl>
+my $text="";
+
+$bgcolors->{'error'}="#ef7373";
+$bgcolors->{'new'}="lightgreen";
+$bgcolors->{'unknown'}="#ffffff";
+
+
+for (sort {$processes->{$a}{'ispmanPid'} <=> $processes->{$b}{'ispmanPid'} } keys %$processes){
+    next if ($processes->{$_}{'ispmanSession'} ne $session) && ($session ne "All");
+	
+    $status=$processes->{$_}{'ispmanStatus'}||"unknown";
+    
+    $text.="<tr class=$status align=left>\n";
+    $text.="<td>$processes->{$_}{'ispmanSession'}&nbsp;</td>\n";
+    $text.="<td>$processes->{$_}{'ispmanPid'}&nbsp;</td>\n";
+    $text.="<td>$processes->{$_}{'ispmanHostName'}&nbsp;</td>\n";
+    $text.="<td>$processes->{$_}{'ispmanDomain'}&nbsp;</td>\n";
+    $text.="<td>$processes->{$_}{'ispmanProcess'}&nbsp;</td>\n";
+    $text.="<td>$status&nbsp;</td>\n";
+    $text.="<td>$processes->{$_}{'ispmanUser'}&nbsp;</td>\n";
+    $text.="<td>";
+	$text.="<a href='javascript:editProcess(\"".
+	       $processes->{$_}{'ispmanSession'}."\",".
+		   $processes->{$_}{'ispmanPid'}.")'>".
+	       "<img src='".$ispman->getConfig("ispmanUrlPrefix")."/gfx/modify.gif' border=0>".
+		   "</a>";
+    $text.="<a href='javascript:deleteProcess(\"".
+           $processes->{$_}{'ispmanSession'}."\",".
+		   $processes->{$_}{'ispmanPid'}.")'>".
+	       "<img src='".$ispman->getConfig('ispmanUrlPrefix')."/gfx/delete.gif' border=0>".
+		   "</a>";
+	$text.="</td>\n";
+    $text.="</tr>\n";
+}
+$text
+</perl>
+</table>
+<br><hr noshade>
+<perl>
+  my $text="";
+  if (($session ne "All") && ($session ne $ispman->{'sessID'})){
+    $text="<form>";
+    $text.="<input type=hidden name='mode' value='releaseSession_web'>";
+	$text.="<input type=hidden name='nextPage' value='".$ENV{'SCRIPT_NAME'}."?mode=manageProcesses&ispmanSession=".$session."'>";
+	$text.="<input type=hidden name='session' value='".$session."'>";
+    $text.="<input class='statusbutton' type=submit value='"._("Commit complete session")."'>";
+	$text.="</form>";
+  }
+  $text;
+</perl>
+
+

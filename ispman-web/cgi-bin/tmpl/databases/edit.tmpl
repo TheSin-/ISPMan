@@ -1,0 +1,114 @@
+<script>
+  function deleteDatabase() {
+    if(confirm('Are you sure? THIS DELETES THE DATABASE AND ALL CONTENT!')){
+      document.forms[0].mode.value='delete_database_cgi';
+      document.forms[0].submit();
+    }
+  }
+</script>
+
+<h1>Edit database</h1>
+<hr>
+<table id="edit_database" border="0" cellspacing="0" cellpadding="3">
+<form action="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/admin/index.cgi" method="POST">
+  <tr>
+    <td id="title">Database Type:</td>
+    <td id="field">
+      <select name="ispmanDBType" id="ispmanDBType" disabled>
+      <perl>join "\n", map { "<option value=\"$_\"".(($dbInfo->{'ispmanDBType'} eq $_)?"selected":"").">$_</option>" }
+                             split(/\s*,\s*/,$ispman->getConf("dbTypes"));</perl>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <td id="title">Database Name:</td>
+    <td id="field"><input type="text" name="ispmanDBName" id="ispmanDBName" maxlength="64" value="<perl>$dbInfo->{'ispmanDBName'}</perl>"></td>
+  </tr>
+  <tr>
+    <td id="title">Username:</td>
+    <td id="field">
+      <input type="text" maxlength="16" name="ispmanDBUser" id="ispmanDBUser" value="<perl>$dbInfo->{'ispmanDBUser'}</perl>"><br/>
+      <div id="note">(user name to connect to database)</div>
+    </td>
+  </tr>
+  <tr>
+    <td id="title">Password:</td>
+    <td id="field">
+      <input type="text" name="ispmanDBPass" id="ispmanDBPass" value="<perl>$dbInfo->{'ispmanDBPass'}</perl>"><br/>
+      <div id="note">(password to connect to database)</div>
+    </td>
+  </tr>
+  <tr>
+    <td id="title">Access Filter:</td>
+    <td id="field">
+      <input type="text" name="ispmanDBAccessFilter" id="ispmanDBAccessFilter"
+             value="<perl>$dbInfo->{'ispmanDBAccessFilter'}</perl>"><br/>
+      <div id="note">(allowed hosts to connect to database)</div>
+    </td>
+  </tr>
+  <tr>
+    <td id="title">Privileges:</td>
+    <td id="field">
+      <table id="ispmanDBPrivilege" width="100%" border="0" cellpadding="2" cellspacing="1">
+      <perl>
+        my $out="";
+        my %acl;
+        my @sections=();
+        my $maxrows=0;
+        my $selected = $ispman->as_hashref($dbInfo->{'ispmanDBPrivilege'});
+
+        for (split ",",$ispman->getConf("dbAccessPermissions")) {
+          if ($_ =~ /(.*)\((.*)\)/) {
+            push @sections,$1;
+            $acl{$1} = [ split '\|',$2 ];
+            $maxrows = ($maxrows < @{$acl{$1}})?@{$acl{$1}}:$maxrows;
+          }
+        }
+
+        $out .= "<tr>".join("",map { "<td>$_</td>" } @sections)."</tr>\n";
+
+        for (my $row=0; $row < $maxrows; $row++) {
+          $out .= "<tr>\n";
+
+          foreach (@sections) {
+            my $grant=$acl{$_}[$row];
+            $grant =~ s/\*$//;
+            my $default=($selected->{$grant})?'checked="checked"':'';
+            $out .= "<td>";
+            $out .= qq|<input type="checkbox" name="ispmanDBPrivilege" id="ispmanDBPrivilege" value="$grant" $default>$grant| unless !defined($grant);
+            $out .= "</td>\n";
+          }
+          $out .= "</tr>\n";
+        }
+        $out;
+      </perl>
+    </table></td>
+  </tr>
+
+  <tr>
+    <td id="title">DB Host:</td>
+    <td id="field">
+      <select name="ispmanDBHost" id="ispmanDBHost">
+      <perl>
+        my @dbhosts=$ispman->getGroupMembers("databasegroup");
+        join "\n", map { "<option VALUE=\"$_\"".(($dbInfo->{'ispmanDBHost'} eq $_)?"selected":"").">$_</option>" } @dbhosts;
+      </perl>
+      </select><br/>
+      <div id="note">(server that will host this database)</div>
+    </td>
+  </tr>
+
+  <tr>
+    <td></td>
+    <td id="buttons" colspan=2>
+         <input type=button class="button" onClick="document.forms[0].submit()" value="Save">
+         <input type=button class="button" onClick="deleteDatabase()" value="Drop">
+    </td>
+  </tr>
+
+<input type=hidden name="mode" value="modify_database_cgi">
+<input type=hidden name="oldDBName" value="<perl>$dbInfo->{'ispmanDBName'}</perl>">
+<input type=hidden name="ispmanDomain" value="<perl>$r->param("ispmanDomain")</perl>">
+
+</form>
+</table>

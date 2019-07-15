@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    unless ( $ARGV[0] && $ARGV[0] =~ m/\w+@\w+\..*/ ) {
+        print "Usage: $FindBin::Script user\@domain.tld\n";
+        exit;
+    }
+}
+
+use ISPMan;
+
+my $ispman = ISPMan->new();
+
+( $user, $domain ) = split( '@', $ARGV[0] );
+$ispmanDomain = $domain;
+
+$domain =~ s/\./_/g;
+$uid = join '_', ( $user, $domain );
+
+my $dn = $ispman->getUserDN( $ispmanDomain, $uid );
+my $entry = $ispman->getEntry($dn);
+$ispman->dumpEntry($entry);
+

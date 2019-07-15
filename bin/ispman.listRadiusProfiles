@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+
+use ISPMan;
+
+my $ispman   = ISPMan->new();
+my $profiles = $ispman->getRadiusProfiles();
+
+for ( keys %$profiles ) {
+    $profile = $profiles->{$_};
+    write();
+}
+
+format STDOUT_TOP =
+
+                            RadiusProfiles:
+CN
+--------------------------------------------------------------------------
+.
+
+format STDOUT =
+@<<<<<<<<<<<<<<<<<<<<<< 
+$profile->{'cn'}
+.
+
+__END__
+
+

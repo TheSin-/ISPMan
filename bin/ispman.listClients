@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+
+use ISPMan;
+
+my $ispman  = ISPMan->new();
+my $clients = $ispman->getClients();
+
+for ( keys %$clients ) {
+    $client = $clients->{$_};
+    write();
+}
+
+format STDOUT_TOP =
+
+ClientID ResellerID  ClientName           CN             
+--------------------------------------------------------------------------
+.
+
+format STDOUT =
+@<<<<<<< @<<<<<<<<   @<<<<<<<<<<<<<<<<<<<<<<<<< @<<<<<<<<<<<<<<<
+$client->{'ispmanClientId'}, $client->{'ispmanResellerId'}, $client->{'ispmanClientName'}, $client->{'cn'}
+.
+
+__END__
+
+

@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+
+use ISPMan;
+my $ispman = ISPMan->new();
+my $hosts  = $ispman->getHosts();
+for ( keys %$hosts ) {
+    print "$hosts->{$_}{'ispmanHostName'}\n";
+}

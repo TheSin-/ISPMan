@@ -1,0 +1,88 @@
+#!/usr/bin/perl
+#ispman.processdump
+#utility to debug processes
+
+package ISPMan;
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+
+$|++;
+
+#use strict;
+use vars qw(
+  $VERSION @ISA @EXPORT @EXPORT_OK
+  $name $hostname $hostnames $ispman $pid_file $log_file $domains
+);
+
+require Exporter;
+
+@ISA     = qw(Exporter AutoLoader);
+@EXPORT  = qw();
+$VERSION = '0.01';
+
+use Data::Dumper;
+use Sys::Hostname;
+
+require "ispman.conf";
+
+$name        = "ispman-agent";
+$install_dir = $Config->{'installDir'};
+
+#chomp($hostname=$ENV{'HOSTNAME'}); #NO You cannot remove this.
+# but I could :)
+
+$hostname = hostname();    # find hostname using Sys::Hostname. -End-Of-Story-
+
+#If you don't have Sys::Hostname, you probably cant run ispman anyway,
+
+@hostnames = split( /\s*,\s*/, $Config->{'hostnames'} );
+push @hostnames, $hostname;
+
+require ISPMan;
+import ISPMan;
+
+$ispman = ISPMan->new();
+
+$ldapBaseDN = $ispman->getConf('ldapBaseDN');
+
+$ispman = ISPMan->new();
+
+#if  (!$ispman || !$ispman->ldap_ping()){
+#   print "Creating new connection";
+#   $ispman=ISPMan->new() || (print "Could not create an ISPMan instance" && die);
+#}
+
+$processes = $ispman->getProcessesForHost( \@hostnames );
+my $processHash;
+my ( $domain, $params, $process );
+my $message = "";
+
+print "Hash dump processes before pushing\n";
+
+print Dumper($processes);
+
+for ( keys %$processes ) {
+    $domain  = $processes->{$_}{'ispmanDomain'};
+    $params  = $processes->{$_}{'ispmanParams'};
+    $process = $processes->{$_}{'ispmanProcess'};
+    $pid     = $_;
+    push @{ $processHash->{$domain}{$process}{$params} }, $pid;
+}
+
+print "Hash dump processHash after pushing\n";
+
+print Dumper($processHash) if $processHash;
+
+for $domain ( keys %$processHash ) {
+    for $job ( keys %{ $processHash->{$domain} } ) {
+        for $params ( keys %{ $processHash->{$domain}{$job} } ) {
+            print "Doing $job on $domain with parameters $params\n";
+        }
+    }
+}
+

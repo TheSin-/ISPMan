@@ -1,0 +1,5 @@
+dn: cn=aclidcounter, ou=counters, <perl>$ispman->getConf("ldapBaseDN")</perl>
+cn: aclidcounter
+ou: counters
+objectclass: counter
+currentaclid: 0

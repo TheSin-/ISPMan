@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+
+use ISPMan;
+my $ispman     = ISPMan->new();
+my $hostGroups = $ispman->getHostGroups();
+for ( keys %$hostGroups ) {
+    print "$hostGroups->{$_}{'ispmanHostGroupName'}\n";
+}

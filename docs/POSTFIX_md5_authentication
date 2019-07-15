@@ -1,0 +1,144 @@
+
+Sending unencrypted passwords over the internet is inherently insecure, and should not be done. 
+
+If you do not want to do this, you have two options: encrypt the whole connection using SSL/TLS or just the passwords using strong authenticationmethods such as CRAM-MD5 and Digest-MD5.
+To use the latter, you need to have set up an ldapserver that supports this. That is what this document is about.
+
+The best howto on this issue is found here:
+http://outoforder.cc/projects/mailserver/howto.html
+
+
+However, the instructions below will help you in getting ispman to work with a setup like this.
+
+Some other links that might be helpfull:
+http://www.billy.demon.nl/Postfix-SASL-authentication.html
+http://marc.theaimsgroup.com/?l=cyrus-sasl&m=105477135916273&w=2
+http://www.openldap.org/lists/openldap-bugs/200306/msg00022.html
+http://marc.theaimsgroup.com/?l=openldap-software&m=106562659306556&w=2
+http://marc.theaimsgroup.com/?l=openldap-software&m=105835898026043&w=2
+
+
+I use the following servers:
+Openldap 2.1.2x
+Cyrus-Imapd 2.1.1x
+Cyrus-Sasl 2.1.1x
+Postfix 2.x
+
+This gives me strong passwords for imap,pop and smtp-auth connections.
+
+
+Compiling
+I made myself RPMS for most of these packages. The hard part of this is to get ldapdb correctly compiled.
+
+The easy way to do this is to use this patch against cyrus-sasl (it applies cleanly to 2.1.15 I think) and rebuild cyrus-sasl --with-ldapdb. 
+You'll find instructions here: 
+http://www.outoforder.cc/downloads/mailserver/ldapdb/
+
+OpenLDAP configuration
+
+Put this in /usr/lib/sasl2/slapd.conf (/usr/lib/sasl2 is the directory to store auxprop-plugins)
+
+pwcheck_method: auxprop
+auxprop_plugin: slapd
+
+Add a user that may bind to the ldapdirectory. I usually call this user auxprop or something. 
+After adding the user, add an ldif containing this:
+
+dn: uid=auxprop,ou=admins,o=ispman
+saslAuthzTo: uid=cyrus,ou=admins,o=ispman
+saslAuthzTo: uid=(.*),ou=users,ispmanDomain=(.*),o=ispman
+
+To have an admin log on to the imapserver as themselves (w/o a mailbox) add this:
+saslAuthzTo: uid=<adminname>,ou=admins,o=ispman
+
+as many times as needed. The saslAuthzTo attribute defines what users the auxpropuser is allowed to log on to as.
+
+
+In /etc/openldap/slapd.conf :
+
+This is for the saslconfiguration stuff:
+sasl_mech_list: plain, digest-md5
+sasl-secprops minssf=128
+sasl-authz-policy both
+
+sasl-regexp
+    uid=(.*),cn=(.*),cn=digest-md5,cn=auth
+            uid=$1@$2,ou=users,ispmanDomain=$2,o=ispman
+sasl-regexp
+    uid=(.*),cn=digest-md5,cn=auth ldap:///o=ispman??sub?uid=$1
+# passwords has to be stored in plaintext!
+password-hash {CLEARTEXT} 
+
+
+# Note: Loglevel 255 is good for debugging saslstuff!
+#
+
+
+Also make sure the auxpropuser may read the users password! (yes this might be a securityrisk!)
+
+Config for Cyrus Imapd:
+put this in /etc/imapd.conf
+sasl_pwcheck_method: auxprop
+sasl_auxprop_plugin: ldapdb
+sasl_ldapdb_uri: ldap://127.0.0.1
+sasl_ldapdb_id:auxprop
+sasl_ldapdb_pw:<auxprop password>
+sasl_ldapdb_mech: login plain digest-md5
+
+
+Config for Postfix:
+in /var/spool/postfix/usr/lib/sasl2/smtpd.conf
+pwcheck_method: auxprop
+auxprop_plugin: ldapdb
+ldapdb_uri: ldap://127.0.0.1
+ldapdb_id:<auxprop userid>
+ldapdb_pw:<auxprop password>
+ldapdb_mech: login plain digest-md5
+
+in main.cf:
+Add:
+smtp_sasl_auth_enable = no
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_security_options = noanonymous, noplaintext
+broken_sasl_auth_clients = yes
+smtpd_recipient_restrictions = permit_mx_backup,
+                                    permit_mynetworks,
+                                    permit_sasl_authenticated,
+                                    reject_unauth_destination,
+                                    reject_non_fqdn_sender,
+                                    reject_non_fqdn_recipient,
+                                    reject_unknown_sender_domain,
+                                    reject_unauth_pipelining,
+                                    reject_invalid_hostname,
+                                    reject_non_fqdn_hostname
+                                    
+Ispman:
+Log in, go to configuration->system configuration and change the password hash methods to clear. 
+
+Testing
+This should work:
+ldapsearch -h localhost -Y digest-md5 -U auxprop -w $AUXPROP_PWD  -X u:<someuser> -v '(objectClass=*)'
+Someuser could either be user_domain_com or one of the admins.
+Also you can use imtest like this:
+imtest -a user_domain_com   -w user_domain_coms_password -p 143 localhost
+
+example output:
+S: * OK mail2 Cyrus IMAP4 v2.1.16 server ready
+C: C01 CAPABILITY
+S: * CAPABILITY IMAP4 IMAP4rev1 ACL QUOTA LITERAL+ MAILBOX-REFERRALS NAMESPACE UIDPLUS ID NO_ATOMIC_RENAME UNSELECT CHILDREN MULTIAPPEND SORT THREAD=ORDEREDSUBJECT THREAD=REFERENCES IDLE STARTTLS AUTH=DIGEST-MD5 ANNOTATEMORE X-NETSCAPE
+S: C01 OK Completed
+C: A01 AUTHENTICATE DIGEST-MD5
+S: + bm9uY2U9IjAvTGJQVHlqZVpxenIrdzRFdjBjQVFldklSSkJDeXM4U3hJcHJxN3hTZlk9IixyZWFsbT0ibWFpbDIiLHFvcD0iYXV0aC1jb25mIixjaXBoZXI9InJjNCIsbWF4YnVmPTQwOTYsY2hhcnNldD11dGYtOCxhbGdvcml0aG09bWQ1LXNlc3M=
+C: dXNlcm5hbWU9InRhcmplaSIscmVhbG09Im1haWwyIixub25jZT0iMC9MYlBUeWplWnF6cit3NEV2MGNBUWV2SVJKQkN5czhTeElwcnE3eFNmWT0iLGNub25jZT0ibmpnQXlSSmdRQ1Nvall6UVdBaHlJZm1qOTV1MGJ0MVpJK1dsZll6ajRNRT0iLG5jPTAwMDAwMDAxLHFvcD1hdXRoLWNvbmYsY2lwaGVyPSJyYzQiLG1heGJ1Zj0xMDI0LGRpZ2VzdC11cmk9ImltYXAvbG9jYWxob3N0IixyZXNwb25zZT1kODk2ODMwMjE3NDU4ZWM4NWM2ZTA4ZmQ0NWJkMGFmZQ==
+S: + cnNwYXV0aD00OTVkYjY2YTI5NTMxMzM4YmI2YjkzN2Y1OWNkZmVjNQ==
+C:
+S: A01 OK Success (privacy protection)
+Authenticated.
+
+Note: MAKE SURE THAT /etc/imapd.conf, /var/spool/postfix/usr/lib/sasl2/smtpd.conf and slapd.conf is propperly protected so normal users cannot read them!
+
+
+I think that is all.
+
+
+

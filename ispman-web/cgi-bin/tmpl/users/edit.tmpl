@@ -1,0 +1,231 @@
+<script>
+	function Delete(){
+    	if (confirm("Are you sure you want to permanently delete this user?\nThis action will also delete this users email folders.")) 
+            self.location="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=deleteUser&uid=<perl>$r->param('uid')</perl>&ispmanDomain=<perl>$r->param('ispmanDomain')</perl>";
+    }
+</script>
+
+<table border=0>
+  <form action="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/admin/index.cgi" method="POST">
+  <tr>
+    <td colspan=2>
+      <b>User: </b> <perl>lc( $ispman->getConf("cyrusVirtDomainFeature") ) eq 'yes'? $ispman->{'user'}->{"ispmanUserId"} . '@' . $r->param('ispmanDomain') . ' / ':'';</perl><perl>$r->param('uid') </perl> (<perl>$r->param('ispmanDomain')</perl>)
+      <br><br>
+	  <b>General Properties
+      <br><hr noshade>
+	</td>
+  </tr>
+  <tr>
+    <td>Surname</td>
+    <td>
+	  <input size=35 type=text name=sn value="<perl>$ispman->{'user'}->{"sn"}</perl>">
+    </td>
+  </tr>
+  <tr>
+    <td>Firstname </td>
+    <td>
+      <input size=35 type=text name=givenName value="<perl> $ispman->{'user'}->{"givenName"}</perl>">
+    </td>
+  </tr>
+  <tr>
+    <td>Password </td>
+    <td> 
+      <input  size=35 type=text name=userPassword value="<perl> $ispman->{'user'}->{"userPassword"}</perl>">
+    </td>
+  </tr>
+
+  <tr>
+    <td colspan=2>
+      <br><b>UNIX Properties</b>
+      <br><hr noshade>
+	</td>
+  </tr>
+  <tr>
+	<td>Home Server</td>
+	<td>
+		<b><perl>$ispman->{'user'}->{"fileHost"} || "undefined"</perl></b>
+	</td>
+  </tr>
+  <tr>
+	<td>Homedirectory</td>
+	<td>
+		<b><perl>$ispman->{'user'}->{"homeDirectory"} || "undefined"</perl></b>
+		<!-- alternate input field to make homeDirectory editable
+		   <input size=35 type=text name=homeDirectory
+	         value="<perl>$ispman->{'user'}{'homeDirectory'}</perl>">
+		 -->
+	</td>
+  </tr>
+  <tr>
+	<td>Login Shell</td>
+	<td>
+       <perl>
+          $text = "";
+          if ( lc($ispman->getConf('availableShells')) ne "none" ) {
+             $text .= '<select name="loginShell">';
+             foreach my $shell ( split(' ', $ispman->getConf('availableShells')) ) {
+                if ( $ispman->{'user'}{'loginShell'} eq $shell ) {
+                   $text .= "<option value='" . $shell . "' selected>$shell</option>";
+                } else {
+                   $text .= "<option value='" . $shell . "'>$shell</option>";
+                }
+             }
+             $text .= '</select>';
+          } else {
+             $text .= "<b>".$ispman->{'user'}{'loginShell'}."</b>";
+          }
+          $text
+       </perl>
+	</td>
+  </tr>
+  <tr>
+    <td>FTP Access</td>
+    <td> 
+      <perl>$ftpstatus=$ispman->{'user'}{'FTPStatus'}; ""</perl>
+      <select name="FTPStatus">
+        <option value="enabled" <perl>($ftpstatus eq "enabled")?" selected ":""</perl>>Enabled</option>
+        <option value="disabled" <perl>($ftpstatus eq "disabled")?" selected ":""</perl>>Suspended</option>
+      </select>
+    </td>
+  </tr>
+
+
+  <tr><td colspan=2>
+    <br><b>Dialup Properties</b>
+    <br><hr noshade></td>
+  </tr>
+  <tr>
+    <td>Dialup Access</td>
+    <td>
+      <perl>
+         $text="";
+         if($ispman->{'user'}->{"dialupAccess"}) {
+           $text.="enabled";
+         } else {
+           $text.="disabled";
+         }
+         $text
+      </perl>
+    </td>
+  </tr>
+  <tr>
+	<td>Radius Profile</td>
+    <td>
+      <perl>
+         $ispman->getRadiusProfileCN($ispman->{'user'}->{"radiusProfileDn"});
+      </perl>
+    </td>
+  </tr>
+
+  
+  <tr><td colspan=2>
+    <br><b>Mail Properties</b>
+    <br><hr noshade></td>
+  </tr>
+  <tr>
+    <td>Mail Box Server</td>
+    <td><b>
+	  <perl>
+        $text="";
+	    if ($ispman->{'user'}->{"mailHost"}){
+	      $text=$ispman->{'user'}->{"mailHost"};
+        } else {
+          $text="(forwarding only)"
+        }
+	    $text;
+	  </perl></b>
+    </td>
+  </tr>
+  <tr>
+    <td>Primary Mail Box Address</td>
+    <td>
+      <input type=hidden size=35 name=mailRoutingAddress value="<perl> $ispman->{'user'}->{"mailRoutingAddress"}</perl>">
+      <perl> $ispman->{'user'}->{"mailRoutingAddress"}</perl>
+    </td>
+  </tr>
+  <tr>
+    <td>Primary Mail Address</td>
+    <td><input size=35 type=text name=mailLocalAddress value="<perl> $ispman->{'user'}->{"mailLocalAddress"}</perl>"></td>
+  </tr>
+  <tr>
+    <td valign=top>Mail Forwardings</td><td> (local / remote)</td>
+  </tr>
+  <tr>
+    <td colspan=2>
+      <textarea cols=50 rows=3 name=mailForwardingAddress><perl>
+          my $text="";
+          if (ref $ispman->{'user'}->{"mailForwardingAddress"} eq "ARRAY"){
+           my @maildrops=@{$ispman->{'user'}->{"mailForwardingAddress"}};
+             for (@maildrops){
+               $text.= "$_\n";
+             }
+           } else {
+             $text=$ispman->{'user'}->{"mailForwardingAddress"};
+           }
+      
+          $text;
+      </perl></textarea>
+    </td>
+  </tr>
+  <tr>
+    <td>Mail Aliases</td>
+	<td></td>
+  </tr>
+  <tr>
+    <td colspan=2>
+      <textarea cols=50 rows=3 name=mailAlias><perl>
+          my $text="";
+          if (ref $ispman->{'user'}->{"mailAlias"} eq "ARRAY"){
+            my @mailacceptinggeneralid=@{$ispman->{'user'}->{"mailAlias"}};
+            for (@mailacceptinggeneralid){
+              $text .= "$_\n";
+            }
+          } else {
+            $text = $ispman->{'user'}->{"mailAlias"};
+          }                
+          $text
+      </perl></textarea>
+	</td>
+  </tr>
+
+
+  <tr><td colspan=2>
+    <br><b>Quotas</b>
+    <br><hr noshade></td>
+  </tr>
+  <tr>
+    <td>Max FTP Storage Space (in MB) </td>
+    <td> 
+      <input size=4 type=text name=FTPQuotaMBytes 
+	         value="<perl>$ispman->{'user'}{'FTPQuotaMBytes'}</perl>">
+    </td>
+  </tr>
+  <tr>
+    <td>Max Mail Storage Space (in MB) </td>
+    <td> 
+      <input size=4 type=text name=mailQuota 
+	         value="<perl>$ispman->{'user'}{'mailQuota'}/1024</perl>">
+    </td>
+  </tr>
+
+  <tr><td colspan=2>
+    <hr noshade>
+  </tr>
+  <tr>
+    <td align=right colspan=2>
+      <input type=hidden name="mode" value="updateUser">
+      <input type=hidden name="uid" 
+	         value="<perl>$ispman->{'user'}{'dn'} =~ /^uid=(.*?),/; $1</perl>">
+      <input type=hidden name="ispmanDomain"
+	         value="<perl>$ispman->{'user'}{'ispmanDomain'}</perl>">
+  
+      <input type=button class="button" onClick="document.forms[0].reset()" value="Reset">
+      <input type=button class="button" onClick="Delete()" value="Delete user">
+      <input type=button class="button" onClick="document.forms[0].submit()" value="Update user">   
+    </td>
+  </tr>
+  </form>
+</table>
+ 
+ 
+

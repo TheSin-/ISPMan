@@ -1,0 +1,19 @@
+#!/bin/sh
+
+cmd=$1
+shift
+
+if [ "$cmd" = "help" ] && [ -n "$1" ]; then
+        perldoc /usr/share/ispman/bin/ispman.$1
+        exit 0
+fi
+
+if [ -z "$cmd" ] || [ "$cmd" = "help" ]; then
+	echo usage: ispman command [options]
+        echo The following commands exist:
+        ls -1 /usr/share/ispman/bin/ | egrep -o "[^\.]*$"
+        exit 0
+fi
+
+/usr/share/ispman/bin/ispman.$cmd $@
+

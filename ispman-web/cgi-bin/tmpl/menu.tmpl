@@ -1,0 +1,399 @@
+<HTML>
+<HEAD>
+<TITLE>ISPMan menu</TITLE>
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+
+<SCRIPT type="text/javascript">
+<!--
+
+   var ispmanDomain="<perl>$r->param("ispmanDomain")</perl>"
+   var cgiurl=window.location.pathname
+   var cgidomain="&ispmanDomain="+ispmanDomain
+
+   function selectDomain(domain){
+       if (domain=="__search__"){
+        var searchString=prompt('Please enter part of the domain that you want to search', '');
+        if (searchString!=""){
+               location=cgiurl+"?mode=menu&domainsearchfilter="+searchString;
+        } else {
+                return false;
+        }
+
+       } else {
+               location=cgiurl+"?mode=menu&ispmanDomain="+domain
+       }
+   }
+
+   function doThis(mode,param){      
+      url=cgiurl+"?mode="+mode+cgidomain;
+      if (param){
+        url+="&"+param;
+      }
+
+      top.content.location=url
+   }
+
+   function editUser(user){
+      if (user){
+         doThis("editUser","uid="+user)
+      }
+   }
+
+   function searchUsers(dn){
+         doThis("searchUsers");
+   }
+
+   function editMailGroup(group){
+      if (group){
+         doThis("editMailGroup","mailGroup="+group)
+      }
+   }
+
+   function addWebUser(){
+      if(ispmanUserId=prompt("Name of webuser" , "")){
+          if(userPassword=prompt("Password" , "")){
+              doThis("addWebUser","ispmanUserId="+ispmanUserId+"&userPassword="+userPassword)
+          }
+      }
+   }
+
+   function manageWebUser(user){
+      if (user){
+          doThis("editWebUser","ispmanUserId="+user)
+      }
+   }
+
+   function editVhost(vhost){
+      if (vhost){
+          doThis("editVhost","ispmanVhostName="+vhost)
+      }
+   }
+
+   function addVhost(){
+      if(vhost=prompt("Name of virtual host (without the domain name)" , "")){
+          doThis("createVhost","ispmanVhostName="+vhost)
+      }
+   }
+   function addDatabase(){
+      if(dbName=prompt("Name of database" , "")){
+        doThis("add_database_form","ispmanDBName="+dbName+"&ispmanDomain="+ispmanDomain);
+      }
+   }
+   function editDatabase(dbName){
+      if (dbName){
+        doThis("edit_database_form", "ispmanDBName="+dbName);
+      }
+   }
+
+//-->
+</script>
+
+</HEAD>
+<BODY class="menu" topmargin=0 leftmargin=0 maginwidth=0 marginheight=0>
+
+<!-- outer table -->
+<table border=0 >
+<td>
+
+<perl>
+
+my $text="";
+my $domaintype;
+my $users;
+my $groups;
+my $thisDomainType;
+
+my $mode=$ispman->getConf("menuMode");
+
+if ($mode && $mode eq "search") { 
+    if ($r->param('domainsearchfilter')){
+        if ($r->param('domainsearchfilter') eq '*'){
+           $filter="";
+        } else {
+           $filter="ispmanDomain=*@{[$r->param('domainsearchfilter')]}*";
+        }
+        $domains=$ispman->makeDomainHash($ispman->getDomains($filter));
+    }
+} else {
+    $domains=$ispman->makeDomainHash($ispman->getDomains());
+}
+
+
+
+if ($r->param("ispmanDomain")){
+    $thisDomain=$r->param("ispmanDomain");
+    $webusers=$ispman->getWebusers($thisDomain);
+    $users=$ispman->getUsers($thisDomain);
+    $mailgroups=$ispman->get_mail_groups($thisDomain);
+    $thisDomainType=$ispman->getDomainType($thisDomain);
+    $thisDomainInfo=$ispman->getDomainInfo($thisDomain);
+} else { 
+    $r->param("ispmanDomain","");
+}
+
+$text.=qq|
+
+<FORM>
+
+
+
+<TABLE border=0 width=100%>
+
+
+<tr><TD class=menuheader>Manage domain</td></tr>
+
+<tr>
+<td>
+<FONT SIZE=1 color="#330065">
+<SELECT onChange="selectDomain(this.options[this.selectedIndex].value)">|;
+
+$text.="<OPTION>" . _("Choose domain to manage")  . "</option>\n";
+if ($mode && $mode eq "search") {
+   $text.="<OPTION value='__search__'> Search for a domain</option>\n";
+}
+
+for $domain( keys %$domains ) {
+    $domainInfo=$ispman->getDomainInfo($domain);
+    
+    if ($domainInfo->{'ispmanDomainType'} eq "replica"){
+        $replicas->{$domainInfo->{'ispmanReplicaMaster'}}{$domain}=$domainInfo;
+    } else {
+        $masters->{$domain}=$domainInfo;
+    };
+}
+
+for my $master( sort {lc($a) cmp lc($b)} keys %$masters ) {
+    $text.="<OPTION value='$master'";
+    if ($r->param("ispmanDomain") eq $master){
+        $text.= " selected  ";
+    }
+
+    $domaintype=$masters->{$master}{'ispmanDomainType'};
+    $text.=">$master ( $domaintype )";
+    if ($masters->{$master}{'ispmanDomainLocked'} &&
+        $masters->{$master}{'ispmanDomainLocked'} eq "true"){
+        $text.=" (locked) ";
+    }
+
+    $text.="</option>\n";
+        for my $replica( sort {lc($a) cmp lc($b)} keys %{$replicas->{$master}} ) {
+            $text.="<OPTION value='$replica'";
+            if ($r->param("ispmanDomain") eq $replica){
+                $text.= " selected  ";
+            }
+
+            $domaintype="replica";
+            $text.=">&nbsp;&nbsp;&nbsp; $replica ($domaintype) ";
+            $text.="</option>\n";
+        }
+}
+$text.="\n</select>";
+
+$text.="</td></tr></form></table>\n";
+
+if ($thisDomainType){
+    $text.=qq|
+<table width=100% border=0>
+   <tr class="light" onclick="doThis('editDomain')" 
+       onmouseover="this.className='lightOver'; window.status='@{[_("Edit [_1]", $thisDomain)]}'"
+       onmouseout="this.className='light'; window.status=''">
+     <td><A class=menu HREF="#">Edit $thisDomain</a></td>
+   </tr>
+</table>
+|;
+
+
+
+
+  if ($thisDomainType eq "primary"){
+     $text.=qq|
+     <table width=100% border=0><tr><td class=menuheader>@{[_("Manage DNS")]}</td></tr>
+
+        <tr class="light" 
+		onclick="doThis('editDNSsOARecords')" 
+		onmouseover="this.className='lightOver'; window.status='@{[_("Edit SOA Records for [_1]", $thisDomain)]}'"
+		onmouseout="this.className='light'; window.status=''">
+        <td>&nbsp;&nbsp;&nbsp;<a class=menu href='#'>@{[_("SOA Records")]}</a></td></tr>
+
+        <tr class="light" 
+		onclick="doThis('editDNSmXRecords')" 
+		onmouseover="this.className='lightOver'; window.status='@{[_("Edit MX Records for [_1]", $thisDomain)]}'"
+		onmouseout="this.className='light'; window.status=''">
+        <td>&nbsp;&nbsp;&nbsp;<a class=menu href='#'>@{[_("MX Records")]}</a></td></tr>
+
+        <tr class="light" 
+		onclick="doThis('editDNSnSRecords')"
+		onmouseover="this.className='lightOver'; window.status='@{[_("Edit NS Records for [_1]", $thisDomain)]}'"
+		onmouseout="this.className='light'; window.status=''">
+        <td>&nbsp;&nbsp;&nbsp;<a class=menu href='#'>@{[_("NS Records")]}</a></td></tr>
+
+        <tr class="light" 
+		onclick="doThis('editDNSaRecords')"
+		onmouseover="this.className='lightOver'; window.status='@{[_("Edit A Records for [_1]", $thisDomain)]}'"
+		onmouseout="this.className='light'; window.status=''">
+        <td>&nbsp;&nbsp;&nbsp;<a class=menu href='#'>@{[_("A Records")]}</a></td></tr>
+	
+	<tr class="light" 
+		onclick="doThis('editDNSaAAARecords')"
+		onmouseover="this.className='lightOver'; window.status='@{[_("Edit AAAA Records for [_1]", $thisDomain)]}'"
+		onmouseout="this.className='light'; window.status=''">
+        <td>&nbsp;&nbsp;&nbsp;<a class=menu href='#'>@{[_("AAAA Records")]}</a></td></tr>
+
+        <tr class="light" 
+		onclick="doThis('editDNScNAMERecords')"
+		onmouseover="this.className='lightOver'; window.status='@{[_("Edit CNAME Records for [_1]", $thisDomain)]}'"
+		onmouseout="this.className='light'; window.status=''">
+        <td>&nbsp;&nbsp;&nbsp;<a class=menu href='#'>@{[_("CNAME Records")]}</a></td></tr>
+		
+		<tr class="light" 
+		onclick="doThis('editDNStXTRecords')"
+		onmouseover="this.className='lightOver'; window.status='@{[_("Edit TXT Records for [_1]", $thisDomain)]}'"
+		onmouseout="this.className='light'; window.status=''">
+        <td>&nbsp;&nbsp;&nbsp;<a class=menu href='#'>@{[_("TXT Records")]}</a></td></tr>
+      </table>
+|;
+  }
+
+  unless ($thisDomainType eq "replica"){
+    $text.=qq|
+      <form><table width=100% border=0>
+         <tr><td class=menuheader>@{[_("Manage users")]} </td></tr>
+         <tr class="light" 
+		onclick="doThis('searchUsers')"
+		onmouseover="this.className='lightOver'; window.status='@{[_("Search for users under [_1]",  $thisDomain)]}'"
+		onmouseout="this.className='light'; window.status=''">
+         <td><a class=menu href="#">@{[_("Search users")]}</a> </td></tr>
+         <tr class="light" 
+		onclick="doThis('createUser')" 
+		onmouseover="this.className='lightOver'; window.status='@{[_("Add a user to [_1]", $thisDomain)]}'"
+		onmouseout="this.className='light'; window.status=''">
+         <td><a class=menu href="#">@{[_("Add user")]}</a> </td></tr>
+
+        <tr>
+        <td>
+
+            <SELECT NAME="users" onChange="editUser(this.options[this.selectedIndex].value)">
+            <OPTION VALUE="">@{[_("Select user")]}</option>
+            |;
+            for my $user(sort{lc($users->{$a}{'cn'}) cmp lc($users->{$b}{'cn'}) } keys %$users) {
+                my ($uid) = ($user =~ /^uid=(.*?),/);
+              $text.="<option value='$uid'>  $users->{$user}{'cn'}</option>";
+            }
+
+            $text.=qq|</select></td></tr>|;
+
+            if ($ispman->getConf("messaging_service")){
+                $text.=qq|<tr class="light" onclick="doThis('notifyUsers')"
+                    onmouseover="this.className='lightOver'; window.status='Send e-mail to all users of $thisDomain'"
+                    onmouseout="this.className='light'; window.status=''">
+                <td><a class=menu href="#">Notify users</a> </td></tr>|;
+            }
+
+            $text.=qq|
+      </table></form>
+            |;
+
+
+         $text.=qq|<form><table width=100% border=0><tr>
+         <td class=menuheader>@{[_("Manage mailgroups")]} </td></tr>
+         <tr class="light" 
+		onclick="doThis('createMailGroup')"
+		onmouseover="this.className='lightOver'; window.status='@{[_("Add a mail group to [_1]", $thisDomain)]}'"
+		onmouseout="this.className='light'; window.status=''">
+         <td><a class=menu href="#">@{[_("Add mailgroup")]}</a> </td></tr>
+
+        <tr>
+        <td>
+
+            <SELECT NAME="mailgroups" onChange="editMailGroup(this.options[this.selectedIndex].value)">
+            <OPTION VALUE="">@{[_("Select mailgroup")]}</option>
+            |;
+            for my $mailgroup(sort{lc($mailgroups->{$a}{'cn'}) cmp lc($mailgroups->{$b}{'cn'}) } keys %$mailgroups) {
+              $text.="<option value='$mailgroups->{$mailgroup}{'cn'}'>$mailgroups->{$mailgroup}{'cn'}</option>";
+            }
+
+            $text.=qq|
+            </select></td>
+            </tr>
+            </table>
+            </form>
+            |;
+
+         $text.=qq|<form><table width=100% border=0><tr><td class=menuheader>@{[_("Manage web users")]}</td></tr>
+	<tr class="light" 
+		onclick="addWebUser()" 
+		onmouseover="this.className='lightOver'; window.status='@{[_("Add a web user to [_1]", $thisDomain)]}'"
+		onmouseout="this.className='light'; window.status=''">
+         <td><a class=menu href="#">@{[_("Add web user")]}</a> </td></tr>
+         <tr><td>
+
+            <SELECT NAME="webusers" onChange="manageWebUser(this.options[this.selectedIndex].value)">
+            <OPTION VALUE="">@{[_("Select web user")]}</option>
+            |;
+            for my $webuser(sort{lc($webusers->{$a}{'ispmanUserId'}) cmp lc($webusers->{$b}{'ispmanUserId'}) } keys %$webusers) {
+              $text.="<option value='$webusers->{$webuser}{'ispmanUserId'}'>  $webusers->{$webuser}{'ispmanUserId'}</option>\n";
+            }
+            
+            $text.=qq|
+            </select></td>
+            </tr>
+            </table>
+            </form>
+            |;
+
+	$text.=qq|<form><table width=100% border=0><tr><td class=menuheader>@{[_("Manage virtualhosts")]}</td></tr>
+	<tr class="light" 
+		onclick="addVhost()" 
+		onmouseover="this.className='lightOver'; window.status='@{[_("Add a virtual host to [_1]", $thisDomain)]}'"
+		onmouseout="this.className='light';window.status=''">
+         <td><a class=menu href="#">@{[_("Add virtualhost")]}</a> </td></tr>
+                 
+                <tr>
+                <td>
+               <SELECT NAME="vhosts" onChange="editVhost(this.options[this.selectedIndex].value)">
+               <option value=''>@{[_("Select virtualhost")]}</option>
+               |;                   
+
+               my $vhosts=$ispman->getApacheVhosts($thisDomain);
+               for my $vhost(sort keys %$vhosts) {
+                  $text.="<option value='$vhost'>  $vhost</option>";
+               }
+                    $text.=qq|
+                    </select></td>
+                    </tr>
+                    </table>
+                    </form>
+                    |;
+
+	$text.=qq|<form><table width=100% border=0><tr><td class=menuheader>@{[_("Manage databases")]}</td></tr>
+	<tr class="light" 
+		onclick="addDatabase()" 
+		onmouseover="this.className='lightOver'; window.status='@{[_("Add a database to [_1]", $thisDomain)]}'"
+		onmouseout="this.className='light';window.status=''">
+         <td><a class=menu href="#">@{[_("Add database")]}</a> </td></tr>
+
+                <tr>
+                <td>
+               <SELECT NAME="databases" onChange="editDatabase(this.options[this.selectedIndex].value)">
+               <option value=''>@{[_("Select database")]}</option>
+               |;
+
+               my $databases=$ispman->getDatabases($thisDomain);
+               for my $db(sort keys %$databases) {
+                  $text.="<option value='$db'>  $db</option>";
+               }
+                    $text.=qq|
+                    </select></td>
+                    </tr>
+                    </table>
+                    </form>
+                    |;
+
+            }
+
+}
+$text
+</perl>
+</form>
+</td>
+</table>

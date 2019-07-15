@@ -1,0 +1,57 @@
+
+
+########################################################
+### ObjectClasses!
+########################################################
+
+
+
+
+#objectClass ( 1.3.6.1.4.1.8833.2.2.1005 NAME 'ispmanGlobalDnsVars'
+#	SUP top STRUCTURAL
+#	DESC 'Global Ispman dns ispmanVars'
+#	MAY (cn $ ou $ description $ mxRecord $ aRecord $ nsRecord $ cNAMERecord))
+
+
+objectClass ( 1.3.6.1.4.1.8833.2.2.1007 NAME 'ispmanProcesses'
+	SUP top STRUCTURAL 
+	DESC 'Placeholder for ISPMan ispmanProcesses branch top'
+	MUST ou
+	MAY (ispmanDomain $ ispmanStatus $ ispmanMessage $ ispmanPid $ ispmanSession $ ispmanUser $ ispmanHostName $ ispmanProcess $ ispmanParams))
+
+
+
+
+
+objectClass ( 1.3.6.1.4.1.8833.2.2.1105 NAME 'ispmanDomainUserGroup'
+	SUP top STRUCTURAL
+	DESC 'A class describing ispmanUsergroups within ISPMan'
+	MUST (cn $ ispmanDomain $ gidNumber $ ispmanGroupName )
+	MAY (description))
+
+
+objectClass ( 1.3.6.1.4.1.8833.2.2.1106 NAME 'ispmanDomainAdmins'
+	SUP top STRUCTURAL
+	DESC 'Domain administrators'
+	MAY (ou $ ispmanDomain))
+
+
+objectClass ( 1.3.6.1.4.1.8833.2.2.1107 NAME 'ispmanDomainRelatedObject'
+	SUP top STRUCTURAL
+	DESC 'Ispman extention to ispmanDomainRelatedObject'
+	MAY (ou $ associatedDomain $ ispmanDomain $ cn $ ispmanPrimary $ ispmanRootmail $ ispmanExpire $ ispmanRetry $ ispmanMinimum $ ispmanRefresh $ ispmanRecord))
+
+
+
+objectClass ( 1.3.6.1.4.1.8833.2.2.1108 NAME 'ispmanBranch'
+	SUP top STRUCTURAL 
+	MAY (
+	dc $ ou $ sOARecord $ aRecord $ aAAARecord $ nSRecord $ mXrecord $ cNAMERecord $ tXTRecord $
+	relativeDomainName $ ispmanSession
+	))
+
+objectClass ( 1.3.6.1.4.1.8833.2.2.1109 NAME 'ispmanRelatedObject'
+        SUP top STRUCTURAL
+	MAY ( cn )
+        )
+

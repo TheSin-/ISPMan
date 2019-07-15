@@ -1,0 +1,63 @@
+IMPORTANT NOTICE !
+ 
+The Debian package is _really_ unfinished stuff by now.
+We include it in ispman's CVS for public review.
+Contributions weclome!
+
+Contact the ISPMan devel Mailing list or 
+aj@net-lab.net
+
+IMPORTANT NOTICE !
+
+
+
+ispman for Debian
+-----------------
+
+In order to complete installation and configuration you will need to:
+    * include ispman ldap schemas in your slapd.conf
+    * configure /etc/ispman/ispman.conf ldap settings for your environment 
+    * load ispman ldif into your ldap database
+    * configure apache (if you've installed ispman-web)
+    * configure ispman 
+
+
+In order for ispman to work your ldap database will need to have several
+schemas included, some come with openldap (slapd) and some come with
+ispman-lib.  You will need to have at least the following included in
+/etc/ldap/slapd.conf:
+    core.schema
+    cosine.schema
+    nis.schema
+    misc.schema
+    inetorgperson.schema
+    dnszone.schema (/usr/share/ispman/conf/schema)
+    pureftpd.schema (/usr/share/ispman/conf/schema)
+    ispman.schema (/usr/share/ispman/conf/schema)
+
+Once you've finished configuring slapd, restart.
+
+Edit and configure /etc/ispman/ispman.conf for your environment.  The conf
+file is already configured with some sane defaults but will most likely
+require tweaking for your particular ldap settings.
+
+
+To load the ispman ldif you will need to execute the following commands:
+    cd /usr/share/ispman
+    cat conf/ldif/ispman.ldif | ./bin/ispman.substConf | \
+        ./bin/ispman.ldifload -f -
+
+
+There is a sample apache.conf file in /etc/ispman/ that you can configure
+and include in your apache/apache-ssl/apache2 conf dir.  Alternatively, you
+can use a mod-perl enabled apache server with
+/etc/ispman/mod-perl.apache.conf
+
+
+Once you've configured slapd, apache and ispman.conf you will need to
+finalize your configuration in ldap.  To do that you will need to login to
+the ispman web interface using the location you specified in apache.  Use
+ispman to login and the password you specified in ispman.conf (ldapRootPass)
+
+
+ -- Tim Peeler <thp@linuxforce.net>, Mon, 27 Mar 2006 08:15:03 -0500

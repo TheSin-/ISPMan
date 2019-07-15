@@ -1,0 +1,70 @@
+#!/usr/bin/perl
+package ISPMan;
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopts( 'had:', \%opts );
+    unless ( $opts{'d'} ) {
+        $opts{'d'} = 0;
+    }
+
+    if ( $opts{'h'} ) {
+        print "$FindBin::Script -d debugLevel[1|2|3] [-a]\n";
+        print
+"\t-a\tMake postfix maps for all domains and not just the ones where smtpHost is this host\n";
+        print "\n";
+        exit;
+    }
+}
+
+use Sys::Hostname;
+use File::Path;
+
+use ISPMan;
+
+# defind log_message.
+# This is defined in ispman-agent and we should redefine here
+sub logsay {
+    my $message = join ' ', @_;
+    chomp($message);
+    print "$message\n";
+}
+
+$ispman = ISPMan->new();
+$ispman->setConfig( 'debug', $opts{'d'} );
+my $install_dir = $ispman->getConf("installDir");
+require "$install_dir/lib/dns.lib";
+
+$namedConfFile       = $ispman->getConf('namedConfFile');
+$namedConfHeaderFile = $ispman->getConf('namedConfHeaderFile');
+$namedConfFooterFile = $ispman->getConf('namedConfFooterFile');
+
+$namedDir = join "/",
+  ( $ispman->getConf('namedDir'), $ispman->getConf('namedIspmanSubDir') );
+$namedRevDir = join "/", ( $namedDir, $ispman->getConf('namedRevDir') );
+$namedPriDir = join "/", ( $namedDir, $ispman->getConf('namedPriDir') );
+$namedSecDir = join "/", ( $namedDir, $ispman->getConf('namedSecDir') );
+
+$namedDir    =~ s!//!/!g;
+$namedRevDir =~ s!//!/!g;
+$namedPriDir =~ s!//!/!g;
+$namedSecDir =~ s!//!/!g;
+
+my $filter = "objectclass=ispmanDomain";
+unless ( $opts{'a'} ) {
+    require Sys::Hostname;
+    import Sys::Hostname;
+    $filter = sprintf( "&(objectclass=ispmanDomain)(dnsHost=%s)", hostname() );
+}
+
+make_named_conf( "ALL", $filter );
+
+exit:
+__END__
+
+
+
+

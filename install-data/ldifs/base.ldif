@@ -1,0 +1,39 @@
+dn: %%ldapBaseDN%%
+objectclass: top
+objectclass: organization
+o: ispman
+
+dn: ou=admins, %%ldapBaseDN%%
+objectclass: ispmanBranch
+ou: admins
+
+dn: uid=ispman, ou=admins, %%ldapBaseDN%%
+objectclass: top
+objectclass: ispmanSysadmin
+ou: admins
+userPassword: {crypt}@@randcrypt('%%ldapRootPass%%')@@
+ispmanSysadminLevel: 100
+ispmanSysadminMail: %%rootEmail%%
+cn: ISPMan Admin
+uid: ispman
+
+dn: uid=%%imapAdminUsername%%, ou=admins, %%ldapBaseDN%%
+objectclass: top
+objectclass: ispmanSysadmin
+ou: admins
+uid: %%imapAdminUsername%%
+userPassword: {crypt}@@randcrypt('%%imapAdminPass%%')@@
+ispmanSysadminLevel: 1
+ispmanSysadminMail: %%rootEmail%%
+cn: Cyrus Admin
+
+dn: ou=ispman,%%ldapBaseDN%%
+objectclass: ispmanBranch
+ou: ispman
+
+# PAB Stuff
+dn: ou=pabs,%%ldapBaseDN%%
+objectClass: top
+objectClass: organizationalUnit
+ou: pabs
+

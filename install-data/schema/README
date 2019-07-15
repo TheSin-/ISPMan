@@ -1,0 +1,7 @@
+In each directory there are files attr.txt and objc.txt
+attr.txt: attributes for a section such as conf/attr.txt define all attributes related to conf section of ispman
+objc.txt: object classes. For example: processes/objc defined objectclasses for this section.
+
+To split these files makes it easier to work on them.
+To build a schema from them simply run make in this directory
+

@@ -1,0 +1,85 @@
+<script type="text/javascript" language="JavaScript">
+<!--
+
+    function checkRedirection(f){
+        if (f.ispmanVhostRedirectURL.value==""){
+            alert("URL must not be empty!")
+            return false
+        }
+
+        if (f.ispmanVhostRedirectLocation.value==""){
+            alert("Location must not be empty!")
+            return false
+        }
+        return true
+    }
+
+    function modifyRedirection(f){
+        if (checkRedirection(f)){
+            f.submit()
+        }
+    }
+
+    function deleteRedirection(f){
+        location=cgiurl+"?mode=deleteRedirect&"+cgidata+"&ispmanVhostRedirectURL="+f.modifyURL.value
+    }
+
+//-->
+</script>
+
+
+<table border>
+<tr>
+<th>URL</th><th>Location</th>
+<th>&nbsp;</th>
+</tr>
+<tr>
+
+<tr><form onSubmit="return checkRedirection(this)">
+<input type=hidden name="mode" value="addRedirect">
+<input type=hidden name="ispmanDomain" value="<perl>$r->param("ispmanDomain")</perl>">
+<input type=hidden name="ispmanVhostName" value="<perl>$r->param("ispmanVhostName")</perl>">
+<td><input type=text name="ispmanVhostRedirectURL"></td>
+<td><input type=text name="ispmanVhostRedirectLocation"></td>
+<td><input type=submit value="Add"></td>
+</tr>
+</form>
+
+<perl>
+    $ispmanDomain=$r->param("ispmanDomain");
+    $ispmanVhostName=$r->param("ispmanVhostName");
+    $redirects=$ispman->getRedirections($ispmanDomain, $ispmanVhostName);
+    @lines=();
+    $i=0;
+    for (keys %$redirects){
+        $url=$redirects->{$_}{'ispmanVhostRedirectURL'};
+        $location=$redirects->{$_}{'ispmanVhostRedirectLocation'};
+        $i++;
+        push @lines, qq[
+<tr>
+<form name="redirection$i">
+<input type=hidden name="mode" value="updateRedirect">
+<input type=hidden name="ispmanDomain" value="$ispmanDomain">
+<input type=hidden name="ispmanVhostName" value="$ispmanVhostName">
+<input type=hidden name="modifyURL" value="$url">
+<td><input type=text name="ispmanVhostRedirectURL" value="$url"></td>
+<td><input type=text name="ispmanVhostRedirectLocation" value="$location"></td>
+<td>
+<a href="javascript: modifyRedirection(document.redirection$i)" alt="@{[_("Apply")]}" title="@{[_("Apply")]}">
+<img src="@{[$ispman->getConfig('ispmanUrlPrefix')]}/gfx/apply.gif" border="0"></a>
+<a href="javascript: deleteRedirection(document.redirection$i)" alt="@{[_("Delete")]}" title="@{[_("Delete")]}">
+<img src="@{[$ispman->getConfig('ispmanUrlPrefix')]}/gfx/delete.gif" border="0"></a>
+</td>
+</form>
+</tr>
+];
+    }
+
+    join "\n", @lines;
+</perl>
+
+</table>
+
+
+
+

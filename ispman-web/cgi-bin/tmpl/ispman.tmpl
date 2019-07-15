@@ -1,0 +1,19 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<link REL="shortcut icon" HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/favicon.ico" TYPE="image/x-icon">
+<title>ISPMan@<perl>$ENV{'SERVER_NAME'}</perl></title>
+
+
+<head>
+    <script src="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/js/ispman.js"></script>
+
+    <frameset rows="30,50,*" border="0" frameborder="0">
+        <frame name="title" src="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=topmenu" marginwidth="0" marginheight="0" scrolling="no">
+        <frame name="status" src="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=status" marginwidth="0" marginheight="0" scrolling="no">
+        <frameset cols="250,*" border="none" frameborder="2">
+            <frame name="main_menu" src="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=menu" marginwidth="0" marginheight="0" scrolling="auto">
+            <frame name="content" src="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=overview">
+        </frameset>
+    </frameset>
+</head>
+</html>

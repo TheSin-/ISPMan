@@ -1,0 +1,11 @@
+# objectClass  1.3.6.1.4.1.8833.2.2.1009 'ispmanHostGroup'
+
+
+objectClass ( 1.3.6.1.4.1.8833.2.2.1009 NAME 'ispmanHostGroup'
+	SUP top STRUCTURAL 
+	DESC 'Class to order hosts into functional groups'
+	MUST ispmanHostGroupName
+        MAY (ispmanHostGroupInfo $ ispmanHostGroupMember))
+
+
+

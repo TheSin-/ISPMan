@@ -1,0 +1,38 @@
+# ISPMan schema
+# IMPORTANT: This file is generated via Makefile
+# All your changes here will be lost
+# If you want to add attributes related to another service
+# create a directory for that service and define 2 files
+# attr.txt (attributes)
+# objc.txt (objectclasses)
+# these files will be used when re-generating the schema
+
+#
+# This file contains LDAPv3 schema for the ISPMan application to run on a LDAPv3 backend
+#
+# objectClasses and Attributes have been unconditionally prefixed with ispman, to avoid
+# any namespace clashes, and the existing OID has been used.
+#
+# prefixing of objectclasses: ispmanXxxXxx
+# prefixing of attributes: ispmanXxx
+#
+# All objectClass and Attribute OIDs are currently >1000, denoting beta status
+#
+#
+# -------------------------------------------------------------
+# |             ISPMan OID Assignments table                  |
+# -------------------------------------------------------------
+# |               OID          |         Assinged to          |
+# -------------------------------------------------------------
+# | 1.3.6.1.4.1.8833           |  ISPMan's Assigned Base OID  |
+# -------------------------------------------------------------
+# | 1.3.6.1.4.1.8833.1         |  SNMP Elements               |
+# -------------------------------------------------------------
+# | 1.3.6.1.4.1.8833.2         |  LDAP Elements               |
+# -------------------------------------------------------------
+# | 1.3.6.1.4.1.8833.2.1       | AttributeTypes               |
+# -------------------------------------------------------------
+# | 1.3.6.1.4.1.8833.2.2       | ObjectClasses                |
+# -------------------------------------------------------------
+#
+

@@ -1,0 +1,15 @@
+mod_perl:
+	cd mod_perl-1.24; perl Makefile.PL APACHE_PREFIX=/opt/ispman APACHE_SRC=../apache_1.3.12/src DO_HTTPD=1 USE_APACI=1 PREP_HTTPD=1
+	make -C  mod_perl-1.24 all install
+
+apache:
+	cd apache_1.3.12; LIBS="-L/usr/lib/libldap.a -L /usr/lib/liblber.a" \
+		EXTRA_INCLUDES="-I/usr/include/ldap.h -I/usr/include/lber.h" \
+		 ./configure --prefix=/opt/ispman\
+		--activate-module=src/modules/perl/libperl.a \
+		--activate-module=src/modules/extra/mod_ldap.o\
+		--enable-module=so
+	make -C apache_1.3.12 all install
+
+all: mod_perl apache
+	@echo DONE

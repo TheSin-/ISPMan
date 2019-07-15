@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+my $session = $ARGV[0];
+
+
+my $hostname = $opts{'h'} || $ENV{'HOSTNAME'};
+
+use ISPMan;
+my $ispman = ISPMan->new();
+
+my $filter = "ispmanSession=$session";
+
+my $processes =
+  $ispman->getEntriesAsHashRef(
+    "ou=processes, @{[$ispman->getConf('ldapBaseDN')]}", "$filter" );
+
+$opts{'s'} ||= "ispmanPid";
+
+for (
+    sort { $processes->{$a}{ $opts{'s'} } cmp $processes->{$b}{ $opts{'s'} } }
+    keys %$processes
+  )
+{
+    write();
+}
+
+format STDOUT_TOP =
+PID     Status       Domain                 Host             process
+-------------------------------------------------------------------------------
+.
+
+format STDOUT =
+@<<<<<  @<<<<<<<<<<  @<<<<<<<<<<<<<<<<<<<<  @<<<<<<<<<<<<<<  @<<<<<<<<<<<<<<<<<<<<<<<<< @*
+$processes->{$_}{'ispmanPid'}, $processes->{$_}{'ispmanStatus'}, $processes->{$_}{'ispmanDomain'}, $processes->{$_}{'ispmanHostName'},$processes->{$_}{'ispmanProcess'}
+.
+
+#print $ispman->dumper($processes);
+__END__
+
+

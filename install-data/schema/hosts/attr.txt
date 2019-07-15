@@ -1,0 +1,41 @@
+# ISPMan hosts. Machines that take part in the ISP system.
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1501 'ispmanHostName'
+# attributeType 1.3.6.1.4.1.8833.2.1.1502 'ispmanHostIp'
+# attributeType 1.3.6.1.4.1.8833.2.1.1503 'ispmanHostAlias'
+# attributeType 1.3.6.1.4.1.8833.2.1.1504 'ispmanHostType'
+# attributeType 1.3.6.1.4.1.8833.2.1.1505 'ispmanHostInfo'
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1501 NAME 'ispmanHostName'
+	DESC 'A string naming an ISPMan host. This should be a hostname -f output on a unix host'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1502 NAME 'ispmanHostIp'
+        DESC 'IP address as a dotted decimal, eg. 192.168.1.1'
+        EQUALITY caseIgnoreIA5Match
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{128} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1503 NAME 'ispmanHostAlias'
+	DESC 'A string naming an alias of an ISPMan host. This maybe the display name of the machine'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1504 NAME 'ispmanHostType'
+	DESC 'Host, Router, Switch etc. This can be used when configuring MRTG or NetSaint for the hosts'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1505 NAME 'ispmanHostInfo'
+	DESC 'Small description of the machine'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+
+
+

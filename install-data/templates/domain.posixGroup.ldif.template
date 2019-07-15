@@ -1,0 +1,4 @@
+dn: cn=<perl>$domain</perl>,ispmanDomain=<perl>$domain</perl>,<perl>$ispman->getConf("ldapBaseDN")</perl>
+objectclass: posixGroup
+gidnumber: <perl>$r->param("gidnumber")</perl>
+cn: <perl>$domain</perl>

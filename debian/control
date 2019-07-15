@@ -1,0 +1,114 @@
+Source: ispman
+Section: web
+Priority: optional
+Maintainer: Andreas John <aj@net-lab.net> 
+Build-Depends-Indep: debhelper (>= 4.0.0), dpatch
+Standards-Version: 3.6.2
+
+Package: ispman-web
+Architecture: all
+Depends: ${misc:Depends}, ispman-lib, whois, apache2 | httpd
+Recommends: ispman-agent, libapache-mod-ldap
+Suggests: webalizer
+Description: ISPMan ISP management system control panel
+ ISPMan is an ISP management system designed to meet the needs of
+ the ever growing infrastructure that an ISP has to manage.  It was
+ originally written to manage DNS, Web Virtual hosts and Mail accounts
+ at large ISPs.  Since then it has moved to a modular structure with
+ help from ispman developers.
+ .
+ ispman-web provides the web-based admin and customer interface
+ .
+ The administrator's web interface allows one to create or delete domains,
+ users, dns zones, virtual hosts and other settings.  All operations
+ are put on a dispatch list for another module to take care of.
+ .
+ The customer control panel is a simplified version of the administrator's
+ web interface.  It is restricted to managing only their domain.  It is
+ designed for the customer and is similar to customer control panels of
+ other ISPs using commercial software.
+
+
+Package: ispman-agent
+Architecture: all
+Depends: ${misc:Depends}, ispman-lib
+Suggests: ispman-web
+Description: ISPMan ISP management system agent
+ ISPMan is an ISP management system designed to meet the needs of
+ the ever growing infrastructure that an ISP has to manage.  It was
+ originally written to manage DNS, Web Virtual hosts and Mail accounts
+ at large ISPs.  Since then it has moved to a modular structure with
+ help from ispman developers.
+ .
+ ispman-agent is the real work horse for ispman.  The agents running
+ on each server in the group track the dispatch list in the ldap tree.
+ When a new job is created via the admin or customer web interfaces,
+ they go to work.  If the job is for the web server groups, say, the
+ agent will modify the virtual host listings as specified.  The agent
+ is the same software on each machine that can do various functions.
+ Like cron, it sits idle when there is no work to do.
+
+
+Package: ispman-lib
+Architecture: all
+Depends: ${misc:Depends}, ${perl:Depends}, libconvert-asn1-perl, libauthen-sasl-perl, liburi-perl, libio-socket-ssl-perl, libio-stringy-perl, libparse-recdescent-perl, liblog-agent-perl, libcgi-session-perl, libimap-admin-perl, libnet-ldap-perl, libdns-zoneparse-perl, libunicode-string-perl, libtext-template-perl, liblocale-maketext-lexicon-perl, libsoap-lite-perl, libxml-sax-perl, libhtml-parser-perl, libmail-rfc822-address-perl, libdigest-perl, libcgi-perl, libstring-mkpasswd-perl, libdigest-sha1-perl, perl-modules, libemail-valid-perl, perl-doc, ucf
+Recommends: bind | bind9 
+Suggests: slapd | ldap-server
+Description: ISPMan ISP management system libraries
+ ISPMan is an ISP management system designed to meet the needs of
+ the ever growing infrastructure that an ISP has to manage.  It was
+ originally written to manage DNS, Web Virtual hosts and Mail accounts
+ at large ISPs.  Since then it has moved to a modular structure with
+ help from ispman developers.
+ .
+ ispman-lib provides common libraries for ispman-agent and ispman-web
+
+Package: ispman-doc
+Architecture: all
+Depends: whois
+Description: ISPMan documentation files 
+ ISPMan is an ISP management system designed to meet the needs of
+ the ever growing infrastructure that an ISP has to manage.  It was
+ originally written to manage DNS, Web Virtual hosts and Mail accounts
+ at large ISPs.  Since then it has moved to a modular structure with
+ help from ispman developers.
+ .
+ ispman-doc install the documentation shipped with ISPMan under /usr/share/doc/
+
+Package: ispman-all-in-one-box
+Architecture: all
+Depends: ispman-web, ispman-agent, ispman-doc, ispman-lib, ispman-mailfilter, bind9, slapd, apache2, apache2.2-common, libapache2-mod-php5, libapache2-mod-suphp, libapache2-mod-ldap-userdir, webalizer, pure-ftpd-ldap, monit, libpam-ldap, libpam-ldap, nscd, awstats, cyrus-admin-2.2, cyrus-imapd-2.2, cyrus-pop3d-2.2, libcyrus-imap-perl22, pop-before-smtp, libnss-ldap, postfix, postfix-ldap, libsasl2, sasl2-bin, libsasl2-modules
+Description: ISPMan metapackage - it set dependencies on the "usual suspects"
+ ISPMan is an ISP management system designed to meet the needs of
+ the ever growing infrastructure that an ISP has to manage.  It was
+ originally written to manage DNS, Web Virtual hosts and Mail accounts
+ at large ISPs.  Since then it has moved to a modular structure with
+ help from ispman developers.
+ .
+ ISPMan is flexible enough to work with differnt kind of LDAP servers,
+ Nameservers, MTA etc. But one usual combination is bind9-apache2-slapd.
+ While all other ISPMan packages, only recommend certain packages, this
+ metapackage sets dependencies to some packages that will allow you to run
+ one box for all services. 
+ .
+ Check /usr/share/doc/ispman-all-in-one-box/examples for a setup script, that configures all the daemons.
+
+
+Package: ispman-amavis
+Architecture: all
+Depends: unrar, arj, tnef, cabextract, arc, zip, spamassassin, unrar, unzoo, clamav, lzop, unzip, libmail-spf-query-perl, razor, libnet-ident-perl, dcc-client, pyzor, nomarch, amavisd-new, clamav-daemon
+Provides: ispman-mailfilter
+Description: ISPMan metapackage - it set dependencies on the "usual suspects"
+ ISPMan is an ISP management system designed to meet the needs of
+ the ever growing infrastructure that an ISP has to manage.  It was
+ originally written to manage DNS, Web Virtual hosts and Mail accounts
+ at large ISPs.  Since then it has moved to a modular structure with
+ help from ispman developers.
+ .
+ This Metapackage set dependencies to what amavisd needs to filter spam and virii.
+ It is actually not ISPMan specific as it only sets dependencies to tools like clamav for
+ virus scanning and several unpackers to enable amavis inspect contents of attached
+ archives like .zip, .lha, etc. 
+
+
+

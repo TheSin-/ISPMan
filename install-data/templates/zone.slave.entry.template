@@ -1,0 +1,8 @@
+zone "<perl>$domain</perl>" IN {
+	type slave;
+	file "<perl>$file</perl>";
+	masters {
+		<perl>$masters</perl>
+	};
+};
+

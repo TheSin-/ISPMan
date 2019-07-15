@@ -1,0 +1,14 @@
+dn: ou=radiusprofiles, %%ldapBaseDN%%
+ou: radiusprofiles
+objectclass: ispmanBranch
+
+dn: cn=default, ou=radiusprofiles, %%ldapBaseDN%%
+objectclass: top
+objectclass: ispmanRelatedObject
+objectclass: radiusprofile
+cn: default
+radiusServiceType: Framed-User
+radiusFramedProtocol: PPP
+radiusIdleTimeout: 600
+radiusFramedMTU: 1500
+

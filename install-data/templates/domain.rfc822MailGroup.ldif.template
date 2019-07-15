@@ -1,0 +1,21 @@
+dn: cn=<perl>$r->param("cn")</perl>, ou=ispmanMailGroup, ispmanDomain=<perl>$r->param("ispmanDomain")</perl>, <perl>$ispman->getConf("ldapBaseDN")</perl>
+objectclass: ispmanMailGroup
+ispmanDomain: <perl>$r->param("ispmanDomain")</perl>
+cn: <perl>$r->param("cn")</perl>
+mailLocalAddress: <perl>$r->param("cn")</perl>@<perl>$r->param("ispmanDomain")</perl>
+<perl>
+$emails="";
+@mailForwardingAddresses=split(/\s\s*/, $r->param("mailForwardingAddress"));
+         for(@mailForwardingAddresses){
+                chomp($_);
+                $emails.="mailForwardingAddress: $_\n";
+        }
+$emails</perl>
+<perl>
+$alias="";
+@mailAlias=split(/\s\s*/, $r->param("mailAlias"));
+         for(@mailAlias){
+                chomp($_);
+                $alias.="mailAlias: $_\n";
+        }
+$alias</perl>

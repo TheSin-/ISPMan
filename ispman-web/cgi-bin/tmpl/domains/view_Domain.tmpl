@@ -1,0 +1,118 @@
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+   
+
+   
+Readonly access granted.
+<br>This domain is locked and editable by  "<perl>$ispman->{'domain'}{'ispmanDomainLockedBy'}</perl>"<br>
+
+        
+ <P>
+<table border=0>
+<tr>
+    <td class=line0>Domainname</td>
+    <td class=line0>
+    <perl>$r->param("ispmanDomain")</perl>
+    </td>
+</tr>
+
+
+<tr>
+    <td class=line1>Domain Type</td>
+    <td class=line1><perl>($r->param("ispmanDomain") eq "ispman.conf")?"Configuration Domain":$ispman->getDomainType($r->param("ispmanDomain"))</perl>
+    </td>
+</tr>
+
+<tr>
+    <td class=line0>Home Directory</td>
+    <td class=line0>
+        <perl>$ispman->{'domain'}{'homeDirectory'}</perl>
+    </td>
+</tr>
+
+
+<tr>
+    <td class=line1>Domain UID</td>
+    <td class=line1>
+        <perl>$ispman->{'domain'}{'uidNumber'}</perl>
+    </td>
+</tr>
+
+
+
+
+<tr>
+    <td class=line0>Domain GID</td>
+    <td class=line0>
+        <perl>$ispman->{'domain'}{'gidNumber'}</perl>
+    </td>
+</tr>
+
+<tr>
+    <td class=line1>Users</td>
+    <td class=line1>
+        <perl>$ispman->getUserCount($r->param("ispmanDomain"))</perl> of <perl>$ispman->{'domain'}{'ispmanMaxAccounts'} || "undefined" </perl> user(s) <br>
+
+    </td>
+</tr>
+
+<tr>
+    <td class=line0>Vhosts</td>
+    <td class=line0>
+        <perl>$ispman->getVhostCount($r->param("ispmanDomain"))</perl> of <perl>$ispman->{'domain'}{'ispmanMaxVhosts'} || "undefined" </perl> virtual host(s) <br>
+
+    </td>
+</tr>
+
+
+
+
+
+
+<tr>
+    <td class=line0>Mail Delivery</td>
+    <td class=line0>
+        <perl>$ispman->{'domain'}{'ispmanDomainMailDeliveryMethod'}</perl>
+    </td>
+</tr>
+
+
+
+<tr>
+    <td class=line1 valign=top>Domain Services</td>
+    <td class=line1>
+        <perl>
+            my $text="";
+            if (ref $ispman->{'domain'}{'ispmanDomainService'} eq "ARRAY"){
+                for (@{$ispman->{'domain'}{'ispmanDomainService'}}){
+                   $text.=$_;
+                   $text.="<br>";
+                }
+            } else {
+                   $text.=$ispman->{'domain'}{'ispmanDomainService'};
+            }
+            $text
+        </perl>        
+        </select>
+        
+    </td>
+</tr>
+
+
+<tr>
+    <td class=line0>Max Email accounts </td>
+    <td class=line0> 
+    <perl>$ispman->{'domain'}{'ispmanMaxAccounts'}</perl>
+    </td>
+</tr>
+
+<tr>
+    <td class=line1>Max Virtual Hosts </td>
+    <td class=line1> 
+    <perl>$ispman->{'domain'}{'ispmanMaxVhosts'}</perl>
+    </td>
+</tr>
+
+</table>
+ 
+ 
+

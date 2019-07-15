@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+
+
+use ISPMan;
+my $ispman = ISPMan->new();
+$admins = $ispman->getAdmins();
+
+for ( sort keys %$admins ) {
+    $admin = $admins->{$_};
+    write();
+}
+
+format STDOUT_TOP =
+
+UID               NAME                    EMAIL                      Level
+---------------------------------------------------------------------------
+.
+
+format STDOUT =
+@<<<<<<<<<<<<<<<  @<<<<<<<<<<<<<<<<<<<<   @<<<<<<<<<<<<<<<<<<<<<<<<< @<<<
+$admin->{'uid'}, $admin->{'cn'}, $admin->{'ispmanSysadminMail'}, $admin->{'ispmanSysadminLevel'}
+.
+
+__END__
+
+

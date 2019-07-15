@@ -1,0 +1,32 @@
+# Required perl modules for ISPMan
+
+Text::Balanced		Text-Balanced-1.95.tar.gz
+Convert::ASN1           Convert-ASN1-0.18.tar.gz
+Authen::SASL            Authen-SASL-2.08.tar.gz
+Digest::base		Digest-1.08.tar.gz
+Digest::MD5             Digest-MD5-2.33.tar.gz
+Digest::SHA1		Digest-SHA1-2.11.tar.gz
+URI::ldap               URI-1.31.tar.gz
+IO::Socket::SSL         IO-Socket-SSL-0.96.tar.gz
+IO::Scalar		IO-stringy-2.109.tar.gz
+XML::SAX::Base          XML-SAX-Base-1.02.tar.gz
+Parse::RecDescent       Parse-RecDescent-1.94.tar.gz
+Log::Agent              Log-Agent-0.306.tar.gz
+CGI                     CGI.pm-3.05.tar.gz
+CGI::Session            CGI-Session-3.95.tar.gz
+IMAP::Admin             IMAP-Admin-1.6.1.tar.gz
+Net::SMTP               libnet-1.19.tar.gz
+Net::LDAP               perl-ldap-0.3202.tar.gz
+Storable		Storable-2.13.tar.gz
+DNS::ZoneParse          DNS-ZoneParse-0.91.tar.gz
+MIME::Base64            MIME-Base64-3.01.tar.gz
+HTML::Entities          HTML-Parser-3.36.tar.gz
+Unicode::String         Unicode-String-2.07.tar.gz
+Text::Template          Text-Template-1.44.tar.gz
+RFC::RFC822::Address    RFC_RFC822_Address-1.5.tgz
+Locale::Maketext	Locale-Maketext-1.09.tar.gz
+Locale::Maketext::Lexicon	Locale-Maketext-Lexicon-0.38.tar.gz
+I18N::LangTags		I18N-LangTags-0.33.tar.gz
+SOAP::Lite		SOAP-Lite-0.60.tar.gz
+Email::Valid		Email-Valid-0.176.tar.gz
+String::MkPasswd	String-MkPasswd-0.02.tar.gz

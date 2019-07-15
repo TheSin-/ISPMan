@@ -1,0 +1,44 @@
+# sendEmailToDomain() is executed from ispman-agent
+# Reads the saved message from a file and sends to the recipients
+
+sub sendEmailToDomain {
+    my $ispman  = shift;
+    my $domain  = shift;
+    my $msgfile = shift;
+
+    if ( !open( MSGIN, $msgfile ) ) {
+        warn("Cannot open $msgfile for reading: $!");
+        warn("User Notification for domain $domain was not delivered\n");
+        return;
+    }
+
+    #Load Mail::Internet here and not before.
+    require Mail::Internet;
+    import Mail::Internet;
+    my $msg = new Mail::Internet( \*MSGIN );
+
+    my $CCsent = 0;
+
+    my $branch = $ispman->getUsersBranchDN($domain);
+    my $users  =
+      $ispman->getEntriesAsHashRef( $branch, "objectclass=ispmanDomainUser",
+        ['mailLocalAddress'] );
+
+    foreach my $dn ( keys %{$users} ) {
+        my $email = $users->{$dn}->{'mailLocalAddress'};
+        $msg->head()->replace( 'To', $email );
+        $msg->send();
+        if ( !$CCsent ) {
+            $CCsent = 1;
+            my $cc = $msg->head()->get( 'Cc', 0 );
+            if ($cc) {
+                warn( "Sent message to " . $cc . "\n" );
+            }
+            $msg->head()->replace( 'Cc', '' );
+        }
+        warn("Sent message to $email\n");
+    }
+    unlink $msgfile;
+}
+
+1;

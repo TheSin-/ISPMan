@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopts('v');
+    unless ( $ARGV[1] ) {
+        print "USAGE: $0 [-v] attribute value <infile [>outfile]\n\n";
+        exit;
+    }
+}
+
+use Net::LDAP::LDIF;
+use Net::LDAP::Entry;
+
+use vars qw($ldif $out);
+
+$ldif = Net::LDAP::LDIF->new( \*STDIN, "r" );
+$out = Net::LDAP::LDIF->new( "-", "w" );
+
+$function = ($opt_v) ? "has_not" : "has";
+
+@entries = ();
+
+while ( not $ldif->eof() ) {
+    $entry = $ldif->read_entry();
+    if ( $ldif->error() ) {
+        print "Error msg: ",    $ldif->error(),       "\n";
+        print "Error lines:\n", $ldif->error_lines(), "\n";
+    }
+    else {
+
+        push @entries, $entry if &{$function}( $entry, @ARGV );
+    }
+}
+
+$out->write_entry(@entries);
+
+sub has {
+    my ( $e, $attr, $val ) = @_;
+    if ( $attr eq "dn" ) {
+        return 1 if $e->dn() =~ /$val/;
+    }
+    else {
+        @vals = $e->get_value($attr);
+        return 1 if grep ( /$val/, @vals );
+    }
+    return 0;
+}
+
+sub has_not {
+    return !&has(@_);
+}
+
+__END__
+

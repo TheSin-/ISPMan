@@ -1,0 +1,581 @@
+Installing ISPMan 
+=================
+
+ISPMan is developed using OpenLDAP and Apache.
+This file covers
+ - prerequisites
+ - basic concepts
+ - installation process
+ - populating a new ldap tree
+ - setting up a virtual host for apache.
+
+Beyond this file, the next step is configuring individual applications
+such as postfix, pop3/imap and other applications to query the ldap
+tree.
+
+In the Appendix section you can find some additional information about
+security suggestions, distribution packaging and customizations.
+
+
+Requirements
+============
+In order to use ISPMan, you will need ...
+
+... A LDAP server:
+This will be preferably OpenLDAP, but actually any LDAP server could
+do the job. The following inststructions are based on OpenLDAP, so
+you'll probably need to adjust the configs and schema accordingly, if
+you use an alternative LDAP server.
+
+... A web server:
+Apache is the suggested choice. While ISPMan itself will probably run
+on any CGI enabled web server, the managed vhosts within ISPMan are
+generated with apache's vhost.conf style config files.
+The module for this is exchangeable, though, so an experienced ISPMan
+admin may come up with his own interface for some other web server
+type.
+
+... Perl:
+This is mandatory, since ISPMan is written in perl ;)
+Perl 5.6 (or higher) is recommended.
+
+... CPAN (optional but highly recommended):
+The "Comprehensive Perl Archive Network". A perl module, which gives
+you online access to the CPAN repository. This allows you to add
+missing perl modules needed for proper ISPMan operation.
+As an alternative, you can use precompiled modules provided by your
+distribution. For a last fallback, ISPMan has a set of bundled
+modules, that can be installed on request.
+
+
+ISPMan Concepts
+===============
+If you have your requirements in place, you are ready for install.
+But before starting off, be sure to understand the main principles
+behind ISPMan:
+
+ISPMan consists primarily of four main parts:
+ * Perl libraries providing the business logic
+ * Command-line tools for non-web administration
+ * ISPMan agent - The "executive" doing the actual work
+ * Web CGIs - Providing an user interface for admin & customers
+
+Depending on your ISP architecure you will deploy all or a subset of the
+above on one or more machines (see ARCHITECTURE doc).
+
+In contrast to earlier ISPMan versions there are now definite
+procedures for installation, software and release management.
+
+For one there is your *ispman_source_repository*, which you have already
+created when unpacking the ISPMan tarball (otherwise you wouldn't be
+able to read this ;)
+Put this wherever you want. I would recommend a nice place in your
+general software repository where you store all your other software,
+too.
+This will be the place from which you will install, update and
+customize your ISPMan.
+
+Besides this, you will have your *ispman_install_directory* where all
+the files will be installed.
+
+That's it! No more "build", "tmp", or whatever directory to confuse you.
+
+See sections below for some more information as to how to effectively update
+and customize your ISPMan installation.
+
+
+
+Installation Overview
+=====================
+This is quick overview of the installation process. See the sections below
+for detailed installation.
+
+1) Unpack tarball & get latest bugfixes via CVS
+2) Install ISPMan files
+3) Install needed perl modules
+4) Configure ISPMan core (ispman.conf)
+5) Configure LDAP server and do the initial load of ISPMan data
+6) Set up the Apache vhost for ISPMan
+7) Finish ISPMan configuration through web interface
+8) Prepare your host(s) to run ispman-agent
+
+
+1) Unpack tarball & get latest bugfixes via CVS
+-----------------------------------------------
+ISPMan is available as tar packages created at release intervals.
+Bugfixes are made available only through CVS updates.
+
+Example:
+ISPMan version 1.2 is available as a tar package, ispman-1.2.tar.gz.
+The CVS tag matching this release is "rel_1_2-bugfixes".
+
+As described above (in Concepts), untar the ISPMan package somewhere
+in your software repository.
+        -> tar xfz ispman-1.2.tar.gz
+        -> cd ispman-1.2
+
+Be sure to have internet access and download the latest bug fixes from
+CVS:
+        -> cvs -z3 update -dP
+
+The necessary CVS structures are already contained in the tarball, so
+don't worry about the CVS tags.
+
+Result of this section:
+You should have a complete and up-to-date copy of an ISPMan release.
+
+
+2) Install ISPMan files
+-----------------------
+Configure the installation.
+        -> ./configure --prefix=/path/to/ispman/directory
+
+Specify "--prefix" if your installation directory is not the default
+(/opt/ispman). 
+
+Generate ISPMan core data & schemas.
+        -> make
+(alternate targets:)
+        -> make ldif
+        -> make schema
+
+Notice:
+There is no more interactive configuration at this time. This is done
+(manually) after installation.
+
+Initial install of ISPMan files.
+Right now, there are basically two installation profiles available:
+        install-bin     for all CLI tools, including ispman-agent
+        install-web     for all files needed for web interface
+
+Depending on your ISPMan deployment scenario (see ARCHITECTURE), you'll
+use either or both.
+
+For the following initial ISPMan setup, we assume a full install on the
+present host.
+        -> make install
+(alternate targets:)
+        -> make install-bin
+        -> make install-web
+        -> make install-agent
+
+Notice:
+Every install target includes the necessary common files.
+If you are deploying on several hosts, make sure to either share the
+ISPMan configuration (<installdir>/conf/ispman.conf) or keep it in
+sync somehow.
+
+Result of this section:
+You will have a full ISPMan installation in the given install
+directory. This dir is clean of any temporary
+files as well as any CVS files/dirs, because we certainly don't want
+to upgrade our production installation directly.
+In the <installdir>/conf directory, you'll find the following files for
+further configuration:
+ - ispman.conf.example          configuration example
+ - ldif/*                       initial ISPMan data
+ - schema/*                     schema files for LDAP
+
+
+3) Install needed perl modules
+------------------------------
+ISPMan uses quite a bunch of other perl modules that have to be
+available for proper operation.
+In the past, those dependencies were provided within the ISPMan
+lib directory, which provided a kind of "hardcoded" environment,
+because any installed site-perl modules were ignored.
+To overcome this limitation and provide better ways of having up-to-date
+modules, they were removed from the lib directory.
+
+To have all needed modules available though, you can install them
+easily by using CPAN or the bundled module files in the contrib/perl
+directory.
+
+You have quite a few options here, so let's shed some light on that:
+
+option #1) Use Perl libs provided by your system/distribution.
+This is probably the most desirable, but also the most difficult option,
+since it very much depends on your OS distribution.
+You will find a list of needed perl modules in contrib/perl/modules,
+which you can match to packages in your distribution.
+If you eventually come up with a list of needed packages for a specific
+distribution (e.g. RedHat, Debian, etc.), please provide it to the
+developers, which will ease the creation of ISPMan distribution
+packages a lot.
+For Debian have a look in docs/contrib/debian-packages.txt.
+
+option #2) Install Perl libs site-wide using CPAN.
+If you don't care about distribution packages, you may want to install
+any missing perl modules in the perl site directories.
+        -> cd contrib/perl
+        -> make install-cpan-site
+
+option #3) Install Perl libs in ISPMan installation directory.
+If you want to be independant of any installed site modules but like to
+use the latest available module versions.
+In fact, this is pretty simmilar to the old way (before 1.3), except
+that it uses the latest versions available.
+        -> cd contrib/perl
+        -> make install-cpan
+
+option #4) Use bundled Perl libs installed in ISPMan installation dir.
+ISPMan comes with bundled perl modules, which are installed within the
+ISPMan install directory.
+This is probably the easiest and most convenient option, because you
+don't need CPAN or an online connection. It uses fixed, but tested
+modules, so be sure to fallback here if you have trouble getting
+things to work.
+        -> cd contrib/perl
+        -> make install-bundled
+
+
+Notice:
+You will need at least the CPAN module installed, to use option #2/#3.
+Since any CPAN related option installs the latest module version
+available, there is a possible chance it renders modules incompatible
+with ISPMan.
+If you think this is the case, please fall back to option #4 and file
+a bug with ISPMan.
+
+Result of this section:
+All the needed perl modules are in place.
+Besides the following core configuration, installation of ISPMan files
+is complete.
+
+
+4) Configure ISPMan core
+------------------------
+Provide a core ISPMan configuration (ispman.conf).
+If you are doing this install for the first time, you can get an example
+ispman.conf.
+        -> cd <installdir>/conf
+        -> cp ispman.conf.example ispman.conf
+
+NB: If you already used earlier versions of ISPMan, be sure to migrate
+your old ispman.conf to the new config format.
+
+Edit the config file (ispman.conf) and change it according to your
+environment (especially the LDAP server configuration).
+
+Finaly, verify that ispman.conf has proper file permissions. It
+contains cleartext password, so no regular user should be able to read
+it (see Appendix about Security)!
+
+
+5) Configure LDAP server and do the initial load of ISPMan data
+---------------------------------------------------------------
+Configuration of the necessary LDAP server is actually an issue in
+itself, and to have a secure and fast server, you should make yourself
+familiar with this issue by consulting the manual.
+
+Notice:
+From ISPMan's perspective there is no need to have exclusive use of
+the LDAP server, so you may in fact use any LDAP server that is already
+present, presuming you are able to adjust its configuration accordingly.
+
+To give you a good starting point, there are example configurations
+for OpenLDAP bundled with ISPMan (install-data/examples/openldap).
+They can be used to modify or replace your OpenLDAP server and
+client configuration files. Note that there may be some differences in
+paths compared with your unix distribution.
+With a deployed and configured ISPMan installation you can generate
+individual config files by parsing the particular template through
+ispman.substVar like this:
+	-> cat install-data/examples/openldap/slapd.ldapv3.conf.tmpl | \
+	   /opt/ispman/bin/ispman.substConf > /etc/ldap/slapd.conf
+
+
+Adjust the schema files to support ISPMan data.
+The needed schema files are provided in <installdir>/conf/schema.
+You are free to copy them to your LDAP schema dir (usualy
+/etc/ldap/schema) or refer to them directly in your slapd.conf
+
+Be sure to have at least the following schemas defined:
+    core.schema
+    cosine.schema
+    nis.schema
+    misc.schema
+    inetorgperson.schema
+    dnszone.schema
+    pureftpd.schema
+    ispman.schema
+
+Restart your LDAP server and ensure that it started without
+errors. Look in the log. OpenLDAP logs to the LOCAL4 syslog facility
+by default, and many Unix distributions don't listen or log this by
+default. Starting the server with a debug option will print messages
+to the screen if the server fails to start.
+
+Depending on the LDAP suffix you have choosen, you may need to prepare
+your LDAP database with some fundamental entries before being able to
+import the ISPMan data.
+To verify whether this affects you, compare the value you specified for
+"ldapBaseDN" with the suffix entry in your slapd.conf.
+In case they differ you may need to create the suffix entry. Sometimes
+this is automatically done when installing openldap (depending on your
+distribution). For doing this manually please consult your
+ldap server's documentation (for OpenLDAP try 
+http://www.openldap.org/doc/admin23/quickstart.html).
+
+Next step is to populate the base ispman tree.
+We use the installed <installdir>/conf/ldif/ispman.ldif for this, which
+provides the base LDAP tree for ISPMan data.
+Though this file is basically LDIF, you can't load this directly into
+your LDAP server, because it still contains some placeholders
+(e.g. ldapBaseDN) which have to be substituted with the real values from
+your core configuration.
+
+The proper way of doing the initial load of ispman.ldif is
+        -> cd <installdir>
+        -> cat conf/ldif/ispman.ldif | ./bin/ispman.substConf | \
+           ./bin/ispman.ldifload -f -
+
+This should run through smoothly. In case you are getting errors here,
+solve them first before continuing.
+
+Run a test query to ensure LDAP is working and the ISPman base has been
+installed.  Here is an example that should print many variables like
+'ispmanVar:'.  Make sure this works before going any further.
+        -> ldapsearch -x -LLL ispmanVar=*
+
+Run an ispman command to test the ispman configuration against the
+LDAP tree. Again, fix any errors before continuing.
+        -> <installdir>/bin/ispman.listVars
+
+
+6) Set up the Apache vhost for ISPMan
+------------------------------------
+ISPMan has an Administrator Panel and a Customer Control Panel. Both
+are CGI files installed in the same virtual host or directory
+tree. These can be installed either with a dedicated webserver or
+appended on to an existing web server.  
+
+This interface should run on a protected network and should not be
+available from the internet. If it is, using SSL to secure
+transmissions is strongly recommended. 
+
+There are no special requirements for use with Apache Server. Just
+create a regular virtual host such as the following.
+
+    <VirtualHost *>
+	ServerName ispman.yourdomain.tld
+	DocumentRoot /opt/ispman/htdocs
+	ScriptAlias /cgi-bin /opt/ispman/cgi-bin
+	<Directory /opt/ispman/cgi-bin>
+	    Options ExecCGI
+	    Allow from all
+	</Directory>
+	<Directory /opt/ispman/htdocs>
+	    DirectoryIndex index.html index.cgi
+	    AllowOverride None
+	    <Files *.cgi>
+		Options ExecCGI
+		AddHandler cgi-script .cgi
+	    </Files>
+	</Directory>
+    </VirtualHost>
+
+To increase speed you might consider serving the interface from a
+mod_perl enabled webserver so persistent objects can be kept in
+memory. This can result in a very significant speed increase. Use the
+following instructions instead.
+The speed difference can literally be amazing as it is with Apache
+running off of a Sun Blade 100.
+
+Ensure mod_perl is installed and loaded. When you compile, or install
+your Unix distribtion's version of mod_perl, you should have a line
+like this added to your server configuration.  You may need to
+uncomment it:
+    LoadModule perl_module /usr/lib/apache/1.3/mod_perl.so
+or maybe:
+    LoadModule perl_module libexec/libperl.so
+
+Then use this virtual host instead:
+    <VirtualHost *>
+	ServerName ispman.yourdomain.tld
+	DocumentRoot /opt/ispman/htdocs
+	PerlModule Apache::Registry
+	ScriptAlias /cgi-bin /opt/ispman/cgi-bin
+	<Directory /opt/ispman/cgi-bin>
+	    Options ExecCGI
+	    Allow from all
+	</Directory>
+	<Directory /opt/ispman/htdocs>
+	    DirectoryIndex index.html index.cgi
+	    AllowOverride None
+	    <Files *.cgi>
+		Options ExecCGI
+		SetHandler perl-script
+		PerlHandler Apache::Registry
+	    </Files>
+	</Directory>
+    </VirtualHost>
+
+
+7) Finish ISPMan configuration through web interface
+----------------------------------------------------
+Restart the web server and visit the following link to get the ispman web
+interface.
+    http://ispman.yourdomain.tld
+
+Select "Login as an Administrator".
+Login with username "ispman" and the password you specified during
+ISPMan core configuration for LDAP administrator.
+
+IMPORTANT:
+Before excitedly playing around, click the "Configure"
+menu and finish the ISPMan configuration by supplying the proper
+information for all config groups.
+
+Without configuring hosts and hostgroups, ISPMan will just be a fancy
+LDAP browser/editor. The hosts and host groups are VERY
+important. They are the linkage between generated processes and
+tasks executed by ispman-agent, like creating users, setting up DNS,
+etc. So, if generated processes are not being executed by ispman-agent,
+this is the place to check.
+
+ISPMan's web interface only edits infomation in the LDAP tree. The
+ispman-agents running on each node do the real work. ISPMan creates
+tasks for them in ldap. These tasks are set by hostgroups, so it is
+VERY IMPORTANT that they are properly defined. As an example, a
+"modifyDomain" request will go to dnsgroup. An agent on a host sees
+the task in the ldap tree set for its hostgroup and make the change in
+the dns server.  If you have not defined dnsgroup properly, the
+request will go astray. 
+
+
+8) Prepare your hosts to run ispman-agent
+-----------------------------------------
+The agent is the work horse of ISPMan. It should be installed on each
+machine taking part for some function of ISPMan. Each agent needs to
+connect to the LDAP server to get its task list. Anywhere ISPMan is
+updating files requires the agent. This will be on servers listed
+under "hosts" and "hostgroups" under configuration in the web
+interface. This includes SMTP, DNS, file and web servers.
+
+The easiest way to setup ispman-agent is to just copy the whole ispman
+directory from the first installed host to the next. Then set it up to
+start at boot and run on each host.  
+
+Using a supervise program like DJB's supervise is recommended. This
+will ensure that ispman-agent is running on the appropriate
+machines. This can be done quickly, assuming supervise is already
+installed, with the following:
+        -> mkdir /service/ispman
+        -> cd /service/ispman
+        -> echo '#!/bin/sh' >> run
+        -> echo 'echo Starting ispman agent' >> run
+        -> echo 'exec /opt/ispman/bin/ispman-agent nodetach' >> run
+        -> chmod +x /service/ispman/run
+        -> svc -u /service/ispman
+
+Regardless of the supervise program, run the ispman-agent with the
+desired start/stop options as below:
+ * "forcerestart"       restart after an unclean shutdown
+ * "nodetach"           start in the foreground without detaching from the
+                        controlling terminal.
+
+        -> /opt/ispman/bin/ispman-agent {start|stop|restart|forcerestart|nodetach}
+
+ispman-agent writes a log file to
+/opt/ispman/var/<hostname>.ispman-agent.log. Be sure to clean out this
+file from time to time or use logrotate as it can get LARGE. When the
+agent has been started by booting, manual start or supervisor, review
+the log to ensure it is started. Otherwise processes will remain in
+the queue shown in the web interface for a very long time (until the
+agent is actually started).
+
+
+
+Appendix: Security
+==================
+There are several different security demands with ISPMan you
+should be aware of.
+
+a) ISPMan files:
+Requirements: 
+ * Unix admin user should be able to use the CLI Tools (e.g. "admin")
+ * ispman-agent needs to execute ISPMan processes (this usually must be
+   "root" to be able to create/chown directories) 
+ * web server needs to execute CGIs (running as "www" for example)
+ * ispman.conf contains cleartext passwords and thus must not be
+   readable by non-admin users
+
+To set up file permissions (regarding this example) correctly you
+should ...
+ - create a new group (e.g. "ispman") that contains all user ids using
+   ISPMan (here: admin, www)
+ - change group of all ISPMan files:
+        -> cd <installdir>
+        -> chgrp -R ispman .
+ - if you didn't do the ISPMan installation as root I suggest giving all
+   files to root:
+        -> cd <installdir>
+        -> chown -R root .
+
+During the install process all file modes should already be set
+adequately. Basically, only one file is of great concern, because it
+contains cleartext passwords, i.e. ispman.conf.
+Be sure that this file will not be readable by non-admin users!
+        -> chmod 640 ispman.conf
+
+
+b) Web:
+Some users were claiming that ISPMan is not secure, because ISPMan
+files (including ispman.conf) are readable by the webserver and thus
+any CGI program a user calls could read those files.
+
+Although this might be correct for some webserver installations, this
+is not a security problem with ISPMan but one with those webserver
+installations.
+There are established techiques for secure CGI execution in place
+(suexec, jails, etc.). With such configured properly, there is no
+security problem with ISPMan at all.
+
+
+Appendix: Distribution packaging
+================================
+The new installation procedures allow easy creation of distribution
+packages.
+
+Simple example:
+You want to build a tar file which can be used to distribute the
+ispman-agent on all of your hosts. The ISPman install dir is to be
+"/usr/local/ispman".
+
+Do this as follows:
+        -> configure --prefix=/usr/local/ispman
+        -> make
+
+Now we don't actually want to install the software in
+/usr/local/ispman only to build the tarball. So do this:
+        -> make install-agent DESTDIR=/tmp/install
+
+This will install the complete ISPMan tree in /tmp/install. Just tar
+it there and you have a nice little distribution package.
+
+
+Appendix: Customizations
+========================
+You may have the need to change some of the ISPMan files to fit your
+requirements. The library (*.lib) and template (*.template) files are
+especially designed for individual customizations.
+
+If that's the case for you, it may be advantageous to plan a litte bit
+ahead.
+Most users go the obvious way and just change the required files in their
+installation directory. While this may be adequate for some quick
+tests, you cannot do this on a permanent basis.
+On next ISPMan update you'll know why, because the upgrade will
+overwrite all your nice changes.
+
+So, what's the best practice for such changes?
+Well, it's easy! Apply your changes to the *source* directory, not the
+installation directory.
+This has some real advantages:
+ - Your customizations will survive CVS updates. In fact, any change
+   to the same file will be merged, presuming that it doesn't conflict
+   with your modifications.
+ - Any (upgrade) installation will already contain your modifications.
+
+

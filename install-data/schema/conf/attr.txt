@@ -1,0 +1,61 @@
+#######################################
+# ISPMan configuration attributes
+#######################################
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1003 'ispmanModule'
+# attributeType 1.3.6.1.4.1.8833.2.1.1004 'ispmanVar'
+# attributeType 1.3.6.1.4.1.8833.2.1.1006 'ispmanVal'
+# attributeType 1.3.6.1.4.1.8833.2.1.1005 'ispmanValType'
+# attributeType 1.3.6.1.4.1.8833.2.1.1111 'ispmanQuestion'
+# attributeType 1.3.6.1.4.1.8833.2.1.1113 'ispmanModuleAlias'
+# attributeType 1.3.6.1.4.1.8833.2.1.1114 'ispmanVarAlias'
+
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1003 NAME 'ispmanModule'
+	DESC 'A string naming an ISPMan configurational Module'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1004 NAME 'ispmanVar'
+	DESC 'A string naming a ispmanVariable in a configurational ispmanModule'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+
+attributeType (1.3.6.1.4.1.8833.2.1.1005 NAME 'ispmanValType'
+	DESC 'Type of stored ispmanValue (single, multi, ...?)'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256}
+	SINGLE-VALUE )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1006 NAME 'ispmanVal'
+	DESC 'A string containing a ispmanValue of a ispmanVariable in a config ispmanModule'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1111 NAME 'ispmanQuestion'
+	DESC 'A string containing a configuration ispmanQuestion'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1113 NAME 'ispmanModuleAlias'
+	DESC 'A user friendly name for the module'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1114 NAME 'ispmanVarAlias'
+	DESC 'A user friendly name for the Var'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+

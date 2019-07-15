@@ -1,0 +1,29 @@
+
+
+<tr>
+    <td><perl>_("Default Maildrop Host")</perl> </td>
+    <td> 
+        <select name="ispmanDomainDefaultMailDropHost">
+        <perl>
+        my $text="";
+        my @ispmanDomainDefaultMailDropHosts=$ispman->getGroupMembers("mailstoregroup");
+        
+        for (@ispmanDomainDefaultMailDropHosts){
+            $text.="<option VALUE='$_'>$_</option>";        
+        }
+        
+        if  ($#ispmanDomainDefaultMailDropHosts<0){
+            $text.="<option VALUE=''>";
+	    $text.=_("WARNING: No members in group [_1] defined", "mailstoregroup");
+	    $text.="</option>";        
+        }
+        
+        
+        $text
+        </perl>
+        <OPTION VALUE=""><perl>_("No Maildrop Host (no mailbox. just forwardings)")</perl></option>
+        </select>
+    </td>
+</tr>
+
+

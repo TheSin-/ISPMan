@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ "$1" = "configure" ]; then
+        ucf /usr/share/doc/ispman-web/examples/apache.conf /etc/ispman/apache.conf
+	ucf /usr/share/doc/ispman-web/examples/mod-perl.apache.conf /etc/ispman/mod-perl.apache.conf
+fi
+

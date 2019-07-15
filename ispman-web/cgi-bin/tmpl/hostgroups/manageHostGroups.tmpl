@@ -1,0 +1,53 @@
+<table class=list>
+<tr>
+  <th><perl>_("Name")</perl></th>
+  <th><perl>_("Description")</perl></th>
+  <th><perl>_("Members")</perl></th>
+  <th>&nbsp;</th>
+</tr>
+
+<perl>
+my $hostgroups=$ispman->getHostGroups();
+
+my $text="";
+my $members;
+
+
+for $hostgroup(keys %$hostgroups){
+    $text.= "<tr class=list>\n";
+    $text.="<td>$hostgroups->{$hostgroup}{'ispmanHostGroupName'}</td>";
+    $text.="<td>$hostgroups->{$hostgroup}{'ispmanHostGroupInfo'}</td>";
+    if ( $hostgroups->{$hostgroup}{'ispmanHostGroupMember'} ){
+        if (ref    $hostgroups->{$hostgroup}{'ispmanHostGroupMember'} eq "ARRAY"){
+            $members= join ', ', @{$hostgroups->{$hostgroup}{'ispmanHostGroupMember'}};
+        } else {
+            $members=$hostgroups->{$hostgroup}{'ispmanHostGroupMember'};
+        }
+    } else{
+        $members="<font color=red>";
+	    $members.=_("No members defined");
+	    $members.="</font>";
+    }
+            
+                
+    $text.="<td>$members</td>";
+    $text.="<td><a href='".$ENV{'SCRIPT_NAME'}."?mode=editHostGroup&ispmanHostGroupName=$hostgroups->{$hostgroup}{'ispmanHostGroupName'}'>".
+           "<img src='".$ispman->getConfig("ispmanUrlPrefix")."/gfx/modify.gif' border=0>".
+           "</a>";
+    $text.="<a href='".$ENV{'SCRIPT_NAME'}."?mode=removeHostGroup&ispmanHostGroupName=$hostgroups->{$hostgroup}{'ispmanHostGroupName'}''>".
+    	   "<img src='".$ispman->getConfig('ispmanUrlPrefix')."/gfx/delete.gif' border=0>".
+           "</a></td>\n";
+    $text.= "</tr>\n";
+}
+$text
+
+</perl>
+
+</table>
+
+<HR>
+
+<form>
+  <input type=button class="button" onClick="self.location='<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=configure'" value="<perl>_("Back")</perl>">
+  <input type=button class="button" onClick="self.location='<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=addHostGroupForm'" value="<perl>_("Add host")</perl>">
+</form>

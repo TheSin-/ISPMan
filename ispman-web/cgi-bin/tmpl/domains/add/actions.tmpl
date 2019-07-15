@@ -1,0 +1,15 @@
+<tr>
+    <td>Domain actions</td>
+    <td>
+	<perl>
+		my @actions=split ',',$ispman->getConf("domainActions");
+		my $out="";
+		for (@actions) {
+			/(.*)\|(.*)/;
+			$out .= qq|<input type="checkbox" name="domainActions" value="$1">$2<br>| unless $1 eq "none";
+		}
+		$out
+	</perl>
+    </td>
+</tr>
+

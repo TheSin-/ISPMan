@@ -1,0 +1,11 @@
+<tr>
+    <td><perl>_("FTP Access")</perl></td>
+    <td> 
+    <perl>$ftpstatus=$ispman->{'domain'}{'FTPStatus'}; ""</perl>
+    <select name="FTPStatus">
+    <option value="enabled" <perl>($ftpstatus eq "enabled")?" selected ":""</perl>><perl>_("Enabled")</perl></option>
+    <option value="disabled" <perl>($ftpstatus eq "disabled")?" selected ":""</perl>><perl>_("Suspended")</perl></option>
+    </td>
+</tr>
+
+

@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'd', \%opts );
+    unless ( $opts{'d'} || !$ARGV[0] ) {
+        print "Usage: $FindBin::Script domain new_password\n\n";
+        exit;
+    }
+}
+
+use ISPMan;
+my $ispman = ISPMan->new();
+print $ispman->changeDomainPassword( $opts{"d"}, $ARGV[0] );
+print "\n";
+
+__END__
+

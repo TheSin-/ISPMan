@@ -1,0 +1,219 @@
+diff -ur ispman.debian.20061115.try3/install-data/ldifs.unpatched/conf.account_vars.ldif ispman.debian.20061115.try3/install-data/ldifs/conf.account_vars.ldif
+--- ispman.debian.20061115.try3/install-data/ldifs.unpatched/conf.account_vars.ldif	2006-11-21 00:44:26.000000000 +0100
++++ ispman.debian.20061115.try3/install-data/ldifs/conf.account_vars.ldif	2006-11-21 01:02:46.000000000 +0100
+@@ -33,7 +33,7 @@
+ ispmanVarAlias: Default homedirectory location
+ ispmanModule: account_vars
+ objectclass: ispmanConfVar
+-ispmanVal: /ispman/domains
++ispmanVal: /var/www
+ ispmanQuestion: Directory where all accounts be created. Domain accounts are created just beneath this directory and the domain user/virtual hosts directories are created underneath that
+ 
+ dn: ispmanVar=defaultUserMailQuota, ispmanModule=account_vars, ou=conf, %%ldapBaseDN%%
+@@ -41,7 +41,7 @@
+ ispmanVar: defaultUserMailQuota
+ ispmanVarAlias: Default User Mail Quota
+ ispmanModule: account_vars
+-ispmanVal: 5
++ispmanVal: 50
+ ispmanQuestion: The default mail quota for new users
+ 
+ dn: ispmanVar=defaultUserFtpQuota, ispmanModule=account_vars, ou=conf, %%ldapBaseDN%%
+diff -ur ispman.debian.20061115.try3/install-data/ldifs.unpatched/conf.apache_vars.ldif ispman.debian.20061115.try3/install-data/ldifs/conf.apache_vars.ldif
+--- ispman.debian.20061115.try3/install-data/ldifs.unpatched/conf.apache_vars.ldif	2006-11-21 00:44:26.000000000 +0100
++++ ispman.debian.20061115.try3/install-data/ldifs/conf.apache_vars.ldif	2006-11-21 01:01:33.000000000 +0100
+@@ -9,7 +9,7 @@
+ ispmanVarAlias: Apache vhost file
+ ispmanModule: apache_vars
+ objectclass: ispmanConfVar
+-ispmanVal: /etc/httpd/conf/vhosts.conf
++ispmanVal: /etc/apache2/vhosts.conf.ispman
+ ispmanQuestion: The file or directory where I should create VirtualHost Entries for apache,<br>remember to include this file or directory in the httpd.conf
+ 
+ dn: ispmanVar=apacheVhostsStyle, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+@@ -49,7 +49,7 @@
+ ispmanVarAlias: Apache stop command
+ ispmanModule: apache_vars
+ objectclass: ispmanConfVar
+-ispmanVal: /etc/rc.d/init.d/httpd stop
++ispmanVal: /etc/init.d/apache2 stop
+ ispmanQuestion: Command to stop apache
+ 
+ dn: ispmanVar=apacheReloadCommand, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+@@ -57,7 +57,7 @@
+ ispmanVar: apacheReloadCommand
+ ispmanModule: apache_vars
+ objectclass: ispmanConfVar
+-ispmanVal: /etc/rc.d/init.d/httpd reload
++ispmanVal: /etc/init.d/apache2 reload
+ ispmanQuestion: Command to reload apache.<br>If this command is present then it will be used instead <br>of stoping and starting the daemon
+ 
+ dn: ispmanVar=apacheStartCommand, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+@@ -65,7 +65,7 @@
+ ispmanVarAlias: Apache start command
+ ispmanModule: apache_vars
+ objectclass: ispmanConfVar
+-ispmanVal: /etc/rc.d/init.d/httpd start
++ispmanVal: /etc/init.d/apache2 start
+ ispmanQuestion: Command to start apache
+ 
+ dn: ispmanVar=apacheLogsDirectory, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+@@ -73,7 +73,7 @@
+ ispmanVarAlias: Apache logs directory
+ ispmanModule: apache_vars
+ objectclass: ispmanConfVar
+-ispmanVal: /ispman/logs
++ispmanVal: logs
+ ispmanQuestion: Directory where Apache's logs are kept (relative path will be appended 
+  to vhost's homedir).<br>Allowed tokens: <b><tt>%vhost%</tt></b>, <b><tt>%domain%</tt></b> 
+  (will be substituted with actual vhost/domain name on creation of vhost).
+@@ -83,7 +83,7 @@
+ ispmanVarAlias: Apache stats directory
+ ispmanModule: apache_vars
+ objectclass: ispmanConfVar
+-ispmanVal: /ispman/domain
++ispmanVal: stats 
+ ispmanQuestion: Directory where Apache's Stats are kept (relative path will be appended 
+  to vhost's homedir).<br>Allowed tokens: <b><tt>%vhost%</tt></b>, <b><tt>%domain%</tt></b> 
+  (will be substituted with actual vhost/domain name on creation of vhost).
+@@ -93,7 +93,7 @@
+ ispmanVarAlias: Webalizer command
+ ispmanModule: apache_vars
+ objectclass: ispmanConfVar
+-ispmanVal: /usr/local/bin/webalizer
++ispmanVal: /usr/bin/webalizer
+ ispmanQuestion: Path to webalizer command
+ 
+ dn: ispmanVar=modLDAPUserDir, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+@@ -111,7 +111,7 @@
+ ispmanVarAlias: Apache graceful reload command
+ ispmanModule: apache_vars
+ objectclass: ispmanConfVar
+-ispmanVal: /etc/rc.d/init.d/httpd graceful
++ispmanVal: /usr/sbin/apache2ctl graceful 
+ ispmanQuestion: To use the <tt>ispman.makelogs</tt> command line tool for logfile processing you need to specify the command to gracefully restart your apache.
+ 
+ dn: ispmanVar=apacheGracefulTime, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+@@ -177,7 +177,7 @@
+ ispmanVarAlias: Name of auth_ldap module
+ ispmanModule: apache_vars
+ objectclass: ispmanConfVar
+-ispmanVal: auth_ldap
++ispmanVal: mod_authnz_ldap
+ ispmanQuestion: Name of the Auth-LDAP modules used (Apache1.x="auth_ldap"; Apache2.x="mod_auth_ldap")
+ 
+ dn: ispmanVar=apacheVhostsHeader, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+diff -ur ispman.debian.20061115.try3/install-data/ldifs.unpatched/conf.dns_vars.ldif ispman.debian.20061115.try3/install-data/ldifs/conf.dns_vars.ldif
+--- ispman.debian.20061115.try3/install-data/ldifs.unpatched/conf.dns_vars.ldif	2006-11-21 00:44:26.000000000 +0100
++++ ispman.debian.20061115.try3/install-data/ldifs/conf.dns_vars.ldif	2006-11-21 00:49:48.000000000 +0100
+@@ -9,7 +9,7 @@
+ ispmanVarAlias: Named data directory
+ ispmanModule: dns_vars
+ objectclass: ispmanConfVar
+-ispmanVal: /var/named
++ispmanVal: /etc/bind
+ ispmanQuestion: Named Directory
+ 
+ dn: ispmanVar=namedIspmanSubDir, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+@@ -49,7 +49,7 @@
+ ispmanVarAlias: Named Config File
+ ispmanModule: dns_vars
+ objectclass: ispmanConfVar
+-ispmanVal: /etc/named.ispman.conf
++ispmanVal: /etc/bind/named.conf.ispman
+ ispmanQuestion: Configuration file for named
+ 
+ dn: ispmanVar=namedUser, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+@@ -57,7 +57,7 @@
+ ispmanVarAlias: Named User
+ ispmanModule: dns_vars
+ objectclass: ispmanConfVar
+-ispmanVal: named
++ispmanVal: bind
+ ispmanQuestion: Username who runs named. Files/Directories created will be owned by the user
+ 
+ dn: ispmanVar=primaryDNS, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+@@ -65,7 +65,7 @@
+ ispmanVarAlias: Primary DNS (name)
+ ispmanModule: dns_vars
+ objectclass: ispmanConfVar
+-ispmanVal: ns1.example.com
++ispmanVal: ns1.%%domain%%
+ ispmanQuestion: Primary Name Server
+ 
+ dn: ispmanVar=primaryDNSIP, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+@@ -81,7 +81,7 @@
+ ispmanVarAlias: Secondary DNS (name)
+ ispmanModule: dns_vars
+ objectclass: ispmanConfVar
+-ispmanVal: ns2.example.com
++ispmanVal: ns2.%%domain%%
+ ispmanQuestion: Secondary Name Server
+ 
+ dn: ispmanVar=secondaryDNSIP, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+@@ -129,7 +129,7 @@
+ ispmanVarAlias: Named Start Command
+ ispmanModule: dns_vars
+ objectclass: ispmanConfVar
+-ispmanVal: /etc/rc.d/init.d/named start
++ispmanVal: /etc/init.d/bind9 start
+ ispmanQuestion: Command to start named
+ 
+ dn: ispmanVar=namedStopCommand, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+@@ -137,7 +137,7 @@
+ ispmanVarAlias: Named Stop Command
+ ispmanModule: dns_vars
+ objectclass: ispmanConfVar
+-ispmanVal: /etc/rc.d/init.d/named stop
++ispmanVal: /etc/init.d/bind9 stop
+ ispmanQuestion: Command to stop named
+ 
+ dn: ispmanVar=namedReloadCommand, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+@@ -145,7 +145,7 @@
+ ispmanVarAlias: Named Reload Command
+ ispmanModule: dns_vars
+ objectclass: ispmanConfVar
+-ispmanVal: /etc/rc.d/init.d/named reload
++ispmanVal: /etc/init.d/bind9 reload
+ ispmanQuestion: Command to reload named
+ 
+ dn: ispmanVar=dnsMasterEmail, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+@@ -177,7 +177,7 @@
+ ispmanVarAlias: DNS Backend
+ ispmanModule: dns_vars
+ objectclass: ispmanConfVar
+-ispmanVal: bind8
++ispmanVal: bind9
+ ispmanQuestion: DNS backend to use (bind8, bind9, bind9-sdbldap, tinydns)
+ 
+ dn: ispmanVar=catchAllCNAME, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+@@ -185,7 +185,7 @@
+ ispmanVarAlias: Catch all CNAME
+ ispmanModule: dns_vars
+ objectclass: ispmanConfVar
+-ispmanVal: none
++ispmanVal: catchall 
+ ispmanQuestion: DNS name which will be aliased from "<b>*</b>". This will catch all 
+  names that are not explicitly defined.<br>This can work with bind8 and bind9 backend 
+  but not if you are using bind9 with sdb_ldap.<br>Enter "<b>none</b>" to disable. 
+diff -ur ispman.debian.20061115.try3/install-data/ldifs.unpatched/conf.mail_vars.ldif ispman.debian.20061115.try3/install-data/ldifs/conf.mail_vars.ldif
+--- ispman.debian.20061115.try3/install-data/ldifs.unpatched/conf.mail_vars.ldif	2006-11-21 00:44:26.000000000 +0100
++++ ispman.debian.20061115.try3/install-data/ldifs/conf.mail_vars.ldif	2006-11-21 01:04:09.000000000 +0100
+@@ -33,7 +33,7 @@
+ ispmanVarAlias: Mailbox Prefix
+ ispmanModule: mail_vars
+ objectclass: ispmanConfVar
+-ispmanVal: user.
++ispmanVal: user/
+ ispmanQuestion: The mailbox prefix. For Courier set this to '<b><tt>Maildir/</tt></b>'. 
+  For Cyrus, if '<b>cyrusVirtDomainFeature</b>' config var<br>is set to 'yes', then set 
+  this to '<b><tt>user/</tt></b>' else, set it to '<b><tt>user.</tt></b>'.
+@@ -51,7 +51,7 @@
+ ispmanVarAlias: Use the cyrus virtdomain feature
+ ispmanModule: mail_vars
+ objectclass: ispmanConfVar
+-ispmanVal: no
++ispmanVal: yes
+ ispmanQuestion: Defines how Cyrus IMAP Server handles mailbox names. 
+  Usually this option is set to 'yes' when Cyrus needs<br>to accept logins in 
+  the form of <b><tt>'username@domain.tld'</tt></b> instead of 

@@ -1,0 +1,102 @@
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+   
+Send message to multiple users. 
+
+<perl>if( $r->param('ErrorMessage') ){ 
+'<p class="error">' . $r->param('ErrorMessage') . "<p>\n"; }
+</perl>
+ <P>
+<table border=0>
+<form>
+<perl>
+$text = qq|
+<tr>
+    <td align=right>Your name:</td>
+    <td>
+        <input  size=45 type=text name=fromName
+                value="|;
+if( $r->param("fromName") )
+{
+    $text .= $r->param("fromName");
+}
+else
+{
+    my $uid=$ispman->{'session'}->param("uid");
+    my $admin=$ispman->getAdminInfo($uid);
+    $text .= $admin->{'cn'};
+}
+
+$text .= '">' . qq|
+    </td>
+</tr>
+
+<tr>
+    <td align=right>Your e-mail:</td>
+    <td>
+        <input  size=45 type=text name=fromEmail value="|;
+if( $r->param("fromEmail") )
+{
+    $text .= $r->param("fromEmail");
+}
+else
+{
+    my $uid=$ispman->{'session'}->param("uid");
+    my $admin=$ispman->getAdminInfo($uid);
+    $text .= $admin->{'ispmanSysadminMail'};
+}
+$text .= '">' . qq|
+    </td>
+</tr>|;
+$text;
+</perl>
+                                           
+<tr>
+    <td align=right>To all users in:</td>
+    <td>
+    <input type=radio name="notifyDomain"
+        value="<perl>$r->param('ispmanDomain')</perl>" <perl>
+$r->param("notifyDomain") ne "all" ?
+"checked":""</perl> >
+        <perl>$r->param('ispmanDomain')</perl></input>
+    <input type=radio name="notifyDomain" value="all" <perl>
+$r->param("notifyDomain") eq "all" ? "checked":""</perl> > all domains </input>
+    <input type=hidden  name="ispmanDomain" 
+      value="<perl>$r->param('ispmanDomain')</perl>">
+    </td>
+</tr>
+
+<tr>
+    <td align=right>CC:</td>
+    <td>
+        <input size=45 type=text name=cc value="<perl>$r->param('cc')</perl>">
+    </td>
+</tr>
+
+<tr>
+    <td align=right>Subject:</td>
+    <td>
+        <input size=45 type=text name=subject 
+           value="<perl>$r->param('subject')</perl>">
+    </td>
+</tr>
+
+
+<tr>
+    <td></td>
+    <td>
+        <textarea cols=60 rows=20 name=body><perl>$r->param('body')</perl></textarea>
+    </td>
+</tr>
+
+<input type=hidden name="mode" value="notifyUsers">
+
+<tr>
+    <td align=right colspan=2>  
+        <input type=button class="button" onClick="document.forms[0].reset()" value="Discard Changes">
+        <input type=button class="button" onClick="document.forms[0].submit()" value="Send message">
+    </td>
+</tr>
+</form></table>
+ 
+ 
+

@@ -1,0 +1,87 @@
+<HEAD>
+<TITLE>
+        MOTD : <perl>_("Unauthorized Access prohibited")</perl>
+</title>
+<LINK HREF="../ispman.css" REL="stylesheet" TYPE="text/css">
+</HEAD>
+<body class=menu>
+<CENTER>
+<IMG SRC="../gfx/ispmgr.gif"><BR>
+
+<BR>
+
+
+
+
+<B>!!!!!!!!!!!!!!!!!!!!! <perl>_("Unauthorized Access prohibited")</perl> !!!!!!!!!!!!!!!!!!!!!!!!</b>
+<P>
+
+<TABLE WIDTH=600>
+<TD class=menu ALIGN="CENTER">
+<form name="LogIn" method="POST">
+<TABLE>
+<tr><TD><perl>_("Username")</perl>:</td><TD> <INPUT type=text NAME=uid WIDTH="200" STYLE="width: 200px"></td></tr>
+<tr><TD><perl>_("Password")</perl>: </td><TD><INPUT type=password NAME=pass WIDTH="200" STYLE="width: 200px"></td></tr>
+<tr><TD><perl>_("Login as")</perl>: </td><TD>
+<select name="logintype" WIDTH="200" STYLE="width: 200px">
+        <option value="admin"><perl>_("Administrator")</perl></option>
+        <option value="reseller"><perl>_("Reseller")</perl></option>
+        <option value="client"><perl>_("Client")</perl></option>
+        <!-- <option value="domain"><perl>_("Domain Admin")</perl></option> -->
+        </select>
+        </td></tr>
+
+        <tr><TD><perl>_("Language")</perl>: </td><TD>
+        <select name="language" WIDTH="200" STYLE="width: 200px">
+        
+        <perl>
+                $options="";
+                for (sort keys %{$nls{'languages'}}){
+                        $selected = $_ eq $nls{'defaults'}{'language'} ? "selected" : "";
+                        $options.= "<option value=$_ $selected>";
+                        $options.= $nls{'languages'}{$_};
+                        $options.= "</option>";
+                }
+                $options
+        </perl>
+        
+        
+        </select>
+        </td></tr>
+
+<tr><td colspan=2 ALIGN=right><INPUT TYPE="submit" CLASS="button" VALUE="<perl>_("Login")</perl>"></td></tr>
+</table>
+</form>
+<script type="text/javascript">
+  document.LogIn.uid.focus();
+</script>
+
+
+<P class=menu ALIGN="JUSTIFY">
+    This system is for the use of authorized users only. Individuals using this computer
+    system without authority, or in excess of their authority, are subject to having all
+    of their activities on this system monitored and recorded.
+</p>
+ 
+<P ALIGN="JUSTIFY">
+    In the course of monitoring individuals improperly using this system, or in the course
+    of system maintenance, the activities of authorized users may also be monitored.
+</p>
+ 
+<P ALIGN="JUSTIFY">
+    Anyone using this system expressly consents to such monitoring and is advised that if
+    such monitoring reveals possible evidence of criminal activity, system personnel may 
+    provide the evidence of such monitoring to law enforcement officials.
+</p>
+
+
+
+</td>
+</table>
+                                                                                                                                                                              
+<BR>
+
+
+</center>
+
+

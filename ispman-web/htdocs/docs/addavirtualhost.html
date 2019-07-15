@@ -1,0 +1,42 @@
+<HTML>
+<TITLE>ISPMan help</TITLE>
+<link HREF="/ispman.css" REL="stylesheet" TYPE="text/css">
+<BODY>
+<table class="table" cellspacing=5 border=0>
+<tr><td class=menuheader>Adding a virtualhost or website</td>
+
+<tr><td>Adding a virtualhost is straightforward. 
+<ul><li>Select the domain to manage</li>
+<li>Under "Manage virtualhosts" click Add virtualhost.</li> 
+<li>A box pops up, type "www" two times with no quotes.</li>
+<li>Set virtualhost aliases to these 2 lines (changing the domain name)
+<br>customer.com
+<br>*.customer.com</li></ul>
+<tr><td>These aliases tell the webserver to always serve the website files at: 
+/ispman/domains/customer.com/vhosts/www/htdocs 
+<tr><td>NOTE: If you have multiple virtualhosts/websites, don't use *.customer.com
+as an apache alias, use simply www.customer.com.  Using *.customer.com may
+block access to the second virtual host.
+<ul><li>Make sure "FTP Access" is enabled, and set an "FTP password". This is
+also the password to the customer control panel.</li>
+<li>Click the "Update" button.
+<li>Be sure to click "Commit session" when done.
+</li>
+</ul>
+<tr><td>ADVANCED TIP: To add a second virtualhost, like private.customer.com, use
+the above steps, but at step 3, type private twice. Your ftp server would be
+private.customer.com and FTP username would be private.customer.com.
+<tr><td class=menuheader>FTP Upload Information</td>
+<tr><td><b>FTP server</b> The hostname of the virtualhost. If you were
+editing www.customer.com, the FTP server would be www.customer.com.   
+<tr><td><b>username</b> The full name of the virtualhost. If you were 
+editing www.customer.com, the username would be www.customer.com.
+<tr><td><b>password</b> Whatever you set above.
+<tr><td>The website files should be uploaded to the htdocs folder.
+<p>
+<tr><td><A HREF="/help.html">Return to Main Help Screen</A>
+</PRE>
+</BODY>
+</HTML>
+
+

@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'd', \%opts );
+    unless ( $opts{'d'} ) {
+        print "Usage: $FindBin::Script -d domain";
+        print "\n";
+        exit;
+    }
+}
+
+
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+
+print $ispman->getUserCount( $opts{'d'} ), "\n";
+

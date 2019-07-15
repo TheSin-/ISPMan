@@ -1,0 +1,200 @@
+##################################################
+#  Apache related attributes
+##################################################
+
+#  Web attributes
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1401 'ispmanVhostDocumentRoot'
+#  The documentroot for a virtaulhost such as
+#  /www/customers/domains/ispman.org/vhosts/www/htdocs
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1402 'ispmanVhostDocumentRootOption'
+#  Apache options that can be applied to a vhost
+#  such as Indexes, FollowSymLinks, etc
+
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1403 'ispmanServerRoot'
+#  This should be phased out.
+
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1404 'ispmanVhostExtraConf'
+#  Free textarea to input any valid apache configuration
+#  Example
+#   ispmanVhostExtraConf: AddType text/html .shtml
+#    AddHandler server-parsed .shtml
+#    XbitHack On
+#    DirectoryIndex index.shtml index.cgi index.html
+
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1405 'ispmanVhostServerAlias'
+#  A vhost may have one or more aliases
+#  Example: www.company.com may also be aliased to company.com
+
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1406 'ispmanVhostScriptDir'
+#  Directory where the cgi-scripts can be kept
+#  By default its DomainDirectory/vhosts/VhostName/cgi-bin/
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1407 'ispmanVhostScriptDirOption'
+#  Similir options like DocumentRootOptions
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1410 'ispmanVhostIpAddress'
+#  You may assign a vhost a dedicated ip address or simply a '*'
+#
+
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1411 'ispmanVhostName'
+#  Name of the virtualhost. Should be unique within a domain
+
+
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1411 'ispmanVhostName'
+#  Name of the virtualhost. Should be unique within a domain
+
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1412 'ispmanVhostRedirectURL'
+#  You can redirect part of the vhost to another Location
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1413 'ispmanVhostRedirectLocation'
+#  This is the Location that the URL is redirected to 
+# For example: Redirect /ftp ftp://domain.name/
+# ispmanVhostRedirectURL: /ftp
+# ispmanVhostRedirectLocation: ftp://domain.name/ 
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1418 'ispmanVhostStats'
+# whether stats are enabled for that vhost
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1419 'ispmanVhostLogdir'
+# where to place http and ftp logs     
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1420 'ispmanVhostStatdir'
+# where to place the log stat reports
+
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1401 NAME 'ispmanVhostDocumentRoot'
+	DESC 'The path to the documentroot'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1402 NAME 'ispmanVhostDocumentRootOption'
+	DESC 'The path to the documentroot'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1404 NAME 'ispmanVhostExtraConf'
+	DESC 'The path to the documentroot'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1405 NAME 'ispmanVhostServerAlias'
+	DESC 'The path to the documentroot'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1406 NAME 'ispmanVhostScriptDir'
+	DESC 'The path to the ispmanScriptDir'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1407 NAME 'ispmanVhostScriptDirOption'
+	DESC 'The path to the ispmanScriptDir'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1410 NAME 'ispmanVhostIpAddress'
+	DESC 'An IP address or a * '
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1411 NAME 'ispmanVhostName'
+	DESC 'Name of Virtualhost. Eg: www'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1412 NAME 'ispmanVhostRedirectURL'
+	DESC 'relative URL WHICH you want to redirect'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1413 NAME 'ispmanVhostRedirectLocation'
+	DESC 'relative/static URL TO WHICH  you want to redirect'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1414 NAME 'ispmanVhostAclLocation'
+	DESC 'relativeLocation that is protected by someuser/pass'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1415 NAME 'ispmanVhostAclAllowUser'
+	DESC 'Usernames that are allowed to access this location'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1416 NAME 'webHost'
+	DESC 'The host on which this vhost should be located'
+	EQUALITY caseExactIA5Match
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1417 NAME 'ispmanVirtualhostUser'
+        DESC 'ispman virtualhost user'
+        EQUALITY caseExactIA5Match
+        SUBSTR caseExactIA5SubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1418 NAME 'ispmanVhostStats'
+	DESC 'Enable stats for this vhost'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256}
+	)
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1419 NAME 'ispmanVhostLogdir'
+	DESC 'Directory for log files'
+	EQUALITY caseIgnoreIA5Match    
+	SUBSTR caseExactIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE   
+	)
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1420 NAME 'ispmanVhostStatdir'
+	DESC 'Directory to place stat reports'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseExactIA5SubstringsMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE
+	)
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1421 NAME 'ispmanVhostFeature'
+	DESC 'Arbritary vhost feature'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseExactIA5SubstringsMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+

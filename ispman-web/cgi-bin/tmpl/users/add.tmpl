@@ -1,0 +1,164 @@
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+   
+
+   
+
+Please enter the name of  user to create.
+Username can only contain characters a - z. <BR>
+<perl>lc( $ispman->getConf("cyrusVirtDomainFeature") ) eq 'yes'? "Dot's are allowed, although no other":
+"No";</perl> accent characters, numbers or punctuation marks are allowed.<BR>
+A good username is the first character of the firstname as a prefix, followed by the users lastname.
+ <P>
+<table border=0>
+<form action="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/admin/index.cgi" method="POST">
+<tr><td colspan=2>
+    Adding user in  
+    <perl>$r->param('ispmanDomain')</perl>
+    <br><hr noshade></td></tr>
+
+
+<tr>
+    <td>Username</td>
+    <td>
+        <input  size=35 type=text name=uid value="">
+    </td>
+</tr>
+
+                                           
+<tr>
+    <td>Surname</td>
+    <td>
+        <input  size=35 type=text name=sn value="">
+    </td>
+</tr>
+<tr>
+    <td>Firstname </td>
+    <td>
+        <input size=35 type=text name=givenName value="">
+    </td>
+</tr>
+
+<tr>
+    <td>Password </td>
+    <td> 
+    <input size=35 type=text name=userPassword value="<perl>ISPMan::Utils->genPass()</perl>">
+    </td>
+</tr>
+
+<tr>
+    <td valign=center>Create mailbox on server</td>
+    <td>
+        <select name="mailHost">
+        <perl>
+        my $text="";
+        my @maildrophosts=$ispman->getGroupMembers("mailstoregroup");
+        
+        for (@maildrophosts){
+            $text.="<option VALUE='$_'>$_</option>";        
+        }
+        
+        if  ($#maildrophosts<0){
+            $text.="<option VALUE=''>WARNING: No members in group mailstoregroup defined</option>";        
+        }
+        
+        
+        $text
+        </perl>
+        <OPTION VALUE="">None (no mailbox. just forwardings)</option>
+        </select>
+   </td>
+</tr>
+
+
+<tr>
+    <td valign=center>Create homedirectory on server</td>
+    <td>
+        <select name="fileHost">
+        <perl>
+        my $text="";
+        my @fileserverhosts=$ispman->getGroupMembers("fileservergroup");
+        my $filehost=$ispman->getDefaultFileHost($r->param("ispmanDomain"));
+        
+        for (@fileserverhosts){
+            if ($filehost eq $_) {
+               $text.="<option VALUE=$_ selected>$_</option>";
+            } else {
+               $text.="<option VALUE=$_>$_</option>";
+            }
+        }
+        
+        if  ($#fileserverhosts<0){
+            $text.="<option VALUE=''>WARNING: No members in group filservergroup defined</option>";        
+        }
+        
+        
+        $text
+        </perl>
+        </select>
+   </td>
+</tr>
+
+<tr>
+    <td>Dialup Access</td>
+    <td>
+    <select name="dialupAccess">
+    <option value="enabled">Enabled</option>
+    <option value="disabled">Disabled</option>
+    </td>
+</tr>
+
+<tr>
+    <td>Radius Profile</td>
+    <td>
+    <select name="radiusProfileDN">
+    <perl>
+        $text="";
+        $profiles=$ispman->getRadiusProfiles();
+        for (keys %$profiles){
+                $profile=$profiles->{$_};
+                $text.="<option value='cn=" . $profile->{'cn'} .
+                        ", ou=radiusprofiles," .
+                         $ispman->getConfig("ldapBaseDN") .
+                        "'>" . $profile->{'cn'} . "</option>\n";
+        }
+        $text
+    </perl>
+    </td>
+</tr>
+
+<tr>
+    <td>FTP Access</td>
+    <td> 
+    <select name="FTPStatus">
+    <option value="enabled">Enabled</option>
+    <option value="disabled">Suspended</option>
+    </td>
+</tr>
+
+
+<tr>
+    <td>Max FTP Storage Space (in MB) </td>
+    <td> 
+    <input  size=4 type=text name=FTPQuotaMBytes value="<perl>$ispman->getConf('defaultUserFtpQuota')</perl>">
+    </td>
+</tr>
+
+<tr>
+    <td>Max Mail Storage Space (in MB) </td>
+    <td> 
+    <input  size=4 type=text name=mailQuota value="<perl>$ispman->getConf('defaultUserMailQuota')</perl>">
+    </td>
+</tr>
+
+
+    
+<input type=hidden name="mode" value="newUser">
+<input type=hidden name="ispmanDomain" value="<perl>$r->param('ispmanDomain')</perl>">
+   <tr><td align=right colspan=2>  
+         <input type=button class="button" onClick="document.forms[0].reset()" value="Discard Changes">
+         <input type=button class="button" onClick="document.forms[0].submit()" value="Save Entry">
+      </td></tr>
+   </form></table>
+ 
+ 
+

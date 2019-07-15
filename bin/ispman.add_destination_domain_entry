@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+package ISPMan;
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+use ISPMan;
+$ispman = ISPMan->new();
+require "$FindBin::Bin/../lib/smtp.lib";
+# defind log_message.
+# This is defined in ispman-agent and we should redefine here
+sub logsay {
+    my $message = join ' ', @_;
+    chomp($message);
+    print "$message\n";
+}
+
+
+&add_destination_domain_entry(@ARGV);
+
+
+__END__
+
+

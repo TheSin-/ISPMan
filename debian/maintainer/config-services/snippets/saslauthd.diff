@@ -1,0 +1,17 @@
+--- /etc/default/saslauthd.sav  2007-01-25 02:08:36.558672264 +0100
++++ /etc/default/saslauthd      2007-01-25 02:08:50.087108452 +0100
+@@ -3,7 +3,7 @@
+ #
+
+ # Should saslauthd run automatically on startup? (default: no)
+-START=no
++START=yes
+
+ # Which authentication mechanisms should saslauthd use? (default: pam)
+ #
+@@ -35,4 +35,4 @@
+ #
+ # Example for postfix users: "-c -m /var/spool/postfix/var/run/saslauthd"
+ # Note: See /usr/share/doc/sasl2-bin/README.Debian
+-OPTIONS="-c"
++OPTIONS="-c -r"

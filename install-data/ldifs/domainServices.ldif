@@ -1,0 +1,18 @@
+dn: ou=domainServices, %%ldapBaseDN%%
+ou: domainServices
+objectclass: ispmanBranch
+
+dn: ispmanDomainServiceName=http, ou=domainServices, %%ldapBaseDN%%
+objectclass: ispmanDomainService
+ispmanDomainServiceName: http
+ispmanDomainServiceAlias: Web Virtual Hosting
+ispmanDomainServiceInfo: Allow creation of web virtual hosts
+ispmanDomainServiceDefault: NO
+
+dn: ispmanDomainServiceName=mail, ou=domainServices, %%ldapBaseDN%%
+objectclass: ispmanDomainService
+ispmanDomainServiceName: mail
+ispmanDomainServiceAlias: Mail Accounts
+ispmanDomainServiceInfo: Allow creation of mail accounts
+ispmanDomainServiceDefault: YES
+

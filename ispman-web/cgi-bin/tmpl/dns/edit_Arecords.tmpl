@@ -1,0 +1,97 @@
+<script type="text/javascript">
+  var domain="<perl>$r->param("ispmanDomain")</perl>";
+  var cgiurl=window.location.pathname;
+  var hrefurl=window.location.href;
+  
+  function sortBy(column){
+    location=cgiurl+"?mode=editDNSaRecords&ispmanDomain="+domain+"&sortby="+column;
+  }
+  
+  function submitForm(f,action){
+    switch(action){
+	   case 'add':    f.mode.value="addDNSaRecord"; break;
+	   case 'update': f.mode.value="modifyDNSaRecord"; break;
+	   case 'delete': f.mode.value="deleteDNSaRecord"; break;
+	}
+	f.ispmanDomain.value=domain;
+	f.action=cgiurl;
+	f.submit();
+  }
+</script>
+
+<perl>        
+my $text="";
+my $c=1;
+my $thisDomain=$r->param("ispmanDomain");
+
+$text.=qq|
+<P>
+@{[_("Editing A Records for domain:")]} $thisDomain
+
+<table class=dns>
+  <tr>
+    <th><a href='javascript:sortBy("host")'>@{[_("Hostname")]}</a></th>
+    <th><a href='javascript:sortBy("ip")'>@{[_("IP Address")]}</a></th>
+    <th><a href='javascript:sortBy("ptr")'>@{[_("Rev.")]}</a></th>
+    <th>&nbsp;</th>
+  </tr>
+
+  <tr>
+    <form method=POST>
+    <input type=hidden name=ispmanDomain>
+    <input type=hidden name=mode>
+    <td><input type=text name=host></td>
+    <td><input type=text name=ip></td>
+    <td><input class=checkbox type=checkbox name=pTRRecord></td>        
+    <td><input type=button onClick='submitForm(this.form,"add")' value='@{[_("Add")]}'></td>
+	</form>
+  </tr>
+|;
+
+my $sortby=$r->param("sortby") || "host";
+my @sorted=();
+
+if ($ispman->{'domain'}{'dns'}){
+    if ($sortby eq 'ip') {
+	@sorted=sort {
+            my ($a1,$a2,$a3,$a4) = split (/\./, $a->{'ip'});
+            my ($b1,$b2,$b3,$b4) = split (/\./, $b->{'ip'});
+            $a1 <=> $b1 || $a2 <=> $b2 || $a3 <=> $b3 || $a4 <=> $b4 ||
+		$a->{'host'} cmp $b->{'host'};
+        } @{$ispman->{'domain'}{'dns'}};
+    } elsif ($sortby eq 'ptr') {
+	@sorted=sort {
+            $a->{'ptr'} cmp $b->{'ptr'} ||
+		$a->{'host'} cmp $b->{'host'}
+        } @{$ispman->{'domain'}{'dns'}};
+    } else {	
+	@sorted=sort {
+            $a->{'host'} cmp $b->{'host'}
+        } @{$ispman->{'domain'}{'dns'}};
+    }
+}
+
+for (@sorted){
+		$text.="<tr>";
+        $text.="<form method=POST>";
+		$text.="<input type=hidden name='dn' value='@{[$ispman->getARecordDn($thisDomain, $_->{'host'}, $_->{'ip'})]}'>";
+		$text.="<input type=hidden name='ispmanDomain'>";
+		$text.="<input type=hidden name='mode'>";
+        $text.="<td><input type=text name='host' value='$_->{'host'}'></td>";
+        $text.="<td><input type=text name='ip' value='$_->{'ip'}'></td>";
+        $text.="<td><input class=checkbox type=checkbox name=pTRRecord ";
+        $text.=" checked " if ($_->{'ptr'});
+        $text.="></td>";
+		$text.="<td>\n";
+        $text.="<input type=image onClick='submitForm(this.form,\"update\")' src='".$ispman->getConfig("ispmanUrlPrefix")."/gfx/apply.gif'>\n";
+		$text.="<input type=image onClick='submitForm(this.form,\"delete\")' src='".$ispman->getConfig("ispmanUrlPrefix")."/gfx/delete.gif'>\n";
+		$text.="</td>\n";
+        $text.="</form>";
+        $text.="</tr>";
+        $c++;
+}
+$text
+</perl>
+
+</table>
+

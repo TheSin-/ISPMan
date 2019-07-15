@@ -1,0 +1,9 @@
+<perl> return $ispman->getTemplate("domains/edit/header.tmpl")->fill_in(PACKAGE => __PACKAGE__); </perl>
+<perl> return $ispman->getTemplate("domains/edit/domainname.tmpl")->fill_in(PACKAGE => __PACKAGE__); </perl>
+<perl> return $ispman->getTemplate("domains/edit/domaintype.tmpl")->fill_in(PACKAGE => __PACKAGE__); </perl>
+<perl> return $ispman->getTemplate("domains/edit/domainmaster.tmpl")->fill_in(PACKAGE => __PACKAGE__); </perl>
+<perl> return $ispman->getTemplate("domains/edit/comment.tmpl")->fill_in(PACKAGE => __PACKAGE__); </perl>
+<perl> return $ispman->getTemplate("domains/edit/maildelivery.tmpl")->fill_in(PACKAGE => __PACKAGE__); </perl>
+<input type=hidden name="mode" value="modifyReplicaDomain">
+<perl> return $ispman->getTemplate("domains/edit/footer.tmpl")->fill_in(PACKAGE => __PACKAGE__); </perl>
+

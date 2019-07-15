@@ -1,0 +1,747 @@
+#!/usr/bin/perl
+package ISPMan;
+
+# Script to update LDIF data
+# Reads from one ldif file and writes to another ldif
+# Messages are dumped on STDERR
+
+# please adjust defines below to suit your environment
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+use strict;
+use Getopt::Std;
+use HTML::Entities;
+use MIME::Base64;
+use Net::LDAP::LDIF;
+use ISPMan;
+
+our ( $ispman, $OUT );
+
+# defines
+my $dummyUid      = "999999";
+my $dummyGid      = "999999";
+my $dummyPassword = "123456";
+
+my $install_ldif = "conf/ldif/ispman.ldif";
+
+# private variables
+my $mode;
+my $msg;
+my @entries = ();
+
+sub usage {
+    print qq[
+ISPMan ldifupdate
+
+A utility to update your ispman LDAP data according to current ISPMan schema.
+It connects directly to LDAP and parses/analyzes your existing ISPMan data,
+which in turn generates a LDIF that holds all necessary changes.
+The LDIF can be inspected and loaded into LDAP afterwards.
+
+Syntax: ldifupdate [options]
+Options:
+  -o <file>        output LDIF filename
+  -h               this help
+];
+    exit;
+}
+
+# FIXME: this should be obsolete with ispman lib cleanup
+# Don't want to log for just this. So lets make ISPMan::LDAP happy.
+sub log_event { 1; }
+
+sub commit {
+    my $entry = shift;
+    my $msg   = shift;
+
+    my $dn = $entry->dn();
+
+    if ($msg) {
+        print STDERR "DN: $dn\n";
+        print STDERR $msg, "\n";
+    }
+    $OUT->write_entry($entry);
+}
+
+sub update_oc {
+    my ( $entry, $src, $dst, %opt ) = @_;
+    my $msg = "";
+    my %in_src;
+    my %in_dst;
+
+    for (@$src) { $in_src{$_} = 1; }
+    for (@$dst) {
+        if ( !$in_src{$_} ) {
+            $msg .= "adding objectclass: \"$_\"\n";
+            $entry->add( "objectclass", $_ );
+        }
+        $in_dst{$_} = 1;
+    }
+
+    if ( !$opt{addonly} ) {
+        for (@$src) {
+            if ( !$in_dst{$_} ) {
+                $msg .= "deleting objectclass: \"$_\"\n";
+                $entry->delete( "objectclass" => [$_] );
+            }
+        }
+    }
+
+    return $msg;
+}
+
+# check for valid posixGroup
+sub check_posixgroup {
+    my $domain = shift;
+
+    my $msg          = "";
+    my $ispmanDomain = $domain->get_value("ispmanDomain");
+
+    my $entry = $ispman->getEntry(
+        $ispman->{'Config'}{'ldapBaseDN'},
+        "&(objectclass=posixGroup)(cn=$ispmanDomain)",
+        "dn", "sub"
+    );
+
+    if ( !$entry ) {
+
+        # add new group entry
+        $entry = Net::LDAP::Entry->new;
+
+        $entry->dn( "cn=$ispmanDomain, ispmanDomain=$ispmanDomain, "
+              . $ispman->{'Config'}{'ldapBaseDN'} );
+        $entry->add(
+            objectclass => 'posixGroup',
+            cn          => $ispmanDomain,
+            gidnumber   => $domain->get_value("gidnumber")
+        );
+
+        $OUT->write_entry($entry);
+        $msg .= "creating new posixGroup entry for domain $ispmanDomain\n";
+    }
+
+    return $msg;
+}
+
+# check for PAB tree
+sub check_pabtree {
+    my $domain = shift;
+
+    my $msg          = "";
+    my $ispmanDomain = $domain->get_value("ispmanDomain");
+
+    my $entry = $ispman->getEntry(
+        "ou=pabs,".$ispman->{'Config'}{'ldapBaseDN'},
+        "ou=$ispmanDomain",
+        "dn", "one"
+    );
+
+    if ( !$entry ) {
+        # add new pab entry
+        $entry = Net::LDAP::Entry->new;
+
+        $entry->dn( "ou=$ispmanDomain,ou=pabs,"
+              . $ispman->{'Config'}{'ldapBaseDN'} );
+        $entry->add(
+            objectclass => 'organizationalUnit',
+            ou          => $ispmanDomain
+        );
+
+        $OUT->write_entry($entry);
+        $msg .= "creating new pab entry for domain $ispmanDomain\n";
+    }
+
+    return $msg;
+}
+
+#
+# checking RDN
+#
+sub check_rdn {
+    my $entry = shift;
+
+    my $msg = "";
+
+    # get the RDN as attr/value
+    my ( $attrib, $attribval ) = $entry->dn() =~ m/^(\w+)?\=([^,]*)/;
+    my @values = $entry->get_value($attrib);
+    my $found  = 0;
+
+    for (@values) {
+        if ( $_ eq $attribval ) { $found = 1 }
+    }
+    if ( !$found ) {
+        $msg .= "adding RDN to attributes ($attrib: $attribval)\n";
+        $entry->add( $attrib, $attribval );
+    }
+
+    return $msg;
+}
+
+#
+# check objectclass for arbitrary eentries
+#
+sub check_objectclass {
+    my $entry = shift;
+
+    my $msg = "";
+
+    my @oc = $entry->get_value("objectclass");
+    my %oc;
+    for (@oc) { $oc{$_} = 1 }
+
+    # if there is only one objectclass: top
+    # replace with ispmanBranch
+    if ( $#oc == 0 && $oc[0] eq "top" ) {
+        $msg .= "replacing objectclass: \"top\" -> \"ispmanBranch\"\n";
+        $entry->replace( "objectclass", "ispmanBranch" );
+
+    }
+
+    # if entry starts with "ou=" replace
+    # objectclasses top, organizationalunit with ispmanBranch
+    #if ( $entry->dn() =~ m/^ou=/ && $oc[0] ne "ispmanBranch" ) {
+    #    $msg .= "replacing objectclass: -> \"ispmanBranch\"\n";
+    #    $entry->replace( "objectclass", "ispmanBranch" );
+    #
+    #}
+
+    # check oc for ispmanDomain
+    if ( grep /^ispmanDomain$/, @oc ) {
+        if ( $entry->get_value("ispmanDomainType") eq "replica" ) {
+            $msg .=
+              update_oc( $entry, \@oc,
+                $ispman->{'Config'}{'ispmanReplicaDomainObjectclasses'} );
+        }
+        else {
+            $msg .=
+              update_oc( $entry, \@oc,
+                $ispman->{'Config'}{'ispmanDomainObjectclasses'} );
+        }
+    }
+
+    # checking oc for ispmanVhost
+    if ( grep /^ispmanVhost$/, @oc ) {
+        $msg .=
+          update_oc( $entry, \@oc,
+            $ispman->{'Config'}{'ispmanVhostObjectclasses'} );
+    }
+
+    #checking oc for ispmanDomainUser
+    if ( grep /^ispmanDomainUser$/, @oc ) {
+        $msg .= update_oc(
+            $entry, \@oc,
+            $ispman->{'Config'}{'ispmanUserObjectclasses'},
+            addonly => 1
+        );
+    }
+
+    return $msg;
+}
+
+#
+# check domain integrity
+#
+sub check_ispmanDomain {
+    my $entry = shift;
+
+    my $ispmanDomain = $entry->get_value("ispmanDomain");
+    my $msg          = "";
+
+    # check objectclass
+    $msg .= check_objectclass($entry);
+
+    # update non-replica domains
+    if ( $entry->get_value("ispmanDomainType") ne "replica" ) {
+
+        # check ispmanDomainDefaultFileServer attribute
+        if ( !defined $entry->get_value("ispmanDomainDefaultFileServer") ) {
+            if ( $ispman->{'Config'}{'default_fileserver'} ) {
+                $msg .= "adding ispmanDomainDefaultFileServer: \"$_\"\n";
+                $entry->add( "ispmanDomainDefaultFileServer",
+                    $ispman->{'Config'}{'default_fileserverr'} );
+            }
+            else {
+                $msg .= "WARNING! no members in fileservergroup defined!\n";
+            }
+        }
+
+        # check ispmanDomainDefaultWebServer attribute
+        if ( !defined $entry->get_value("ispmanDomainDefaultWebHost") ) {
+            if ( $ispman->{'Config'}{'default_webhost'} ) {
+                $msg .= "adding ispmanDomainWebHost: \"$_\"\n";
+                $entry->add( "ispmanDomainDefaultWebHost",
+                    $ispman->{'Config'}{'default_webhost'} );
+            }
+            else {
+                $msg .= "WARNING! no members in httpgroup defined!\n";
+            }
+        }
+
+        # checking domain loginShell
+        unless ( $entry->get_value("loginshell") ) {
+            $msg .=
+              "adding loginShell: "
+              . $ispman->{'Config'}{'default_loginShell'} . "\n";
+            $entry->add( "loginshell",
+                $ispman->{'Config'}{'default_loginShell'} );
+        }
+
+        # checking FTPStatus
+        if ( !$entry->get_value("FTPStatus") ) {
+            $msg .= "adding FTPStatus: active\n";
+            $entry->add( "FTPStatus", "active" );
+        }
+
+        # check related group entry
+        $msg .= check_posixgroup($entry);
+
+        # check ResellerId
+        my $clientId   = $entry->get_value("ispmanClientId");
+        my $resellerId = $entry->get_value("ispmanResellerId");
+        if ( $clientId && !$resellerId ) {
+            my $reseller = $ispman->getEntry(
+                $ispman->{'Config'}{'ldapBaseDN'},
+                "&(objectclass=ispmanClient)(ispmanClientId=$clientId)",
+                "*", "sub"
+            );
+            if ( !$reseller ) {
+                $msg .= "ERROR: $ispmanDomain contains bogus ispmanClientId\n";
+            }
+            else {
+                $resellerId = $reseller->get_value("ispmanResellerId");
+                if ($resellerId) {
+                    $msg .= "adding ispmanResellerId: $resellerId\n";
+                    $entry->add( "ispmanResellerId", $resellerId );
+                }
+                else {
+                    $msg .=
+                        "ERROR: unable to determine ispmanResellerId"
+                      . " for domain $ispmanDomain\n";
+                }
+                my $resellerName = $reseller->get_value("ispmanresellername");
+                if ($resellerName) {
+                    if ( $entry->get_value("ispmanResellerName") ) {
+                        $msg .= "replacing ispmanResellerName: $resellerName\n";
+                        $entry->replace( "ispmanResellerName", $resellerName );
+                    }
+                    else {
+                        $msg .= "adding ispmanResellerName: $resellerName\n";
+                        $entry->add( "ispmanResellerName", $resellerName );
+                    }
+                }
+                else {
+                    $msg .=
+                        "ERROR: unable to determine ispmanResellerName"
+                      . " for domain $ispmanDomain\n";
+                }
+            }
+        }
+
+        # check domain's pab tree
+        $msg .= check_pabtree($entry);
+    }
+
+    return $msg;
+}
+
+#
+# check ispmanVhost
+#
+sub check_ispmanVhost {
+    my $entry = shift;
+
+    my $msg = "";
+
+    # update ispmanVhost
+    my $ispmanVhostName = $entry->get_value("ispmanVhostName")
+      || die( ( caller(0) )[3] . ": ispmanVhostName undefined!" );
+    my $ispmanDomain = $entry->get_value("ispmanDomain")
+      || die( ( caller(0) )[3] . ": ispmanDomain undefined!" );
+
+    # check objectclass
+    $msg .= check_objectclass($entry);
+
+    # checking vhost cn attribute
+    my $lcn = $entry->get_value("cn");
+    my $cn = join ".", ( $ispmanVhostName, $ispmanDomain );
+    if ( !defined $lcn ) {
+        $msg .= "adding cn with \"$cn\"\n";
+        $entry->add( "cn", $cn );
+    }
+    elsif ( $lcn ne $cn ) {
+        $msg .= "changing cn: \"$lcn\" -> \"$cn\"\n";
+        $entry->replace( "cn", $cn );
+    }
+
+    # checking vhost uid attribute
+    my $luid = $entry->get_value("uid");
+    my $uid = join ".", ( $ispmanVhostName, $ispmanDomain );
+    if ( !defined $luid ) {
+        $msg .= "adding uid with \"$uid\"\n";
+        $entry->add( "uid", $uid );
+    }
+    elsif ( $luid ne $uid ) {
+        $msg .= "changing uid: \"$luid\" -> \"$uid\"\n";
+        $entry->replace( "uid", $uid );
+    }
+
+    # checking vhost uidNumber attribute
+    unless ( $entry->get_value("uidNumber") ) {
+        $msg .=
+            "adding dummy uidNumber: $dummyUid "
+          . "(This should be replaced later!\n)";
+        $entry->add( "uidNumber", $dummyUid );
+    }
+
+    # checking vhost gidNumber attribute
+    unless ( $entry->get_value("gidNumber") ) {
+        $msg .=
+            "adding dummy gidNumber: $dummyGid "
+          . "(This should be replaced later!)\n";
+        $entry->add( "gidNumber", $dummyGid );
+    }
+
+    # checking vhost homeDirectory attribute
+    my $homedir = join '/',
+      (
+        $ispman->getConf("defaultHomeDirectoryPath"),
+        $ispmanDomain, 'vhosts', $ispmanVhostName
+      );
+    unless ( $entry->get_value("homeDirectory") ) {
+        $msg .= "adding homeDirectory: \"$homedir\"\n";
+        $entry->add( "homeDirectory", $homedir );
+    }
+
+    # checking vhost userPassword attribute
+    unless ( $entry->get_value("userPassword") ) {
+        $msg .=
+            "adding userPassword: \"$dummyPassword\" "
+          . "(This should be replaced later!)\n";
+        $entry->add( "userPassword", $dummyPassword );
+    }
+
+    # checking vhost ispmanVhostDocumentRoot
+    my $docroot = $entry->get_value("ispmanVhostDocumentRoot");
+    if ($docroot) {
+        if ( $docroot =~ /^$ispmanVhostName\// ) {
+            $msg .= "NOTICE: ispmanVhostDocumentRoot looks like old entry\n";
+            my ($fixeddocroot) = $docroot =~ m/^$ispmanVhostName\/(.*)/;
+            $msg .=
+                "changing ispmanVhostDocumentRoot: "
+              . "\"$docroot\" -> \"$fixeddocroot\"\n";
+            $entry->replace( "ispmanVhostDocumentRoot", $fixeddocroot );
+        }
+    }
+    else {
+        $msg .= "ERROR: ispmanVhostDocumentRoot is missing!\n";
+    }
+
+    # checking vhost ispmanVhostScriptDir
+    my $scdir = $entry->get_value("ispmanVhostScriptDir");
+    if ($scdir) {
+        if ( $scdir =~ /^$ispmanVhostName\// ) {
+            $msg .= "NOTICE: ispmanVhostDocumentRoot looks like old entry\n";
+            my ($fixedscdir) = $scdir =~ m/^$ispmanVhostName\/(.*)/;
+            $msg .=
+                "changing ispmanVhostScriptDir: "
+              . "\"$scdir\" -> \"$fixedscdir\"\n";
+            $entry->replace( "ispmanVhostScriptDir", $fixedscdir );
+        }
+    }
+    else {
+        $msg .= "ERROR: ispmanVhostScriptDir is missing!\n";
+    }
+
+    # checking vhost ispmanVhostLogdir attribute
+    my $logdir = $entry->get_value("ispmanVhostLogdir");
+    if ($logdir) {
+        if ( $logdir =~ /^$ispmanVhostName\// ) {
+            $msg .= "NOTICE: ispmanVhostLogdir looks like old entry\n";
+            my ($fixedlogdir) = $logdir =~ m/^$ispmanVhostName\/(.*)/;
+            $msg .=
+                "changing ispmanVhostLogdir: "
+              . "\"$logdir\" -> \"$fixedlogdir\"\n";
+            $entry->replace( "ispmanVhostLogdir", $fixedlogdir );
+        }
+    }
+    else {
+        $msg .= "WARNING: ispmanVhostLogdir is missing!\n";
+        $msg .= "adding ispmanVhostLogdir: \"logs\"\n";
+        $entry->add( "ispmanVhostLogdir", "logs" );
+    }
+
+    # checking vhost ispmanVhostStatdir attribute
+    my $statdir = $entry->get_value("ispmanVhostStatdir");
+    if ($statdir) {
+        if ( $statdir =~ /^$ispmanVhostName\// ) {
+            $msg .= "NOTICE: ispmanVhostStatdir looks like old entry\n";
+            my ($fixedstatdir) = $statdir =~ m/^$ispmanVhostName\/(.*)/;
+            $msg .=
+                "changing ispmanVhostStatdir: "
+              . "\"$statdir\" -> \"$fixedstatdir\"\n";
+            $entry->replace( "ispmanVhostStatdir", $fixedstatdir );
+        }
+    }
+    else {
+        $msg .= "WARNING: ispmanVhostStatdir is missing!\n";
+        $msg .= "adding ispmanVhostStatdir: \"stats\"\n";
+        $entry->add( "ispmanVhostStatdir", "stats" );
+    }
+
+    # checking vhost loginShell
+    unless ( $entry->get_value("loginshell") ) {
+        $msg .=
+          "adding loginShell: "
+          . $ispman->{'Config'}{'default_vhostShell'} . "\n";
+        $entry->add( "loginshell", $ispman->{'Config'}{'default_vhostShell'} );
+    }
+
+    # checking ispmanVhostExtraConf
+    my $extraconf = $entry->get_value("ispmanVhostExtraConf");
+    if ( $extraconf && $extraconf =~ /<.*>/ ) {
+        my $codedconf = HTML::Entities::encode($extraconf);
+        $msg .= "NOTICE: ispmanVhostExtraConf is not HTML encoded!\n";
+        $msg .= "changing: ispmanVhostExtraConf\n";
+        $entry->replace( "ispmanVhostExtraConf", $codedconf );
+    }
+
+    # checking ispmanStatus
+    if ( !$entry->get_value("ispmanStatus") ) {
+        $msg .= "adding ispmanStatus: active\n";
+        $entry->add( "ispmanStatus", "active" );
+    }
+
+    # checking FTPStatus
+    if ( !$entry->get_value("FTPStatus") ) {
+        $msg .= "adding FTPStatus: active\n";
+        $entry->add( "FTPStatus", "active" );
+    }
+
+    # checking ispmanVhostServerAlias
+    my @aliases = $entry->get_value("ispmanVhostServerAlias");
+    if (@aliases) {
+
+        # create new alias container
+        my $ou = Net::LDAP::Entry->new;
+        $ou->add(
+            'objectclass' => 'ispmanBranch',
+            'ou'          => 'vhostAliases'
+        );
+        $ou->dn( "ou=vhostAliases," . $entry->dn() );
+        $ou->changetype("add");
+        $OUT->write_entry($ou);
+        $msg .= "creating vhostAlias container...\n";
+
+        # move all aliases to new entries
+        for (@aliases) {
+            my $alias = Net::LDAP::Entry->new;
+            $alias->add(
+                'objectclass'            => 'ispmanVirtualHostAlias',
+                'ispmanDomain'           => $ispmanDomain,
+                'ispmanVhostName'        => $ispmanVhostName,
+                'ispmanVhostServerAlias' => $_
+            );
+            $alias->dn( "ispmanVhostServerAlias=$_," . $ou->dn() );
+            $alias->changetype("add");
+            $OUT->write_entry($alias);
+
+            $entry->delete("ispmanVhostServerAlias");
+            $msg .= "moving vhostAlias \"$_\" to container\n";
+        }
+    }
+
+    return $msg;
+}
+
+#
+# checking ispmanDomainUser
+#
+sub check_ispmanDomainUser {
+    my $entry = shift;
+
+    my $msg = "";
+
+    # checking minimum objectclasses
+    $msg .= check_objectclass($entry);
+
+    # checking for alternate uid
+    my @uids = $entry->get_value("uid");
+    my $uid = join "@", $entry->get_value("ispmanUserId"),
+      $entry->get_value("ispmanDomain");
+    my $hasAlternateUid = 0;
+    for (@uids) {
+        if ( $_ eq $uid ) { $hasAlternateUid = 1; }
+    }
+    if ( !$hasAlternateUid ) {
+        $msg .= "adding uid: \"$uid\"\n";
+        $entry->add( "uid", $uid );
+    }
+
+    # checking for bogus mailHost
+    if (   $entry->get_value("mailHost")
+        && $entry->get_value("mailHost") eq "undefined" )
+    {
+        $msg .= "deleting mailhost: undefined\n";
+        $entry->delete( "mailhost" => ["undefined"] );
+    }
+
+    # checking for bogus fileHost
+    if (   $entry->get_value("fileHost")
+        && $entry->get_value("fileHost") eq "undefined" )
+    {
+        $msg .= "deleting filehost: undefined\n";
+        $entry->delete( "filehost" => ["undefined"] );
+    }
+
+    # checking loginShell
+    unless ( $entry->get_value("loginshell") ) {
+        $msg .=
+          "adding default loginShell: "
+          . $ispman->{'Config'}{'default_loginShell'} . "\n";
+        $entry->add( "loginshell", $ispman->{'Config'}{'default_loginShell'} );
+    }
+
+    return $msg;
+}
+
+#### START ####
+
+my %opts;
+getopt( 'ho', \%opts );
+
+if ( exists( $opts{'h'} ) or !defined( $opts{'o'} ) ) {
+    usage();
+    exit;
+}
+
+# fetch ispman object
+$ispman = ISPMan->new();
+
+# set mode
+$mode = "modify";
+
+# create output file
+$OUT = Net::LDAP::LDIF->new( $opts{'o'}, "w", 'change' => 1 );
+
+### DEFAULTS ###
+print STDERR "Getting defaults ...\n";
+
+$ispman->{'Config'}{'default_fileserver'} =
+  ( $ispman->getHostGroupMembers("fileservergroup") )[0];
+print STDERR "default_fileserver = "
+  . $ispman->{'Config'}{'default_fileserver'} . "\n";
+
+$ispman->{'Config'}{'default_webhost'} =
+  ( $ispman->getHostGroupMembers("httpgroup") )[0];
+print STDERR "default_webhost = "
+  . $ispman->{'Config'}{'default_webhost'} . "\n";
+
+$ispman->{'Config'}{'default_loginShell'} = $ispman->getConf("loginShell");
+print STDERR "default_loginShell = "
+  . $ispman->{'Config'}{'default_loginShell'} . "\n";
+
+$ispman->{'Config'}{'default_vhostShell'} = $ispman->getConf("vhostShell");
+print STDERR "default_vhostShell = "
+  . $ispman->{'Config'}{'default_vhostShell'} . "\n";
+
+$ispman->{'Config'}{'default_domainShell'} = $ispman->getConf("domainShell");
+print STDERR "default_domainShell = "
+  . $ispman->{'Config'}{'default_domainShell'} . "\n";
+
+### UPDATE ###
+
+# try to fetch install ldif and look for new/changed entries
+my $install_ldif =
+    "cat $ispman->{'Config'}{'installDir'}/conf/ldif/ispman.ldif|"
+  . "$ispman->{'Config'}{'installDir'}/bin/ispman.substConf|";
+
+my $ldif = Net::LDAP::LDIF->new($install_ldif);
+print STDERR "WARNING: Can't open $install_ldif" unless $ldif;
+
+print STDERR "\nChecking for missing ISPMan entries ...\n";
+while ( not $ldif->eof() ) {
+    my $entry = $ldif->read_entry();
+    if ( !$ispman->branchExists( $entry->dn ) ) {
+        $msg = "adding missing entry " . $entry->dn;
+        commit( $entry, $msg );
+    }
+}
+
+### CHECKS ###
+
+# checking objectclasses
+print STDERR "\nChecking structural entries ...\n";
+@entries = $ispman->getEntries( $ispman->{'Config'}{'ldapBaseDN'},
+    "objectclass=organizationalunit" );
+for my $entry (@entries) {
+    $entry->changetype($mode);
+    $msg = check_objectclass($entry);
+    $msg .= check_rdn($entry);
+    if ($msg) {
+        commit( $entry, $msg );
+    }
+}
+
+# checking ispmanDomains
+print STDERR "\nChecking ispmanDomains ...\n";
+@entries = $ispman->getEntries( $ispman->{'Config'}{'ldapBaseDN'},
+    "objectclass=ispmanDomain" );
+for my $entry (@entries) {
+    $entry->changetype($mode);
+    $msg = check_ispmanDomain($entry);
+    $msg .= check_rdn($entry);
+    if ($msg) {
+        commit( $entry, $msg );
+    }
+}
+
+# checking ispmanVhosts
+print STDERR "\nChecking ispmanVhosts ...\n";
+@entries = $ispman->getEntries( $ispman->{'Config'}{'ldapBaseDN'},
+    "objectclass=ispmanVirtualHost" );
+for my $entry (@entries) {
+    $entry->changetype($mode);
+    $msg = check_ispmanVhost($entry);
+    $msg .= check_rdn($entry);
+    if ($msg) {
+        commit( $entry, $msg );
+    }
+}
+
+# checking ispmanDomainUsers
+print STDERR "\nChecking ispmanDomainUsers ...\n";
+@entries = $ispman->getEntries( $ispman->{'Config'}{'ldapBaseDN'},
+    "objectclass=ispmanDomainUser" );
+for my $entry (@entries) {
+    $entry->changetype($mode);
+    $msg = check_ispmanDomainUser($entry);
+    $msg .= check_rdn($entry);
+    if ($msg) {
+        commit( $entry, $msg );
+    }
+}
+
+# checking DNS entries
+print STDERR "\nChecking DNS entries ...\n";
+@entries = $ispman->getEntries( "ou=DNS," . $ispman->{'Config'}{'ldapBaseDN'},
+    "objectclass=*" );
+for my $entry (@entries) {
+    $entry->changetype($mode);
+    $msg = check_objectclass($entry);
+    $msg .= check_rdn($entry);
+    if ($msg) {
+        commit( $entry, $msg );
+    }
+}
+
+
+$OUT->done();
+
+__END__
+

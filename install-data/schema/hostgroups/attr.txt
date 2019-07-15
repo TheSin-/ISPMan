@@ -1,0 +1,27 @@
+# ISPMan host groupd. Groups that have a function. 
+# Such as webserver, mailservers etc
+# attributeType 1.3.6.1.4.1.8833.2.1.1601 'ispmanHostGroupName'
+# attributeType 1.3.6.1.4.1.8833.2.1.1602 'ispmanHostGroupInfo'
+# attributeType 1.3.6.1.4.1.8833.2.1.1603 'ispmanHostGroupMember'
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1601 NAME 'ispmanHostGroupName'
+	DESC 'A string naming an ISPMan host group.'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1602 NAME 'ispmanHostGroupInfo'
+	DESC 'Some info about this group'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1603 NAME 'ispmanHostGroupMember'
+	DESC 'ispmanHosts that take part in this group'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+
+

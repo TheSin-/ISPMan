@@ -1,0 +1,92 @@
+#
+# See slapd.conf(5) for details on configuration options.
+# This file should NOT be world readable.
+#
+include         %%ldapInstallPath%%/schema/core.schema
+include         %%ldapInstallPath%%/schema/cosine.schema
+include         %%ldapInstallPath%%/schema/nis.schema
+include         %%ldapInstallPath%%/schema/misc.schema
+include         %%ldapInstallPath%%/schema/inetorgperson.schema
+include         %%ldapInstallPath%%/schema/dnszone.schema
+include         %%ldapInstallPath%%/schema/pureftpd.schema
+include         %%ldapInstallPath%%/schema/ispman.schema
+include         %%ldapInstallPath%%/schema/RADIUS-LDAPv3.schema
+
+
+# Define global ACLs to disable default read access.
+
+# Do not enable referrals until AFTER you have a working directory
+# service AND an understanding of referrals.
+#referral	ldap://root.openldap.org
+
+pidfile		/var/run/slapd.pid
+argsfile	/var/run/slapd.args
+
+# Load dynamic backend modules:
+# modulepath	/usr/lib/ldap
+moduleload	back_bdb
+
+#
+# Sample Access Control
+#	Allow read access of root DSE
+#	Allow self write access
+#	Allow authenticated users read access
+#	Allow anonymous users to authenticate
+#
+#access to dn="" by * read
+#access to *
+#	by self write
+#	by users read
+#	by anonymous auth
+#
+# if no access controls are present, the default is:
+#	Allow read by all
+#
+# rootdn can always write!
+
+#######################################################################
+# ldbm database definitions
+#######################################################################
+# For openldap2.1 and above
+# Uncomment this.
+# Does not work with openldap 2.0.x
+#allow bind_v2
+
+
+loglevel 256
+
+database	bdb
+directory	/var/lib/ldap
+
+suffix "%%ldapBaseDN%%"
+rootdn "%%ldapRootDN%%"
+rootpw {crypt}@@randcrypt('%%ldapRootPass%%')@@
+
+
+# Indices to maintain
+index	objectClass	eq
+index	uid,sn,cn	pres,eq,sub
+index	uidnumber,gidnumber	pres,eq
+index	memberuid	pres,eq
+index	mail,mailLocalAddress,mailAlias	pres,eq
+
+# GAB ACL's
+access to dn.regex="^(.+,)?ou=([^,]+),ou=pabs,%%ldapBaseDN%%$"
+        by dn.exact,expand="ispmanDomain=$2,%%ldapBaseDN%%" write
+        by dn.regex,expand="uid=([^,]+),ou=users,ispmanDomain=$2,%%ldapBaseDN%%" read
+        by * none
+
+# PAB ACL's
+access to dn.regex="^(.+,)?ou=([^,]+),ou=([^,]+),ou=pabs,%%ldapBaseDN%%$"
+    by dn.exact,expand="uid=$2,ou=users,ispmanDomain=$3,%%ldapBaseDN%%" write
+    by * none
+# GAB ACL's
+access to dn.regex="^(.+,)?ou=([^,]+),ou=pabs,%%ldapBaseDN%%$"
+        by dn.exact,expand="ispmanDomain=$2,%%ldapBaseDN%%" write
+        by dn.regex,expand="uid=([^,]+),ou=users,ispmanDomain=$2,%%ldapBaseDN%%" read
+        by * none
+
+# PAB ACL's
+access to dn.regex="^(.+,)?ou=([^,]+),ou=([^,]+),ou=pabs,%%ldapBaseDN%%$"
+    by dn.exact,expand="uid=$2,ou=users,ispmanDomain=$3,%%ldapBaseDN%%" write
+    by * none

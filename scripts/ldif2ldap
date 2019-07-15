@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+package ISPMan;
+use lib qw(lib ../lib /opt/ispman/lib);
+
+BEGIN {
+    use Getopt::Std;
+    getopt( 'hbDwf', \%opts );
+    unless ( $opts{'h'} && $opts{'D'} && $opts{'w'} && $opts{'f'} ) {
+        my ($script) = reverse split( "/", $0 );
+        print "$script. A utility to load data from ldif to ldap\n\n";
+        print
+          "Usage: $script -h hostname -D 'admin DN' -w adminPass -f filename";
+        print "\n\n";
+        exit;
+    }
+}
+
+use Net::LDAP;
+use Net::LDAP::Util qw(ldap_error_text
+  ldap_error_name
+  ldap_error_desc
+);
+use Net::LDAP::LDIF;
+use Net::LDAP::Entry;
+
+use vars qw($ldif $entry);
+
+$ldif = Net::LDAP::LDIF->new( $opts{'f'} );
+
+if ( $LDAP = Net::LDAP->new( $opts{'h'} ) ) {
+    my $result = $LDAP->bind( dn => $opts{'D'}, password => $opts{'w'} );
+    if ( $result->code ) {
+        print $result->error, "\n";
+        exit;
+
+    }
+}
+else {
+    print "Cannot make a connection to LDAP server";
+    exit;
+}
+
+while ( not $ldif->eof() ) {
+    $entry = $ldif->read_entry();
+    if ( $ldif->error() ) {
+        print "Error msg: ",    $ldif->error(),       "\n";
+        print "Error lines:\n", $ldif->error_lines(), "\n";
+    }
+    else {
+        $entry->changetype("add");
+
+        print $entry->dn(),   "\n";
+        print $entry->dump(), "\n";
+        try( $entry->update($LDAP) );
+
+        #$entry->dump();
+        # do stuff
+    }
+}
+$ldif->done();
+
+sub try {
+    my $result = shift;
+    if ( $result->code ) {
+        LDAPerror( "Searching", $result );
+        return 0;
+    }
+    else {
+        return 1;
+    }
+}
+
+sub LDAPerror {
+    my ( $from, $mesg ) = @_;
+    print "\n";
+
+    print "Return code: ", $mesg->code, "\n";
+    print "Error name: ", ldap_error_name( $mesg->code ), "\n";
+    print "Error text: ", ldap_error_text( $mesg->code ), "\n";
+    print "Error desc: ", ldap_error_desc( $mesg->code ), "\n";
+    print "MessageID: ",    $mesg->mesg_id,      "\n";
+    print "Error: ",        $mesg->error,        "\n";
+    print "Server Error: ", $mesg->server_error, "\n";
+
+    print "DN: ", $mesg->dn, "\n";
+
+    print "\n\n";
+}
+
+__END__
+

@@ -1,0 +1,163 @@
+#!/usr/bin/perl
+
+$services_by_group = {
+    "nogroup"        => ["check_ping"],
+    "httpgroup"      => [ "check_http", "check_ping" ],
+    'smtpgroup'      => [ "check_smtp", "check_ping" ],
+    'mailstoregroup' =>
+      [ 'check_pop', 'check_smtp', 'check_imap', 'check_ping' ],
+    'dnsgroup' => [ 'check_dns', 'check_ping' ],
+};
+
+sub read_hash {
+    my $vhostsFile = shift;
+    do $vhostsFile;
+    return $VAR1;
+}
+
+sub write_hash {
+    my ( $file, $hash ) = @_;
+    open "F", ">$file";
+    print F Dumper($hash);
+    print F "\n1;\n";
+    close("F");
+}
+
+$hash_file        = "/opt/ispman/conf/hosts.hash";
+$groups_hash_file = "/opt/ispman/conf/hostgroups.hash";
+
+sub add_netsaint_host_handler {
+    my ( $hostname, $cn, $ip, $description, $hosttype ) = @_;
+    my $hash = read_hash($hash_file);
+    $hash->{$hostname} = {
+        hostname    => $hostname,
+        cn          => $cn,
+        ip          => $ip,
+        description => $description,
+        hosttype    => $hosttype
+    };
+    write_hash( $hash_file, $hash );
+    return 1;
+}
+
+sub delete_netsaint_host_handler {
+    my ($hostname) = @_;
+    my $hash = read_hash($hash_file);
+    delete $hash->{$hostname};
+    write_hash( $hash_file, $hash );
+    return 1;
+}
+
+sub make_netsaint_hosts {
+    my $template = shift;
+    my $hash     = read_hash($hash_file);
+    my $text     = "";
+    for ( keys %$hash ) {
+        $text .= $template->fill_in( HASH => $hash->{$_} );
+    }
+    $dir = $ispman->getConf("netsaintconfdirectory");
+    open F, ">$dir/hosts.cfg";
+    print F $text;
+    close F;
+}
+
+sub add_host_to_netsaint_hostgroup {
+    my ( $groupname, $description, @members ) = @_;
+    print "GETTING THIS\n\n";
+    print join "\n", @_;
+    print "\n\n";
+
+    my $hash = read_hash($groups_hash_file);
+    $hash->{$groupname} = {
+        'groupname'             => $groupname,
+        'description'           => $description,
+        'ispmanHostGroupMember' => \@members,
+        'services'              => $services_by_group->{$groupname}
+    };
+    write_hash( $groups_hash_file, $hash );
+}
+
+sub make_netsaint_services {
+    my $hostgroups = read_hash($groups_hash_file);
+    my $hosts      = $ispman->getHosts();
+    for $hostgroup ( keys %$hostgroups ) {
+        if ( $hostgroups->{$hostgroup}{'ispmanHostGroupMember'} ) {
+            my $groupname = $hostgroups->{$hostgroup}{'ispmanHostGroupName'};
+            @members = ();
+            if (
+                ref $hostgroups->{$hostgroup}{'ispmanHostGroupMember'} eq
+                "ARRAY" )
+            {
+                @members =
+                  @{ $hostgroups->{$hostgroup}{'ispmanHostGroupMember'} };
+            }
+            else {
+                @members =
+                  ( $hostgroups->{$hostgroup}{'ispmanHostGroupMember'} );
+            }
+
+            for (@members) {
+                my $hostname  = $_;
+                my $host      = $_;
+                my $hostalias = $hosts->{$host}{'cn'};
+                $hostalias =
+                  ( $hostalias =~ /\S/ && $hostalias !~ /undefined/ )
+                  ? $hostalias
+                  : $hosts->{$host}{'hostname'};
+                my $ip          = $hosts->{$host}{'ip'}          || "undefined";
+                my $description = $hosts->{$host}{'description'} || "undefined";
+                for $service ( @{ $services_by_group->{$groupname} } ) {
+                    $services->{$_}{$service}++;
+                }
+            }
+        }
+    }
+
+  #for hosts that are not in any host, lets  define services in group "nogroup".
+    $hosts = $ispman->getHosts();
+
+    for $host ( keys %$hosts ) {
+        for $service ( @{ $services_by_group->{'nogroup'} } ) {
+            $hostname = $hosts->{$host}{'hostname'};
+            $services->{$hostname}{$service}++;
+
+            #print "Building service $service for host $hostname\n";
+        }
+    }
+
+    $dir = $ispman->getConf("netsaintconfdirectory");
+    open F, ">$dir/services.cfg";
+    for $host ( keys %$services ) {
+        for $service ( keys %{ $services->{$host} } ) {
+            print F
+"service[$host]=$service;0;24x7;3;5;1;linux-admins;120;24x7;1;1;0;;$service\n";
+
+#print  "service[$host]=$service;0;24x7;3;5;1;linux-admins;120;24x7;1;1;0;;$service\n";
+        }
+    }
+
+    #use Data::Dumper;
+    #print Dumper($services);
+
+    close F;
+    return 1;
+
+}
+
+sub reload_netsaint {
+    $netsaintrestartcommand = $ispman->getConf("netsaintrestartcommand");
+
+    if ($netsaintrestartcommand) {
+        print "Reloading Netsaint\n";
+        system($netsaintrestartcommand);
+    }
+    else {
+        print "Stopping Netsaint\n";
+        system( $ispman->getConf("netsaintstopcommand") );
+        sleep $sleepSecondsBetweenRestart;
+        print "Starting Netsaint\n";
+        system( $ispman->getConf("netsaintstartcommand") );
+    }
+    return 1;
+}
+

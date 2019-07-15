@@ -1,0 +1,55 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'mh', \%opts );
+    unless ( $opts{'m'} && $ARGV[0] || $opts{'h'} ) {
+        print "USAGE: $FindBin::Script -m method clearstring\n\n";
+        print "Example:\n";
+        print "$FindBin::Script -m sha secret\n";
+        print "\n";
+        exit;
+    }
+}
+
+
+use ISPMan;
+my $ispman = ISPMan->new();
+print $ispman->encryptPassWithMethod( $ARGV[0], $opts{'m'}, ) . "\n";
+
+__END__
+
+=head1 NAME
+
+ispman.makeHash - ispman command to get the encrypted version of a string
+
+=head1 SYNOPSIS
+
+B<ispman.makeHash -m method clearstring>
+
+=head1 Examples
+
+ispman.setVar -m sha secret
+
+=head1 Author
+
+Armand A. Verstappen <armand@nl.envida.net>
+
+=head1 Homepage
+
+http://ispman.sourceforge.org
+
+=head1 MailingLists
+
+ispman-developers@lists.sourceforge.org  - For developers
+
+ispman-users@lists.sourceforge.org  - For users
+
+=head1 Bug reporting / Support / Patches / Feature requests
+
+http://sourceforge.net/tracker/?group_id=8390
+
+=cut
+

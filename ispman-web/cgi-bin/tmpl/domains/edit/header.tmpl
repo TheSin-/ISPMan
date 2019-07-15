@@ -1,0 +1,14 @@
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+<script>
+   function deleteDomain(){
+        domain="<perl>$r->param('ispmanDomain')</perl>";
+       if (confirm("This action will delete\n\t* all users from this domain,\n\t* their mailboxes,\n\t* virtual hosts for this domain,\n\t* databases of this domain,\n\t* dnsdata related to this domain.\n\n") ) {
+            top.content.location="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=deleteDomain&ispmanDomain="+domain;
+      }
+   }
+</script>
+
+<form action="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/admin/index.cgi" method="POST">
+
+<table border="0" cellpadding="2" cellspacing="1" >
+

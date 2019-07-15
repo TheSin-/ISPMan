@@ -1,0 +1,206 @@
+dn: ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanModule: apache_vars
+ispmanModuleAlias: Apache config
+objectclass: ispmanConfModule
+description: These are Apache-specific variables
+
+dn: ispmanVar=apacheVhostsFile, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheVhostsFile
+ispmanVarAlias: Apache vhost file
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: /etc/apache2/vhosts.conf.ispman
+ispmanQuestion: The file or directory where I should create VirtualHost Entries for apache,<br>remember to include this file or directory in the httpd.conf
+
+dn: ispmanVar=apacheVhostsStyle, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheVhostsStyle
+ispmanVarAlias: Apache vhost style
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: file
+ispmanQuestion: Apache entries in a file or directory (file/dir)
+
+dn: ispmanVar=apacheVhostsIP, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheVhostsIP
+ispmanVarAlias: Default vhost IP 
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: *
+ispmanQuestion: This is the ip address that is used in apache's virtual host configuration
+
+dn: ispmanVar=apacheVhostsVIP, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheVhostsVIP
+ispmanVarAlias: Default vhost virtual IP 
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: *
+ispmanQuestion: This is the ip address that is used as virtual ip for vhosts with multiple webhosts
+
+dn: ispmanVar=apacheConfigTestCommand, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheConfigTestCommand
+ispmanVarAlias: Apache config test command
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: /usr/sbin/apache2ctl configtest
+ispmanQuestion: Command to test generated apache config. Must exit with rc=0 to be successful.
+
+dn: ispmanVar=apacheStopCommand, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheStopCommand
+ispmanVarAlias: Apache stop command
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: /etc/init.d/apache2 stop
+ispmanQuestion: Command to stop apache
+
+dn: ispmanVar=apacheReloadCommand, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVarAlias: Apache reload  command
+ispmanVar: apacheReloadCommand
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: /etc/init.d/apache2 reload
+ispmanQuestion: Command to reload apache.<br>If this command is present then it will be used instead <br>of stoping and starting the daemon
+
+dn: ispmanVar=apacheStartCommand, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheStartCommand
+ispmanVarAlias: Apache start command
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: /etc/init.d/apache2 start
+ispmanQuestion: Command to start apache
+
+dn: ispmanVar=apacheLogsDirectory, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheLogsDirectory
+ispmanVarAlias: Apache logs directory
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: logs
+ispmanQuestion: Directory where Apache's logs are kept (relative path will be appended 
+ to vhost's homedir).<br>Allowed tokens: <b><tt>%vhost%</tt></b>, <b><tt>%domain%</tt></b> 
+ (will be substituted with actual vhost/domain name on creation of vhost).
+
+dn: ispmanVar=apacheStatDirectory, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheStatDirectory
+ispmanVarAlias: Apache stats directory
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: stats 
+ispmanQuestion: Directory where Apache's Stats are kept (relative path will be appended 
+ to vhost's homedir).<br>Allowed tokens: <b><tt>%vhost%</tt></b>, <b><tt>%domain%</tt></b> 
+ (will be substituted with actual vhost/domain name on creation of vhost).
+
+dn: ispmanVar=apacheWebalizerPath, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheWebalizerPath
+ispmanVarAlias: Webalizer command
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: /usr/bin/webalizer
+ispmanQuestion: Path to webalizer command
+
+dn: ispmanVar=modLDAPUserDir, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: modLDAPUserDir
+ispmanVarAlias: Use mod_ldap_userdir
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: no
+ispmanQuestion: If your webserver is compiled with mod_ldap_userdir, then you can set 
+ this value to '<b>yes</b>'.<br>Setting this to '<b>yes</b>', will add support for 
+ user home directories for virtualHosts. Example http://www.domain.tld/~username/
+
+dn: ispmanVar=apacheGracefulCommand, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheGracefulCommand
+ispmanVarAlias: Apache graceful reload command
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: /usr/sbin/apache2ctl graceful 
+ispmanQuestion: To use the <tt>ispman.makelogs</tt> command line tool for logfile processing you need to specify the command to gracefully restart your apache.
+
+dn: ispmanVar=apacheGracefulTime, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheGracefulTime
+ispmanVarAlias: Time to close connections
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: 600
+ispmanQuestion: Here you may specify the time in seconds left for apache to close all 
+ open connections after a graceful restart.<br>During this time the apache is reachable 
+ of course. It just sends a script to bed for this time.
+
+dn: ispmanVar=apacheVhostLogDefault, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheVhostLogDefault
+ispmanVarAlias: Can customer override settings
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: no
+ispmanQuestion: Do you want to let the user override this settings in customer control panel? In the admin panel you can do it in any cases
+
+dn: ispmanVar=apacheVhostLogDefaultAccess, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheVhostLogDefaultAccess
+ispmanVarAlias: How to handle vhost log file access by default (public/restricted)
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: restricted
+ispmanQuestion: Do you want to make all log files restricted or public by default if not set in vhost configuration
+
+dn: ispmanVar=apacheVhostLogDefaultAccessMessage, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheVhostLogDefaultAccessMessage
+ispmanVarAlias: What to show on logfile access
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: Access restricted!!!
+ispmanQuestion: When access to a vhost log file is restricted, this message is shown on the login window if not set for vhost
+
+dn: ispmanVar=apacheDocumentRootOptions, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheDocumentRootOptions
+ispmanVarAlias: Apache Document Root Options
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: *Indexes,ExecCGI,Includes,*FollowSymLinks,*MultiViews
+ispmanQuestion: Available options for vhost's document root. Precede option with "<b>*</b>" to make it a default option.
+
+dn: ispmanVar=apacheScriptDirOptions, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheScriptDirOptions
+ispmanVarAlias: Apache Script Dir Options
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: Indexes,*ExecCGI,Includes,FollowSymLinks,MultiViews
+ispmanQuestion: Available options for vhost's script dir. Precede option with "<b>*</b>" to make it a default option.
+
+dn: ispmanVar=apacheSuspendDirective, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheSuspendDirective
+ispmanVarAlias: Apache Suspend Directive
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: RedirectMatch ^/.* http://www.example.com/suspendinfo
+ispmanQuestion: Directive to apply for suspended vhosts
+
+dn: ispmanVar=apacheAuthLdapModule, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheAuthLdapModule
+ispmanVarAlias: Name of auth_ldap module
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: mod_authnz_ldap
+ispmanQuestion: Name of the Auth-LDAP modules used (Apache1.x="auth_ldap"; Apache2.x="mod_authnz_ldap")
+
+dn: ispmanVar=apacheVhostsHeader, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheVhostsHeader
+ispmanVarAlias: Optional header of vhosts conf file
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: vhost.conf.header
+ispmanQuestion: Optinal header file prepended to generated vhost conf file
+
+dn: ispmanVar=apacheVhostsFooter, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheVhostsFooter
+ispmanVarAlias: Optional footer of vhosts conf file
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: vhost.conf.footer
+ispmanQuestion: Optional footer file appended to generated vhost conf file
+
+dn: ispmanVar=apacheVhostsFeatures, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheVhostsFeatures
+ispmanVarAlias: Apache vhost features
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: *suexec,*statdir,userdirs
+ispmanQuestion: List of arbitrary vhost features, which can be used to trigger particular features on vhost creation. Mark defaults with a "*" prefix.
+

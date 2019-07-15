@@ -1,0 +1,11 @@
+# objectClass  1.3.6.1.4.1.8833.2.2.1006 'ispmanCounters'
+objectClass ( 1.3.6.1.4.1.8833.2.2.1006 NAME 'ispmanCounters'
+	SUP top STRUCTURAL 
+	DESC 'Class that holds counters of all sorts'
+	MAY (cn $ ispmanCurrPid $ ispmanCurrUid $ ispmanMinUid 
+                $ ispmanMaxUid $ ispmanResUid $ ispmanCurrGid 
+                $ ispmanMinGid $ ispmanMaxGid $ ispmanResGid
+                $ ispmanCurrAclId $ currid ))
+
+
+

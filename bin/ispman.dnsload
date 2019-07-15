@@ -1,0 +1,62 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'df', \%opts );
+    getopt( 'v:', \%opts );
+
+    unless ( $opts{'f'} ) {
+        print "$FindBin::Script -d domain -f file\n";
+        print "\n";
+        exit;
+    }
+}
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+
+require "functions/dnsload.functions.pl";
+
+open F, $opts{'f'};
+while (<F>) {
+
+    @opts = split( /\s\s*/, $_ );
+
+    if ( $opts{'v'} ) {
+        print "Setting $opts[0] on $opts[1]\n";
+    }
+
+    $function = join "_", ( "set", lc( shift @opts ) );
+    &{$function}(@opts);
+
+}
+
+1;
+__END__
+
+=head1 NAME 
+
+ispman.dnsload - ispman command to load dns...
+
+=head1 Author
+
+Atif Ghaffar
+
+=head1 Homepage
+
+http://ispman.sourceforge.org
+
+=head1 MailingLists
+
+ispman-developers@lists.sourceforge.org  - For developers
+
+ispman-users@lists.sourceforge.org  - For users
+
+=head1 Bug reporting / Support / Patches / Feature requests
+
+http://sourceforge.net/tracker/?group_id=8390
+
+=cut

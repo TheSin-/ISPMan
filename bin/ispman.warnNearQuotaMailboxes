@@ -1,0 +1,64 @@
+#!/usr/bin/perl
+# Warn mailboxes who are near their quota, default is 60%
+# Usage: ispman.warnNearQuotaMailboxes -h mailhost.example.com
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'h', \%opts );
+    unless ( $opts{'h'} ) {
+        print "Usage: $FindBin::Script -h imap_server\n";
+        exit;
+    }
+}
+
+#Customize these 2 lines and the message at the bottom of the script
+$mail{smtp} = [qw(mail.example.com)];
+$mail{from} = 'CompanyName Email Postmaster <postmaster@example.com>';
+
+use ISPMan;
+use Mail::Sendmail;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+
+require "mailbox_actions.lib";
+
+#Default to 60% of quota
+my $percent    = 60;
+my $multiplier = $percent / 100;
+my $uid_filter = "*";
+my $users = $ispman->getEntriesAsHashRef( $ispman->{'Config'}{'ldapBaseDN'},
+    "&(objectclass=ispmanDomainUser)(uid=$uid_filter)" );
+
+USER: for ( keys %$users ) {
+    @uids = $ispman->as_array( $users->{$_}{'uid'} );
+
+    #We want the user_example_com uid
+    if   ( $uids[0] =~ /@/ ) { $uid = $uids[1]; }
+    else                     { $uid = $uids[0]; }
+    @q = get_quota( $opts{'h'}, $uid );
+    next unless $q[2];
+    $threshold = $multiplier * $q[2];
+
+    #print "$uid used: $q[1] thresh: $threshold\n";
+    if ( $q[1] >= $threshold ) {
+
+        #Determine mailbox usage in simple xx% value as $percent
+        $usage = ( $q[1] / $q[2] ) * 100;
+        ( $percent, $trailingjunk ) = split( /\./, $usage );
+
+        #Email settings
+        @email         = $ispman->as_array( $users->{$_}{'mailLocalAddress'} );
+        $mail{to}      = $email[0];
+        $mail{subject} = "MAILBOX $percent% FULL - From YourISP ";
+
+        #Customize here, don't forget escapes amd put it all on one line
+        $mail{message} =
+          "Your email box is at $percent% of your email quota.\nYour Quota is:  $q[2] kilo bytes\nYou have Used:  $q[1] kilobytes\n\nPlease dump your trash and erase unneeded email. If you need more space, please contact our office at hosting-support\@example.com. There may be an additional charge.\nOnce y our mailbox is full, no more mail will be delivered until some email is erased.\nNOTE: You will receive this alert once a day if your mailbox is in danger of being full.";
+
+        sendmail(%mail) or die $Mail::Sendmail::error;
+    }
+
+}

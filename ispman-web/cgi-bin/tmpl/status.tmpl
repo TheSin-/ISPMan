@@ -1,0 +1,50 @@
+<html>
+<head>
+<perl>
+    $text="";
+    if ($r->param("refresh")){
+        $text=qq|<META HTTP-EQUIV="Refresh" CONTENT="@{[$r->param("refresh")]};URL=$ENV{'SCRIPT_NAME'}?mode=status&refresh=@{[$r->param("refresh")]}">|;
+    }
+    $text;
+</perl>
+</head>
+
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+
+<script type="text/javascript">
+    function Refresh(seconds){
+        url="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=status";
+        if (seconds){
+            url+="&refresh="+seconds;
+        }
+        self.location=url;
+    }
+</script>
+
+<body class="status">
+  <form>
+    <input type=hidden name="mode" value="releaseSession_web">
+    <input type=hidden name="nextPage" value="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=status&newSession=1">
+    <input type=hidden name="session" value="<perl>$ispman->{"sessID"}</perl>">
+    <table width=100%>
+      <td align=left class=status><perl>_("Running Session")</perl> : <perl>$ispman->{"sessID"}</perl> 
+	    <br><perl>_("Processes in queue: [_1]", $ispman->countProcessesInSession($ispman->{"sessID"}))</perl> 
+      </td>
+                        
+      <td align=right>
+        <select class=statusselect name="refresh" onChange="Refresh(this.options[this.selectedIndex].value)">
+          <option value="10" <perl>($r->param("refresh") && $r->param("refresh")==10)?" selected ":""</perl>><perl>_("Refresh every [_1] seconds", 10)</perl></option>
+          <option value="30" <perl>($r->param("refresh") && $r->param("refresh")==30)?" selected ":""</perl>><perl>_("Refresh every [_1] seconds", 30)</perl></option>
+          <option value="60" <perl>($r->param("refresh") && $r->param("refresh")==60)?" selected ":""</perl>><perl>_("Refresh every [_1] seconds", 60)</perl></option>
+          <option value="" <perl>($r->param("refresh"))?"  ":" selected "</perl>><perl>_("Don't refresh")</perl></option>
+        </select>
+                        
+        <input class="statusbutton" type=button name="refresher" value="<perl>_("Refresh")</perl>" 
+               onClick="Refresh(this.form.refresh.options[this.form.refresh.selectedIndex].value)">
+        <input class="statusbutton" type=submit value="<perl>_("Commit session")</perl>">
+	  </td>
+    </table>
+  </form>
+</body>
+</html>
+

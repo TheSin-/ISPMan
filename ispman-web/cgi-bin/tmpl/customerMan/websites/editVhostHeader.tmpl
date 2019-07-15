@@ -1,0 +1,177 @@
+<html>
+<head>
+<LINK HREF="<perl>$customer->getConfig('ispmanUrlPrefix')</perl>/control_panel/style.css" REL="stylesheet" TYPE="text/css">
+</head>
+<body>
+
+
+
+<script language="Javascript">
+        function Delete(){
+                var vhost="<perl>$r->param("vhost")</perl>";
+                if (confirm("<perl>$customer->getText("Are you sure you want to permanently delete this website?")</perl>")) {
+                        self.location="<perl>$r->url</perl>?mode=deleteVhost&ispmanVhostName="+vhost;
+                }
+        }
+   
+        function updateAcl(){
+                document.vhostForm.mode.value="updateWebsiteAcl";
+                document.vhostForm.submit();
+        }
+        
+        
+        function addAcl(form){
+                if (form.newallow.selectedIndex==-1){
+                        alert("Please choose at least one user to allow access to this protected Location");
+                } else {
+                        document.vhostForm.submit();
+                }
+                
+                
+        }
+        
+        function updateWebsiteAliases(){
+                document.vhostForm.mode.value="updateWebsiteAliases";
+                document.vhostForm.submit();
+        }
+        
+        function addWebsiteAlias(){
+                alias=prompt("<perl>$customer->getText("Please enter the alias")</perl>\n.<perl>$r->param("ispmanDomain")</perl><perl>$customer->getText(" will be automatically added to the alias")</perl>" , "");
+                if(alias){
+                        self.location="<perl>$r->url</perl>?mode=addWebsiteAlias&vhost=<perl>$r->param("vhost")</perl>&alias="+alias;
+                }
+        }
+
+        function updateRedirects(){
+                document.vhostForm.mode.value="updateWebsiteRedirections";
+                document.vhostForm.submit();
+        }
+        
+        function gotoVhost(item){
+                if (item.options[item.selectedIndex].value){
+                        self.location="<perl>$r->url</perl>?mode=editVhost&section=<perl>$r->param("section")</perl>&vhost="+item.options[item.selectedIndex].value;
+                }
+                
+        }
+
+</script>
+
+
+            
+<font face="Arial">
+
+<perl>
+        $r->param("message")
+</perl>
+
+<font color=maroon>
+<!-- errors if any -->
+<perl>$r->param("errors")</perl>
+</font>
+
+
+
+<table border=0>
+<form>
+
+<tr><td colspan=2>
+    <perl>$customer->getText("Editing Website")</perl> 
+<select onChange=gotoVhost(this)>
+<perl>
+    $text="";
+    unless ($r->param("vhost")){
+      $text.=qq|<option value=''>@{[$customer->getText("Please select a website")]}</option>|;
+    }
+    my $vhosts=$customer->getVhosts();
+    for my $vhost(keys %$vhosts) {
+      $text.="<option value='$vhost'";
+      if ($r->param("vhost") eq $vhost){
+        $text.= " selected ";
+      }
+      $text.=">$vhost.$customer->{'domain'}</option>";
+    }
+$text
+</perl>
+</select>
+    
+</tr>
+<perl>
+if ($r->param("vhost")){
+        return "";
+} else {
+        return "</table>\n<!--";
+}
+</perl>
+
+<tr><td colspan=2>
+<a href="<perl>$r->url</perl>?mode=editVhost&section=WebsiteInfos&vhost=<perl>$r->param("vhost")</perl>"><perl>$customer->getText("Website Infos")</perl></a>
+| <a href="<perl>$r->url</perl>?mode=editVhost&section=WebsiteAliases&vhost=<perl>$r->param("vhost")</perl>"><perl>$customer->getText("Website aliases")</perl></a>
+| <a href="<perl>$r->url</perl>?mode=editVhost&section=WebsiteForward&vhost=<perl>$r->param("vhost")</perl>"><perl>$customer->getText("Forward website")</perl></a>
+| <a href="<perl>$r->url</perl>?mode=editVhost&section=AccessControl&vhost=<perl>$r->param("vhost")</perl>"><perl>$customer->getText("Access Control")</perl></a>
+| <a href="<perl>$r->url</perl>?mode=advanceItems&section=HttpUsers"><perl>$customer->getText("Web Users")</perl></a> 
+| <a href="javascript:Delete()"><perl>$customer->getText("Delete Website")</perl></a>
+<br><hr noshade>
+</td>
+</tr>
+
+
+
+<perl>
+    $text="";
+    if ($r->param("vhost")){
+         
+            $vhost=$customer->getDomainVhostInfo($r);
+            $DocumentRootOptions={};
+            $ScriptDirOptions={};
+            $ServerAliases={};
+            $URLRedirects={};
+                
+            unless (ref $vhost->{'ispmanVhostDocumentRootOption'} eq "ARRAY"){
+                push @{$vhost->{'ispmanVhostDocumentRootOption'}}, $vhost->{'ispmanVhostDocumentRootOption'};
+            }
+            
+            unless (ref $vhost->{'ispmanVhostServerAlias'} eq "ARRAY"){
+                push @{$vhost->{'ispmanVhostServerAlias'}}, $vhost->{'ispmanVhostServerAlias'} if $vhost->{'ispmanVhostServerAlias'} ;
+            }
+        
+            unless (ref $vhost->{'urlredirect'} eq "ARRAY"){
+                push @{$vhost->{'urlredirect'}}, $vhost->{'urlredirect'} if $vhost->{'urlredirect'} ;
+            }
+        
+            unless (ref $vhost->{'ispmanVhostScriptDirOption'} eq "ARRAY"){
+                push @{$vhost->{'ispmanVhostScriptDirOption'}}, $vhost->{'ispmanVhostScriptDirOption'};
+            }
+            
+            for (@{$vhost->{'ispmanVhostServerAlias'}}){
+                $ServerAliases->{$_}=1;
+                }
+        
+            for (@{$vhost->{'ispmanVhostDocumentRootOption'}}){
+                $DocumentRootOptions->{$_}=1;
+                }
+        
+            for (@{$vhost->{'ispmanVhostScriptDirOption'}}){
+                $ScriptDirOptions->{$_}=1;
+                }
+            
+            $URLRedirects=$customer->getEntriesAsHashRef("ou=urlRedirections, ispmanVhostName=@{[$r->param('vhost')]}, ou=httpdata, $customer->{'domaindn'}", "objectclass=ispmanVirtualHostRedirection", ['ispmanVhostRedirectURL', 'ispmanVhostRedirectLocation']);
+            $ACLs=$customer->getEntriesAsHashRef("ou=httpAcls, ispmanVhostName=@{[$r->param('vhost')]}, ou=httpdata, $customer->{'domaindn'}", "objectclass=ispmanVirtualHostAcl", ['ispmanVhostAclLocation', 'ispmanVhostAclAllowUser']);
+
+        }    
+return "";
+</perl>
+<perl>
+if ($r->param("vhost")){
+        return "</form><form name=vhostForm>";
+} else {
+        return "--></form>";
+}
+</perl>
+<input type=hidden name=cn value="<perl>$r->param("vhost")</perl>">
+<input type=hidden name=ispmanVhostName value="<perl>$r->param("vhost")</perl>">
+
+<!-- end editVhostHeader.tmpl -->
+
+
+
+

@@ -1,0 +1,115 @@
+<VirtualHost <perl>$ispmanVhostIpAddress</perl><perl>$port?":$port":""</perl>>
+	ServerName      <perl>$servername</perl>
+<perl>
+if ($ispmanVhostServerAlias){
+qq|
+	ServerAlias	$ispmanVhostServerAlias
+|;}	
+</perl>
+	<perl>$urlredirect</perl>
+	
+	## DocumentDir
+	DocumentRoot    <perl>$documentroot</perl>
+
+	<Directory <perl>$documentroot</perl>>
+		<perl>$ispmanVhostDocumentRootOption</perl>
+		AllowOverride FileInfo AuthConfig Limit Indexes
+	</Directory>
+
+	## ScriptDir
+	ScriptAlias /cgi-bin/ <perl>$scriptdir</perl>/
+	
+	<Directory <perl>$scriptdir</perl>>
+		<perl>$ispmanVhostScriptDirOption</perl>
+	</Directory>
+
+<perl>
+if ($statdir && $ispmanVhostFeature{'statdir'}){
+qq|
+        ## Feature: statdirs
+	Alias /stats $statdir
+
+	<Directory $statdir>
+		$ispmanVhostDocumentRootOption
+
+		# Authentication with auth_ldap (apache 1.3)
+		<IfModule mod_auth_ldap.c>
+			AuthName "WebStats for $servername"
+			AuthType Basic
+			AuthLDAPURL ldap://$ldapHost/$ldapBaseDN?uid
+			require valid-user ou=users,ispmanDomain=$ispmanDomain,$ldapBaseDN
+			require valid-user ou=admins,$ldapBaseDN
+		</IfModule>
+        
+		# Authentication with authnz_ldap (apache 2.2)
+		<IfModule mod_authnz_ldap.c>
+			AuthType Basic
+			AuthName "WebStats for $servername"
+			AuthBasicProvider ldap
+			AuthLDAPURL ldap://$ldapHost/$ldapBaseDN?uid
+			## If your LDAP requires binding:
+			## add user "proxyuser" with access level 1 via ispman admin panel
+			## and uncomment the following
+			#AuthLDAPBindDN uid=proxyuser,ou=admins,$ldapBaseDN
+			#AuthLDAPBindPassword <password>
+			AuthzLDAPAuthoritative Off
+			require ldap-filter \|(&(objectclass=person)(ispmanDomain=$ispmanDomain))(objectclass=ispmanSysAdmin)
+		</IfModule>
+	</Directory>
+|;
+}
+</perl>
+	## Logging
+	## if you want individual vhost logging instead of using ispman.vlogger
+	## uncomment the following
+	## CustomLog       <perl>"$logdir/$servername.access"</perl> combined
+	ErrorLog        <perl>"$logdir/$servername.errors"</perl>
+
+<perl>
+if ($ispmanVhostFeature{suexec}) {
+qq|
+	## Feature: suexec
+	<IfModule mod_suexec.c>
+		SuexecUserGroup  "#$uidNumber" "#$gidNumber"
+	</IfModule>
+|;}
+</perl>
+
+<perl>
+if ($ispmanVhostFeature{userdirs}) {
+qq|
+        ## Feature: userdirs
+	<IfModule mod_rewrite.c>
+		#If we have mod_rewrite then we can map users via rewrite and save on LDAP lookups
+		RewriteEngine On
+		RewriteRule   ^/~([^./]+)(.*)  /ispman/domains/<perl>$ispmanDomain</perl>/users/$1_<perl>$d=$ispmanDomain; $d=~s/\./_/g; return $d</perl>/public_html$2
+	</IfModule>
+	
+	<IfModule !mod_rewrite.c>
+        	# If we do not have mod_rewrite 
+		# Lets try mod_ldap_userdir
+		<IfModule mod_ldap_userdir.c>
+			LDAPUserDir public_html
+			LDAPUserDirServer <perl>$ldapHost</perl>
+			LDAPUserDirFilter "(&(ispmanUserId=%v)(objectClass=posixAccount))"
+			LDAPUserDirBaseDN ispmanDomain=<perl>$ispmanDomain</perl>,<perl>$ldapBaseDN</perl>
+		</IfModule>
+	</IfModule>
+|;}
+</perl>
+
+<perl>
+	$acltext;
+</perl>
+
+<perl>
+if ($ispmanVhostExtraConf) {
+qq|
+	## ExtraConf:
+	$ispmanVhostExtraConf
+|;}
+</perl>
+
+</VirtualHost>
+
+

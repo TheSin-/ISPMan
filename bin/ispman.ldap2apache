@@ -1,0 +1,80 @@
+#!/usr/bin/perl
+package ISPMan;
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopts( 'had:', \%opts );
+    unless ( $opts{'d'} ) {
+        $opts{'d'} = 0;
+    }
+
+    if ( $opts{'h'} ) {
+        print "$FindBin::Script -d debugLevel[1|2|3] [-a]\n";
+        print
+          "\t-a\tMake vhosts.conf will all vhosts and not just the ones where webhost is this host\n";
+        print "\n";
+        exit;
+    }
+}
+
+use Sys::Hostname;
+use ISPMan;
+use File::Path;
+use Data::Dumper;
+use Fcntl;
+use POSIX qw(tmpnam);
+
+# defind log_message.
+# This is defined in ispman-agent and we should redefine here
+sub logsay {
+    my $message = join ' ', @_;
+    chomp($message);
+    print "$message\n";
+}
+
+$ispman = ISPMan->new();
+$ispman->setConfig( 'debug', $opts{'d'} );
+
+$ldapBaseDN  = $ispman->getConf('ldapBaseDN');
+$install_dir = $ispman->getConf("installDir");
+require "$install_dir/lib/http.lib";
+
+my $filter = "objectclass=ispmanVirtualHost";
+
+unless ( $opts{'a'} ) {
+    require Sys::Hostname;
+    import Sys::Hostname;
+    my $hostname = hostname();
+    # get all host aliases
+    my $hostInfo = $ispman->getHostInfo($hostname);
+    if ( defined($hostInfo) ) {
+       @hostnames = $ispman->as_array( $hostInfo->{'ispmanHostAlias'} );
+    }
+    push @hostnames, $hostname;
+    $filter = "&(objectclass=ispmanVirtualHost)(|".join("", map { "(webHost=$_)" } @hostnames).")";
+}
+
+print "Using $filter\n" if $ispman->{'Config'}{'debug'};
+
+$vhosts = $ispman->getEntriesAsHashRef( $ldapBaseDN, $filter );
+
+for ( keys %$vhosts ) {
+    add_vhost( $vhosts->{$_}{'ispmanVhostName'},
+        $vhosts->{$_}{'ispmanDomain'} );
+}
+
+if ( $ispman->getConf("apacheVhostsStyle") =~ /dir/m ) {
+    for ( keys %$vhosts ) {
+        &make_vhosts_conf( $vhosts->{$_}{'ispmanDomain'} );
+    }
+}
+else {
+    &make_vhosts_conf();
+}
+
+__END__
+
+

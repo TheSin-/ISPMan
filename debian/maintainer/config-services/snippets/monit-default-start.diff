@@ -1,0 +1,12 @@
+--- /etc/default/monit.sav      2006-11-30 01:04:15.000000000 +0100
++++ /etc/default/monit  2006-11-30 01:04:23.000000000 +0100
+@@ -4,7 +4,7 @@
+ # Fredrik Steen <stone@debian.org>
+
+ # You must set this variable to for monit to start
+-startup=0
++startup=1
+
+ # To change the intervals which monit should run uncomment
+ # and change this variable.
+

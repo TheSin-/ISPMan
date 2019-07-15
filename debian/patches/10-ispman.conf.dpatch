@@ -1,0 +1,46 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 10-ispman.conf.diff.dpatch by  <root@localhost>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: ispman.conf.diff
+
+@DPATCH@
+
+--- dummy/install-data/ispman.config.orig	2006-11-16 01:16:45.000000000 +0100
++++ dummy/install-data/ispman.config		2006-11-16 01:19:47.000000000 +0100
+@@ -1,7 +1,7 @@
+ package ISPMan;
+
+ # ISPMan install directory
+-$Config->{'installDir'} = '/opt/ispman';
++$Config->{'installDir'} = '/usr/share/ispman';
+
+ # ISPMan URL Prefix
+ # Set this if you have a fixed prefix to reach the ispman interface
+@@ -9,11 +9,11 @@
+ 
+ # LDAP Base DN
+ # Root of your ISPMan directory information tree (DIT)
+-$Config->{'ldapBaseDN'} = 'o=ispman,dc=example,dc=com';
++$Config->{'ldapBaseDN'} = 'o=ispman';
+ 
+ # LDAP Root DN
+ # User that binds to your LDAP server for ISPMan transactions
+-$Config->{'ldapRootDN'} = 'uid=ispman,ou=admins,dc=example,dc=com';
++$Config->{'ldapRootDN'} = 'uid=ispman,ou=admins,o=ispman';
+ 
+ # LDAP root password
+ $Config->{'ldapRootPass'} = 'secret';
+@@ -57,6 +57,12 @@
+ # For alternative path of locale directory
+ $Config->{'localeDir'} = "/etc/ispman/locale";
+ 
++# Debian wants to PID file here
++$Config->{'pid_file'} = "/var/run/ispman-agent.pid";
++
++# A log where a log belongs to
++$Config->{'log_file'} = "/var/log/ispman-agent.log";
++
+ # Should encoding be done from native to UTF-8?
+ # This is done when storing and reading data from LDAP
+ # Useful if you want to store non-ascii characters in LDAP

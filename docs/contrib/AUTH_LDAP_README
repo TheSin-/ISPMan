@@ -1,0 +1,53 @@
+About Installing Webservers for Customers.
+-----------------------------------------
+You can have one or more webservers installed.  When creating a vhost, you can
+tell ispman which webserver it belongs to, this lets you distribute the load
+across mulitple servers or distribute for other reasons. 
+
+Example: you may want to put 
+* customer who requires Oracle and jserver on
+  a Solaris box with these features
+* customers who require PHP on a Linux box
+* some friends (non-paying customers) on an old Indy
+etc
+etc
+
+
+For the customer webservers which your client will access,
+you may need to have auth_ldap compiled in as a module.
+
+Auth_ldap is a module that provides authentification services by looking
+up information in the LDAP directory.
+This module is only needed if you wish to use the Access control feature of
+the customer control panel.
+
+You can download auth_ldap from its homepage
+http://www.rudedog.org/auth_ldap
+
+You don't need to recompile your Apache server if it is compiled with loadable 
+modules support
+
+To check if you Apache binary is compiled with loadable module support
+run
+
+/path/to/your/httpd -l
+
+look for mod_so.c in the result. If you see it, then your server supports
+loadable modules.
+
+For help on building the auth_ldap module see
+http://www.rudedog.org/auth_ldap/1.6/auth_ldap.html#building
+
+I normally compile with
+./configure --activate --with-ldap-sdk=openldap --with-apxs=/path/to/apxs
+make all install
+
+
+You will be prompted for a username/pass
+The username is the same as you set for the admin
+example, if you set
+uid=ispman, ou=ispman, o=ispman
+
+then the username is "ispman"
+and the password that you set for the admin
+

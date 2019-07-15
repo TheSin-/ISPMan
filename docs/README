@@ -1,0 +1,48 @@
+ISPMan
+======
+
+ISPMan is an ISP management system designed to meet the needs of the ever
+growing infrastructure that an ISP has to manage.  It was originally written to
+manage DNS, Web Virtual hosts and Mail accounts at large ISPs.  Since then it
+has moved to a modular structure with help from ispman-developers.
+
+
+ISPMan now supports the following features:
+    - Centralized user and email management via LDAP
+    - Primary DNS management (some secondary and replica support)
+    - Virtual web hosting management 
+    - Customer managed domains and virtual hosts
+    - Client/Reseller login support
+    - Multiple tiered architecture
+    - GUI and command line interfaces
+
+ISPMan is built of four main components:
+    - LDAP directory and schema
+    - ISPMan administrator's web interface
+    - ISPMan customer control panel 
+    - ISPMan-agent
+
+The LDAP schema defines a structure that facilitates management of hundreds or
+thousands of domains and as many users within each.  Unlike SQL relational
+databases, LDAP is a heirarchical database.  This means it stores data in a
+tree like structure, as opposed to many flat tables.  Each have their
+advantages, but for user accounts within domains, the tree structure makes
+sense.
+
+The administrator's web interface allows one to create or delete domains,
+users, dns zones, virtual hosts and other settings.  All operations are put on
+a dispatch list for another module to take care of.
+
+The customer control panel is a simplified version of the administrator's web
+interface.  It is restricted to managing only their domain.  It is designed for
+the customer and is similar to customer control panels of other ISPs using
+commercial software.
+
+Finally, the ispman-agent is the real work horse.  The agents running on each
+server in the group track the dispatch list in the ldap tree.  When a new job
+is created via the admin or customer web interfaces, they go to work.  If the
+job is for the web server groups, say, the agent will modify the virtual host
+listings as specified.  The agent is the same software on each machine that can
+do various functions.  Like cron, it sits idle when there is no work to do.
+
+Read through INSTALL to learn how to setup each of these components.

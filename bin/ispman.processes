@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'hsd', \%opts );
+    unless ( $opts{'h'} ) {
+        print "Usage: ispman.processes -h hostname [-d domain] [-s sortby]\n";
+        exit;
+    }
+}
+
+
+my $hostname = $opts{'h'} || $ENV{'HOSTNAME'};
+
+use ISPMan;
+my $ispman = ISPMan->new();
+
+my $filter = "ispmanHostName=$hostname";
+if ( $opts{'d'} ) {
+    $filter = "&(ispmanDomain=$opts{'d'})($filter)";
+}
+my $processes =
+  $ispman->getEntriesAsHashRef(
+    "ou=processes, @{[$ispman->getConf('ldapBaseDN')]}", "$filter" );
+
+$opts{'s'} ||= "ispmanPid";
+
+for (
+    sort { $processes->{$a}{ $opts{'s'} } cmp $processes->{$b}{ $opts{'s'} } }
+    keys %$processes
+  )
+{
+    write();
+}
+
+format STDOUT =
+@<<<<<  @<<<<<<<<<<  @<<<<<<<<<<<<<<<<<<<<  @<<<<<<<<<<<<<<  @<<<<<<<<<<<<<<<<<<<<<<<<< @*
+$processes->{$_}{'ispmanPid'}, $processes->{$_}{'ispmanStatus'}, $processes->{$_}{'ispmanDomain'}, $processes->{$_}{'ispmanSession'},$processes->{$_}{'ispmanProcess'}
+.
+
+#print $ispman->dumper($processes);
+__END__
+
+

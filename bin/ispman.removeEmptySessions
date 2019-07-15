@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+use ISPMan;
+my $ispman = ISPMan->new();
+my $h      =
+  $ispman->getEntriesAsHashRef(
+    "ou=processes, @{[$ispman->getConf('ldapBaseDN')]}",
+    "objectClass=ispmanBranch" );
+for ( keys %$h ) {
+    next unless /^ispmanSession/;
+    if ( $ispman->getCount($_) < 2 ) {
+        print "Deleting $_\n";
+        $ispman->deleteEntry($_);
+    }
+}
+__END__

@@ -1,0 +1,28 @@
+
+
+<tr>
+    <td><perl>_("Default File Server Host")</perl> </td>
+    <td> 
+        <select name="ispmanDomainDefaultFileServer">
+        <perl>
+        my $text="";
+        my @ispmanDomainDefaultFileServers=$ispman->getGroupMembers("fileservergroup");
+        
+        for (@ispmanDomainDefaultFileServers){
+            $text.="<option VALUE='$_'>$_</option>";        
+        }
+        
+        if  ($#ispmanDomainDefaultFileServers<0){
+            $text.="<option VALUE=''>";
+	    $text.=_("WARNING: No members in group [_1] defined", "fileservergroup");
+	    $text.="</option>";        
+        }
+        
+        
+        $text
+        </perl>
+        </select>
+    </td>
+</tr>
+
+

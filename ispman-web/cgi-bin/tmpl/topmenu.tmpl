@@ -1,0 +1,113 @@
+<html>
+<head>
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+<script>
+function addDomain(){      
+      top.content.location="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=selectDomainType";
+}
+
+</script>
+</head>
+
+<body class=title
+maginwidth=0 marginheight=0
+topmargin="0" leftmargin="0"
+>
+
+
+
+<TABLE BORDER=0 width=100%>
+<td>
+
+<perl>
+#$class=($ENV{'HTTP_USER_AGENT'}=~/Gecko/)?"menubutton":"title"; return "";
+$class="menubutton"; return "";
+</perl>
+
+<TABLE BORDER=0 CELLPADDING=5 CELLSPACING=0>
+        <TR>                                     
+        <TD nowrap valign=top><nobr><a class=<perl>$class</perl>   target="content" href="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=overview"><perl>_("Overview")</perl></a></nobr></td>
+<perl>
+   if ($ispman->{'session'}->param("logintype") eq "admin") {
+        return qq|<TD valign=top ><nobr><a class=$class target="content" href="$ENV{'SCRIPT_NAME'}?mode=showResellers">@{[_("Resellers")]}</a></nobr></td>|;
+   }
+</perl>
+<perl>
+   if ($ispman->{'session'}->param("logintype") eq "admin" or $ispman->{'session'}->param("logintype") eq "reseller" ) {
+        return qq|<TD valign=top ><nobr><a class=$class target="content" href="$ENV{'SCRIPT_NAME'}?mode=showClients">@{[_("Clients")]}</a></nobr></td>|;
+   }
+</perl>
+        
+        <TD nowrap valign=top><nobr><a    class=<perl>$class</perl> target="content" href="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=summary&hidereplicas=true"><perl>_("Domains")</perl></a></nobr></td>
+        <TD valign=top ><nobr><a class=<perl>$class</perl>   href="javascript:addDomain()"><perl>_("Add domain")</perl></a></nobr></td>
+        
+<perl>
+   if ($ispman->{'session'}->param("logintype") eq "admin") {
+        return qq|<TD valign=top ><nobr><a class=$class target="content" href="$ENV{'SCRIPT_NAME'}?mode=configure">@{[_("Configure")]}</a></nobr></td>|;
+   }
+</perl>
+        <TD valign=top ><nobr><a class=<perl>$class</perl>   target="content" href="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=manageProcesses"><perl>_("Processes")</perl></a></nobr></td>
+        
+<perl>
+   if ($ispman->{'session'}->param("logintype") eq "admin") {
+        return qq|<TD  valign=top align=right><nobr><a class=$class   target="content" href="http://sourceforge.net/tracker/?group_id=8390&atid=108390">@{[_("File a BUG")]}</a></nobr></td>|;
+   }
+</perl>
+<perl>
+   if ( defined($ispman->getConf('customMenuLink')) && $ispman->getConf('customMenuLink') =~ /(.*)\|(.*)/ ) {
+        return qq|<TD valign=top align=right><nobr><a class=$class target="content" href="$1">$2</a></nobr></td>|;
+   }
+</perl>
+        </tr>
+</table>
+
+
+
+</td>
+<perl>
+return "" unless $ispman->{'Config'}{'nls'};
+return '' unless $ispman->{'Config'}{'showLanguageMenu'};
+
+$text=qq|
+
+<td>
+
+<TABLE BORDER=0 ALIGN=right CELLPADDING=5 CELLSPACING=0>
+<TR>
+<td>
+<select name="language" onChange="top.location='index.cgi?language='+this.options[this.selectedIndex].value">
+|;
+               $options="";
+                for (sort keys %{$ispman->{'Config'}{'nls'}{'languages'}}){
+                        $options.= "<option value=$_>";
+                        $options.= $ispman->{'Config'}{'nls'}{'languages'}{$_};
+                        $options.= "</option>";
+                }
+$text.=$options;
+
+$text.=qq|
+</select>
+</td>
+
+|;
+
+$text="" unless $options;
+$text
+
+</perl>
+
+<TD  valign=right align=right><a class=<perl>$class</perl>   target="_top" href="<perl>$ENV{'SCRIPT_NAME'}</perl>?logout=1"><perl>_("Logout")</perl></a></td>
+<TD  valign=right align=right><a class=<perl>$class</perl>   target="content" href="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/help.html"><perl>_("Help")</perl></a></td>
+</tr>
+</table>
+
+
+</td>
+</table>
+
+
+
+
+</body>
+
+

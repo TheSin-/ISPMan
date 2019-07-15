@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+BEGIN {
+    print
+"ispman.deltree: Example of the deltree function.\nGive it a node and it will recursively delete it.\nFor example: ispman.deltree ou=admins,o=ispman\n";
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    exit unless $ARGV[0];
+}
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+$ispman->delTree( $ARGV[0] );
+

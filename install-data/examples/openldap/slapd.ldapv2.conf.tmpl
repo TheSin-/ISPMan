@@ -1,0 +1,21 @@
+include         /etc/openldap/slapd.at.conf
+include         /etc/openldap/slapd.oc.conf
+schemacheck     off
+pidfile         /var/run/slapd.pid
+argsfile        /var/run/slapd.args
+ 
+database        ldbm
+lastmod on
+dbcachesize 100000
+cachesize 10000
+ 
+suffix "%%ldapBaseDN%%"
+rootdn "%%ldapRootDN%%"
+rootpw {crypt}@@randcrypt('%%ldapRootPass%%')@@
+
+index objectclass eq
+index uid,sn,cn pres,eq,sub
+index uidnumber,gidnumber pres,eq
+index memberuid pres,eq
+index mail,mailLocalAddress,mailAlias pres,eq,sub
+

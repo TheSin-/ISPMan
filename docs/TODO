@@ -1,0 +1,37 @@
+CCP
+- more CCP debugging
+- problems logging out under mod_perl, 200 OK "errors", no __END__ tags.
+- needs link back to overview
+- needs more features, access to logs
+
+General
+- more syntax/semantic and validity checks on forms
+    inopportune spaces in a username can create havok with chmod commands later
+- some graphics are missing
+- graphic locations should be standardized
+
+Installation
+- ispman.conf: move confVar sorting to LDAP
+- ispman.conf: move default objectclasses to LDAP
+- debian package generation
+- provide better examples for openldap configuration
+
+Docs
+- ISPMan architecture (example scenarios)
+- UPGRADING adjustments
+
+Design
+- ISPMan lib separation (frontend, backend) (in progress)
+- multiport vhost patch (partly finished)
+- ispman.agent LDAP features: reconnect, SSL
+- bind generation bugfixes
+- dealing with vhost.conf.hash
+- redesign of DNS forms
+- custom hooks for create/delete user/vhost/domain
+- forms for reseller/client management
+- generic quota solution
+- caching of data to enhance performance (LDAP lookups, etc)
+- HOWTO document about setting up libnss_ldap, pam_ldap, nscd, mod_perl
+- change log architecture (-> Log::Agent)
+- combine some CLI tools
+- fixing Config.PM (jdelker: in progress)

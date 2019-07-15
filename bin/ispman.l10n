@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    unless ( $ARGV[0] ) {
+        print "$FindBin::Script  template\n";
+        exit;
+    }
+}
+use ISPMan::L10N;
+$ENV{'LANGUAGE'} = shift @ARGV;
+print _( join " ", @ARGV );
+print "\n";
+

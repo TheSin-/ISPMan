@@ -1,0 +1,76 @@
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+   
+
+   
+<script language="JavaScript1.1">
+  function checkForm(f){
+    msg = ""
+    for(var i = 0; i < f.length; i++) {
+      var e = f.elements[i];
+      if (e.type == "text" && ((e.value == null) || (e.value == ""))) {
+        alert(e.name + " must not be empty");
+        return false;
+      }
+    }
+    return true;
+  }
+</script>
+
+<table class=table border=0>
+  <form method="POST">
+  
+        <perl>
+        my $text="";
+        my $vars=$ispman->getConfVars($r->param('module'));
+
+        for (keys %$vars){
+            $ispmanVars->{$vars->{$_}{'ispmanVar'}}{'ispmanQuestion'}=$vars->{$_}{'ispmanQuestion'};
+            $ispmanVars->{$vars->{$_}{'ispmanVar'}}{'ispmanVal'}=$vars->{$_}{'ispmanVal'};
+            $ispmanVars->{$vars->{$_}{'ispmanVar'}}{'ispmanVarAlias'}=$vars->{$_}{'ispmanVarAlias'};
+        }
+
+
+        my $module=$r->param("module");
+        if ($ispman->{'Config'}{'ispmanVarSort'}{$module}){
+            my $varSort=$ispman->{'Config'}{'ispmanVarSort'}{$module};
+            my ($varDN, $ispmanQuestion, $ispmanVarAlias, $ispmanVar, $ispmanVal);
+        
+            for (@$varSort){
+                
+                $ispmanVar=$_;
+                $ispmanVal=$ispmanVars->{$_}{'ispmanVal'};
+                $ispmanQuestion=$ispmanVars->{$_}{'ispmanQuestion'};
+                $ispmanVarAlias=$ispmanVars->{$_}{'ispmanVarAlias'};
+
+                $text.="<tr class=list><td colspan=2><i>$ispmanQuestion</i></td></tr>\n";
+                $text.=qq|
+                <tr>
+                <td class=menuheader><p title="$ispmanVar">@{[($ispmanVarAlias)?$ispmanVarAlias:$ispmanVar]}</p></td>
+                <td><input type="text" name="$ispmanVar" size=40 value="$ispmanVal"></td>
+                </tr>|;
+
+            }
+        } else {
+            for (keys %$vars){
+                $text.="<tr class=list><td colspan=2><i>$vars->{$_}{'ispmanQuestion'}</i></td></tr>\n";
+                $text.=qq|
+                <tr>
+                <td class=menuheader><p title="$vars->{$_}{'ispmanVar'}">@{[($vars->{$_}{'ispmanVarAlias'})?$vars->{$_}{'ispmanVarAlias'}:$vars->{$_}{'ispmanVar'}]}</p></td>
+                <td><input type="text" name="$vars->{$_}{'ispmanVar'}" size=40 value="$vars->{$_}{'ispmanVal'}"></td>
+                </tr>|;
+            }
+        }
+        $text
+        </perl>
+
+      <tr><td colspan=2 align=right>
+         <input type=hidden name="module" value="<perl>$r->param("module")</perl>">
+         <input type=hidden name="mode" value="modifyModule">
+         <input type=button class="button" onClick="document.forms[0].reset()" value="Discard Changes">
+         <input type=button class="button" onClick="checkForm(this.form) && document.forms[0].submit()" value="Save Entry">
+      </td></tr>
+   </form>
+</table>
+ 
+ 
+

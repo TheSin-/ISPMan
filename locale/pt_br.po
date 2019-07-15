@@ -1,0 +1,1243 @@
+# ISPMan Localization file.
+# This file is distributed under the same license as the PACKAGE package.
+#
+#, wrpddx <wendel@dotpix.com.br>
+msgid ""
+msgstr ""
+"Project-Id-Version: ISPMan 0.9.7\n"
+"POT-Creation-Date: 2003-02-28 17:27+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Wendelmaques Rodrigues Pereira <wendel@dotpix.com.br>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../ispman-web/cgi-bin/tmpl/resellers/list.tmpl
+:15
+msgid "# Clients"
+msgstr "# Clientes"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/list.tmpl
+:16
+msgid "# Domains"
+msgstr "# Dom&iacute;nios"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:192
+msgid "A Records"
+msgstr "Entidades A"
+
+#: ../ispman-web/cgi-bin/tmpl/hostgroups/editHostGroup.tmpl
+:19
+msgid "A small description of the group (optional)"
+msgstr "Uma pequena descri&ccedil;&atilde;o do grupo (opcional)"
+
+#: ../ispman-web/cgi-bin/tmpl/hostgroups/manageHostGroups.tmpl
+:21
+msgid "Actions"
+msgstr "A&ccedil;&otilde;es"
+
+#: ../ispman-web/cgi-bin/tmpl/hostgroups/manageHostGroups.tmpl
+:94 ../ispman-web/cgi-bin/tmpl/vhosts/edit_acls.tmpl
+:79 ../ispman-web/cgi-bin/tmpl/vhosts/edit_aliases.tmpl
+:35
+msgid "Add"
+msgstr "Adicionar"
+
+#: ../ispman-web/cgi-bin/tmpl/vhosts/edit_aliases.tmpl
+:29
+msgid "Add Alias"
+msgstr "Adicionar apelido"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:249
+#. ($thisDomain)
+msgid "Add a mail group to %1"
+msgstr "Adicionar um grupo de email a %1"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/list.tmpl
+:5
+msgid "Add a new Client"
+msgstr "Adicionar um novo Cliente"
+
+#: ../ispman-web/cgi-bin/tmpl/resellers/list.tmpl
+:5
+msgid "Add a new Reseller"
+msgstr "Adicionar um novo Revendedor"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:215
+#. ($thisDomain)
+msgid "Add a user to %1"
+msgstr "Adicionar um usu&aacute;rio a %1 "
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:295
+#. ($thisDomain)
+msgid "Add a virtual host to %1"
+msgstr "Adicionar um site a %1 "
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:273
+#. ($thisDomain)
+msgid "Add a web user  to %1"
+msgstr "Adicionar uma conta de acesso web a %1 "
+
+#: ../ispman-web/cgi-bin/tmpl/admins/add.tmpl
+:42
+msgid "Add admin"
+msgstr "Adicionar administrador"
+
+#: ../ispman-web/cgi-bin/tmpl/topmenu.tmpl
+:42
+msgid "Add domain"
+msgstr "Adicionar um dom&iacute;nio"
+
+#: ../ispman-web/cgi-bin/tmpl/hosts/manageHosts.tmpl
+:86
+msgid "Add host"
+msgstr "Adicionar servidor"
+
+#: ../ispman-web/cgi-bin/tmpl/mailgroups/add.tmpl
+:49 ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:251
+msgid "Add mailgroup"
+msgstr "Adicionar grupo de correio"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_Arecords.tmpl
+:21
+msgid "Add new A Record"
+msgstr "Adicionar nova entidade A"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_CNAMES.tmpl
+:58
+msgid "Add new CNAME Record"
+msgstr "Adicionar novo apelido"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_MXrecords.tmpl
+:64
+msgid "Add new MX Record"
+msgstr "Adicionar nova entidade MX"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_NSrecords.tmpl
+:39
+msgid "Add new NS Record"
+msgstr "Adicionar nova entidade NS"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:106
+msgid "Add this client"
+msgstr "Adicionar esse cliente"
+
+#: ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:91
+msgid "Add this reseller"
+msgstr "adicionar este revendedor"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:217
+msgid "Add user"
+msgstr "Adicionar usu&aacute;rio"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:297
+msgid "Add virtualhost"
+msgstr "Adicionar site"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:275
+msgid "Add web user"
+msgstr "Adicionar um usu&aacute;rio"
+
+#: ../ispman-web/cgi-bin/tmpl/mailgroups/add.tmpl
+:12
+msgid "Adding mailgroup for domain:"
+msgstr "Adicionando grupo de correio para o dom&iacute;nio: "
+
+#: ../ispman-web/cgi-bin/tmpl/overview.tmpl
+:30
+msgid "AdminID:"
+msgstr "ID do admin:"
+
+#: ../ispman-web/cgi-bin/tmpl/login.tmpl
+:27
+msgid "Administrator"
+msgstr "Administrador"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_CNAMES.tmpl
+:14
+msgid "Alias"
+msgstr "Apelidos"
+
+#: ../ispman-web/cgi-bin/tmpl/vhosts/edit_acls.tmpl
+:31 ../ispman-web/cgi-bin/tmpl/vhosts/edit_acls.tmpl
+:89
+msgid "Allowed users"
+msgstr "Usu&aacute;rios autorizados"
+
+#: ../ispman-web/cgi-bin/tmpl/vhosts/edit_acls.tmpl
+:141 ../ispman-web/cgi-bin/tmpl/vhosts/edit_aliases.tmpl
+:122 ../ispman-web/cgi-bin/tmpl/vhosts/edit_aliases.tmpl
+:84 ../ispman-web/cgi-bin/tmpl/vhosts/edit_redirects.tmpl
+:68
+msgid "Apply"
+msgstr "Aplicar"
+
+#: ../ispman-web/cgi-bin/tmpl/admins/add.tmpl
+:23
+msgid "Authority Level"
+msgstr "Nivel de autoridade"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:198
+msgid "CNAME Records"
+msgstr "Apelidos (CNAME)"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:108
+msgid "Choose domain to manage"
+msgstr "Escolha um dom&iacute;nio para gerenciar"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:68 ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:53
+msgid "City"
+msgstr "Cidade"
+
+#: ../ispman-web/cgi-bin/tmpl/login.tmpl
+:29
+msgid "Client"
+msgstr "Cliente"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:42
+msgid "Client Name"
+msgstr "Nome do cliente"
+
+#: ../ispman-web/cgi-bin/tmpl/overview.tmpl
+:47
+msgid "ClientID:"
+msgstr "ID do cliente: "
+
+#: ../ispman-web/cgi-bin/tmpl/overview.tmpl
+:52
+msgid "ClientName:"
+msgstr "Nome do cliente: "
+
+#: ../ispman-web/cgi-bin/tmpl/overview.tmpl
+:51
+msgid "ClientUID:"
+msgstr "UID do cliente"
+
+#: ../ispman-web/cgi-bin/tmpl/topmenu.tmpl
+:37
+msgid "Clients"
+msgstr "Clientes"
+
+#: ../ispman-web/cgi-bin/tmpl/status.tmpl
+:44
+msgid "Commit session"
+msgstr "Executar sess&atilde;o"
+
+#: ../ispman-web/cgi-bin/tmpl/topmenu.tmpl
+:46
+msgid "Configure"
+msgstr "Configurar"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:72 ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:57
+msgid "Country"
+msgstr "Pa&iacute;s"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/defaultfilehost.tmpl
+:4
+msgid "Default File Server Host for this domain"
+msgstr "Servidor de arquivos para esse dom&iacute;nio "
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/defaultmaildrop.tmpl
+:4 ../ispman-web/cgi-bin/tmpl/domains/edit/defaultmaildrop.tmpl
+:4
+msgid "Default Maildrop Host for this domain"
+msgstr "Servidor de correio dess dom&iacute;nio"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/defaultwebhost.tmpl
+:4 ../ispman-web/cgi-bin/tmpl/domains/edit/defaultwebhost.tmpl
+:4
+msgid "Default Web Server Host for this domain"
+msgstr "Servidor de sites para este dom&iacute;nio"
+
+#: ../ispman-web/cgi-bin/tmpl/hostgroups/editHostGroup.tmpl
+:68 ../ispman-web/cgi-bin/tmpl/hostgroups/manageHostGroups.tmpl
+:56 ../ispman-web/cgi-bin/tmpl/hosts/editHost.tmpl
+:31 ../ispman-web/cgi-bin/tmpl/hosts/manageHosts.tmpl
+:49 ../ispman-web/cgi-bin/tmpl/mailgroups/edit.tmpl
+:65 ../ispman-web/cgi-bin/tmpl/vhosts/edit_acls.tmpl
+:160 ../ispman-web/cgi-bin/tmpl/vhosts/edit_aliases.tmpl
+:124 ../ispman-web/cgi-bin/tmpl/vhosts/edit_aliases.tmpl
+:86 ../ispman-web/cgi-bin/tmpl/vhosts/edit_redirects.tmpl
+:70
+msgid "Delete"
+msgstr "Apagar"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/edit/footer.tmpl
+:4
+msgid "Delete Domain"
+msgstr "Apagar dom&iacute;nio"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/maildelivery.tmpl
+:4 ../ispman-web/cgi-bin/tmpl/domains/edit/maildelivery.tmpl
+:4
+msgid "Deliver Locally"
+msgstr "Entregar localmente"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/maildelivery.tmpl
+:5 ../ispman-web/cgi-bin/tmpl/domains/edit/maildelivery.tmpl
+:5
+msgid "Deliver to MX host"
+msgstr "Entregar para um servidor MX"
+
+#: ../ispman-web/cgi-bin/tmpl/hostgroups/manageHostGroups.tmpl
+:19 ../ispman-web/cgi-bin/tmpl/hosts/editHost.tmpl
+:22 ../ispman-web/cgi-bin/tmpl/hosts/manageHosts.tmpl
+:21 ../ispman-web/cgi-bin/tmpl/hosts/manageHosts.tmpl
+:79
+msgid "Description"
+msgstr "Descri&ccedil;&atilde;o"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_MXrecords.tmpl
+:77 ../ispman-web/cgi-bin/tmpl/dns/edit_NSrecords.tmpl
+:50 ../ispman-web/cgi-bin/tmpl/dns/edit_SOA.tmpl
+:56 ../ispman-web/cgi-bin/tmpl/domains/add/footer.tmpl
+:4 ../ispman-web/cgi-bin/tmpl/domains/edit/footer.tmpl
+:6
+msgid "Discard Changes"
+msgstr "Descartar Mudan&ccedil;as"
+
+#: ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:31
+msgid "Display Name"
+msgstr "Nome de exibi&ccedil;&atilde;o"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:46 ../ispman-web/cgi-bin/tmpl/clients/list.tmpl
+:15 ../ispman-web/cgi-bin/tmpl/resellers/list.tmpl
+:14
+msgid "Display name"
+msgstr "Nome de exibi&ccedil;&atilde;o"
+
+#: ../ispman-web/cgi-bin/tmpl/vhosts/add.tmpl
+:18 ../ispman-web/cgi-bin/tmpl/vhosts/edit.tmpl
+:26
+msgid "DocumentRoot is empty"
+msgstr "DocumentRoot est&aacute; vazio"
+
+#: ../ispman-web/cgi-bin/tmpl/login.tmpl
+:30
+msgid "Domain Admin"
+msgstr "Administrador do dom&iacute;nio"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/edit/comment.tmpl
+:2
+msgid "Domain Comment"
+msgstr "Coment&aacute;rio sobre o dom&iacute;nio"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/edit/customer.tmpl
+:2
+msgid "Domain Customer"
+msgstr "Cliente do dom&iacute;nio"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/edit/gid.tmpl
+:3
+msgid "Domain GID"
+msgstr "GID do dom&iacute;nio"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/edit/owner.tmpl
+:3
+msgid "Domain Owner"
+msgstr "Dono do dom&iacute;nio"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/edit/domainservices.tmpl
+:2
+msgid "Domain Services"
+msgstr "Servi&ccedil;os do dom&iacute;nio"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/edit/uid.tmpl
+:3
+msgid "Domain UID"
+msgstr "UID dom&iacute;nio"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/edit/domaintype.tmpl
+:3
+msgid "Domain type"
+msgstr "Tipo de dom&iacute;nio"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/domainname.tmpl
+:2 ../ispman-web/cgi-bin/tmpl/domains/edit/domainname.tmpl
+:2
+msgid "Domainname"
+msgstr "NomeDom&iacute;nio"
+
+#: ../ispman-web/cgi-bin/tmpl/topmenu.tmpl
+:41
+msgid "Domains"
+msgstr "dom&iacute;nios"
+
+#: ../ispman-web/cgi-bin/tmpl/status.tmpl
+:39
+msgid "Don't refresh"
+msgstr "N&atilde;o atualizar"
+
+#: ../ispman-web/cgi-bin/tmpl/admins/edit.tmpl
+:20 ../ispman-web/cgi-bin/tmpl/admins/list.tmpl
+:39
+msgid "E-mail"
+msgstr "E-mail"
+
+#: ../ispman-web/cgi-bin/tmpl/hostgroups/manageHostGroups.tmpl
+:53 ../ispman-web/cgi-bin/tmpl/hosts/manageHosts.tmpl
+:46 ../ispman-web/cgi-bin/tmpl/vhosts/edit_acls.tmpl
+:154
+msgid "Edit"
+msgstr "Editar"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:155
+#. ($thisDomain)
+msgid "Edit %1"
+msgstr "Editar %1"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:190
+#. ($thisDomain)
+msgid "Edit A Records for %1"
+msgstr "Editar entidades A de %1"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:196
+#. ($thisDomain)
+msgid "Edit CNAME Records for %1"
+msgstr "Editar entidades CNAME de %1"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:178
+#. ($thisDomain)
+msgid "Edit MX Records for %1"
+msgstr "Editar entidades MX de %1"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:184
+#. ($thisDomain)
+msgid "Edit NS Records for %1"
+msgstr "Editar entidades NS de %1"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:172
+#. ($thisDomain)
+msgid "Edit SOA Records for %1"
+msgstr "Editar registro SOA de %1"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_Arecords.tmpl
+:12
+msgid "Editing A Records for domain:"
+msgstr "Editando entidades A do dom&iacute;nio:"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_CNAMES.tmpl
+:10
+msgid "Editing CNAME Records for domain:"
+msgstr "Editando apelidos do dom&iacute;nio:"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_MXrecords.tmpl
+:10
+msgid "Editing MX Records for domain:"
+msgstr "Editando entidades MX do dom&iacute;nio:"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_NSrecords.tmpl
+:7
+msgid "Editing NS Records for domain:"
+msgstr "Editando entidades NS do dom&iacute;nio"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_SOA.tmpl
+:5
+msgid "Editing SOA Records for domain:"
+msgstr "Editando entidades SOA do dom&iacute;nio"
+
+#: ../ispman-web/cgi-bin/tmpl/hosts/editHost.tmpl
+:9
+msgid "Editing host"
+msgstr "Editando servidores"
+
+#: ../ispman-web/cgi-bin/tmpl/hostgroups/editHostGroup.tmpl
+:14
+msgid "Editing hostGroup:"
+msgstr "Editando grupo de servidores:"
+
+#: ../ispman-web/cgi-bin/tmpl/admins/add.tmpl
+:22
+msgid "Email address"
+msgstr "Endere&ccedil;o de email"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/ftpstatus.tmpl
+:5 ../ispman-web/cgi-bin/tmpl/domains/edit/ftpstatus.tmpl
+:6
+msgid "Enabled"
+msgstr "Habilitado"
+
+#:
+msgid "English"
+msgstr "Ingl&ecirc;s"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_SOA.tmpl
+:29
+msgid "Expire"
+msgstr "Expira"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/ftpstatus.tmpl
+:2 ../ispman-web/cgi-bin/tmpl/domains/edit/ftpstatus.tmpl
+:2
+msgid "FTP Access"
+msgstr "Acesso via FTP"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/ftppassword.tmpl
+:2 ../ispman-web/cgi-bin/tmpl/domains/edit/ftppassword.tmpl
+:2
+msgid "FTP Password"
+msgstr "Senha do FTP"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:76 ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:61
+msgid "Fax"
+msgstr "Fax"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/edit/defaultfilehost.tmpl
+:4
+msgid "File Server for this domain"
+msgstr "Servidor de arquivo para esse dom&iacute;nio "
+
+#: ../ispman-web/cgi-bin/tmpl/topmenu.tmpl
+:53
+msgid "File a BUG"
+msgstr "Reportar erro (BUG)"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:34 ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:19
+msgid "First Name"
+msgstr "Primeiro nome"
+
+#:
+msgid "French"
+msgstr "Franc&ecirc;s"
+
+#: ../ispman-web/cgi-bin/tmpl/admins/add.tmpl
+:20 ../ispman-web/cgi-bin/tmpl/admins/edit.tmpl
+:18
+msgid "Fullname"
+msgstr "Nome completo"
+
+#:
+msgid "German"
+msgstr "Alem&atilde;o"
+
+#:
+msgid "Group Name"
+msgstr "Nome do grupo"
+
+#: ../ispman-web/cgi-bin/tmpl/topmenu.tmpl
+:95
+msgid "Help"
+msgstr "Ajuda"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/homedirectory.tmpl
+:3 ../ispman-web/cgi-bin/tmpl/domains/edit/homedirectory.tmpl
+:2
+msgid "Home Directory"
+msgstr "Diret&oacute;rio padr&atilde;o"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_CNAMES.tmpl
+:15 ../ispman-web/cgi-bin/tmpl/dns/edit_MXrecords.tmpl
+:14
+msgid "Host"
+msgstr "Servidor"
+
+#:
+msgid "Host Alias"
+msgstr "Apelido do servidor"
+
+#: ../ispman-web/cgi-bin/tmpl/hosts/editHost.tmpl
+:14 ../ispman-web/cgi-bin/tmpl/hosts/manageHosts.tmpl
+:72
+msgid "Host Aliases"
+msgstr "Apelidos do servidor"
+
+#: ../ispman-web/cgi-bin/tmpl/hostgroups/editHostGroup.tmpl
+:29
+msgid "Host Group Members"
+msgstr "Servidores membros do grupo"
+
+#: ../ispman-web/cgi-bin/tmpl/hostgroups/manageHostGroups.tmpl
+:84
+msgid "Host group Description"
+msgstr "Descri&ccedil;&atilde;o do grupo de servidores"
+
+#: ../ispman-web/cgi-bin/tmpl/hostgroups/manageHostGroups.tmpl
+:76
+msgid "Host group name"
+msgstr "Nome do grupo de servidores"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_Arecords.tmpl
+:14 ../ispman-web/cgi-bin/tmpl/dns/view_Arecords.tmpl
+:18 ../ispman-web/cgi-bin/tmpl/hosts/manageHosts.tmpl
+:19
+msgid "Hostname"
+msgstr "Nome do servidor"
+
+#:
+msgid "Hosts"
+msgstr "Servidores"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_Arecords.tmpl
+:15 ../ispman-web/cgi-bin/tmpl/dns/view_Arecords.tmpl
+:19 ../ispman-web/cgi-bin/tmpl/hosts/manageHosts.tmpl
+:20 ../ispman-web/cgi-bin/tmpl/hosts/manageHosts.tmpl
+:75
+msgid "IP Address"
+msgstr "Endere&ccedil;o IP"
+
+#: ../ispman-web/cgi-bin/tmpl/hosts/editHost.tmpl
+:18
+msgid "IP address"
+msgstr "Endere&ccedil;o IP"
+
+#: ../ispman-web/cgi-bin/tmpl/overview.tmpl
+:34
+msgid "ISP summary"
+msgstr "Sum&aacute;rio da hospedagem"
+
+#: ../ispman-web/cgi-bin/tmpl/login.tmpl
+:34
+msgid "Language"
+msgstr "Linguagem"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:38 ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:23
+msgid "Last Name"
+msgstr "&Uacute;ltimo nome"
+
+#: ../ispman-web/cgi-bin/tmpl/admins/edit.tmpl
+:21 ../ispman-web/cgi-bin/tmpl/admins/list.tmpl
+:40
+msgid "Level"
+msgstr "N&iacute;vel"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/edit/locked.tmpl
+:3
+msgid "Locked"
+msgstr "Bloquado"
+
+#: ../ispman-web/cgi-bin/tmpl/vhosts/add.tmpl
+:28 ../ispman-web/cgi-bin/tmpl/vhosts/edit.tmpl
+:36
+msgid "LogDirectory is empty"
+msgstr "LogDirectory est&aacute; vazio "
+
+#: ../ispman-web/cgi-bin/tmpl/login.tmpl
+:52
+msgid "Login"
+msgstr "Entrar"
+
+#: ../ispman-web/cgi-bin/tmpl/login.tmpl
+:25
+msgid "Login as"
+msgstr "Entrar como"
+
+#: ../ispman-web/cgi-bin/tmpl/overview.tmpl
+:17
+msgid "Login type"
+msgstr "Tipo de acesso"
+
+#: ../ispman-web/cgi-bin/tmpl/topmenu.tmpl
+:94
+msgid "Logout"
+msgstr "Sair"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:180
+msgid "MX Records"
+msgstr "Entidades MX"
+
+#: ../ispman-web/cgi-bin/tmpl/hosts/manageHosts.tmpl
+:67
+msgid "Machine hostname"
+msgstr "Nome do servidor"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/maildelivery.tmpl
+:2 ../ispman-web/cgi-bin/tmpl/domains/edit/maildelivery.tmpl
+:2
+msgid "Mail Delivery"
+msgstr "Entrega de correio"
+
+#: ../ispman-web/cgi-bin/tmpl/mailgroups/add.tmpl
+:36 ../ispman-web/cgi-bin/tmpl/mailgroups/edit.tmpl
+:40
+msgid "Mail group aliases"
+msgstr "Apelidos do grupo de correio"
+
+#: ../ispman-web/cgi-bin/tmpl/mailgroups/add.tmpl
+:26 ../ispman-web/cgi-bin/tmpl/mailgroups/edit.tmpl
+:19 ../ispman-web/cgi-bin/tmpl/mailgroups/view.tmpl
+:10
+msgid "Mail group members"
+msgstr "Membros do grupo de correio"
+
+#: ../ispman-web/cgi-bin/tmpl/mailgroups/add.tmpl
+:18
+msgid "Mail group name"
+msgstr "Nome do grupo de correio"
+
+#: ../ispman-web/cgi-bin/tmpl/mailgroups/edit.tmpl
+:14 ../ispman-web/cgi-bin/tmpl/mailgroups/view.tmpl
+:5
+msgid "Mailgroup"
+msgstr "Grupo de correio"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:168
+msgid "Manage DNS"
+msgstr "Gerenciar DNS"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:246
+msgid "Manage mailgroups"
+msgstr "Gerenciar grupos"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:207
+msgid "Manage users"
+msgstr "Gerenciar usu&aacute;rios"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:292
+msgid "Manage virtualhosts"
+msgstr "Gerenciar sites"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:270
+msgid "Manage web users"
+msgstr "Gerenciar contas de acesso web"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/edit/dnsmasters.tmpl
+:2
+msgid "Master Servers"
+msgstr "Servidores mestres"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/dnsmasters.tmpl
+:3
+msgid "Master servers"
+msgstr "Servidores secund&aacute;rios"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/maxaccounts.tmpl
+:2 ../ispman-web/cgi-bin/tmpl/domains/edit/maxaccounts.tmpl
+:3
+msgid "Max Email accounts"
+msgstr "Contas de email"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/quota.tmpl
+:2 ../ispman-web/cgi-bin/tmpl/domains/edit/quota.tmpl
+:2
+msgid "Max Storage Space (in MB)"
+msgstr "Espa&ccedil;o m&aacute;ximo (em MB)"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/maxvhosts.tmpl
+:2 ../ispman-web/cgi-bin/tmpl/domains/edit/maxvhosts.tmpl
+:2
+msgid "Max Virtual Hosts"
+msgstr "M&aacute;ximo de sites"
+
+#: ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:65
+msgid "Maximum clients"
+msgstr "M&aacute;ximo de clientes"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:80
+msgid "Maximum domains"
+msgstr "M&aacute;ximo de dom&iacute;nios"
+
+#: ../ispman-web/cgi-bin/tmpl/hostgroups/manageHostGroups.tmpl
+:20
+msgid "Members"
+msgstr "Membros"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_SOA.tmpl
+:47
+msgid "Minimum"
+msgstr "M&iacute;nimo"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:186
+msgid "NS Records"
+msgstr "Entidades NS"
+
+#: ../ispman-web/cgi-bin/tmpl/admins/list.tmpl
+:38 ../ispman-web/cgi-bin/tmpl/hostgroups/manageHostGroups.tmpl
+:18
+msgid "Name"
+msgstr "Nome"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_NSrecords.tmpl
+:10
+msgid "Name Server"
+msgstr "Servidor de nome"
+
+#: ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:11
+msgid "Name that the Reseller will use for authentification"
+msgstr "Nome que o revendedor usa para autentica&ccedil;&atilde;o"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:26
+msgid "Name that the client will use for authentification"
+msgstr "Nome que o cliente usa para autentica&ccedil;&atilde;o"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/defaultmaildrop.tmpl
+:24 ../ispman-web/cgi-bin/tmpl/domains/edit/defaultmaildrop.tmpl
+:29
+msgid "No Maildrop Host (no mailbox. just forwardings)"
+msgstr "Sem correio (fazer repasse)"
+
+#: ../ispman-web/cgi-bin/tmpl/vhosts/edit_acls.tmpl
+:169
+msgid "No Website ACL defined "
+msgstr "Sem ACL de Websites defindia"
+
+#: ../ispman-web/cgi-bin/tmpl/hostgroups/manageHostGroups.tmpl
+:46
+msgid "No members defined"
+msgstr "N&atilde;o h&aacute; membros definido"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/list.tmpl
+:67
+msgid "Note: Only clients without domains can be deleted."
+msgstr "Obs.: somente clientes sem dom&iacute;nios podem ser removids."
+
+#: ../ispman-web/cgi-bin/tmpl/resellers/list.tmpl
+:65
+msgid "Note: Only resellers without clients can be deleted."
+msgstr "Obs.: somente revendedores sem clientes podem ser removidos."
+
+#: ../ispman-web/cgi-bin/tmpl/overview.tmpl
+:38
+msgid "Number of Domains hosted"
+msgstr "N&uacute;mero de dom&iacute;nios hospedado"
+
+#: ../ispman-web/cgi-bin/tmpl/overview.tmpl
+:40
+msgid "Number of User accounts"
+msgstr "N&uacute;mero de contas de usu&aacute;rio"
+
+#: ../ispman-web/cgi-bin/tmpl/overview.tmpl
+:39
+msgid "Number of Websites"
+msgstr "N&uacute;mero de sites"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_MXrecords.tmpl
+:13 ../ispman-web/cgi-bin/tmpl/dns/edit_NSrecords.tmpl
+:10
+msgid "Origin"
+msgstr "Origem"
+
+#: ../ispman-web/cgi-bin/tmpl/topmenu.tmpl
+:29
+msgid "Overview"
+msgstr "Detalhes"
+
+#: ../ispman-web/cgi-bin/tmpl/admins/add.tmpl
+:21 ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:30 ../ispman-web/cgi-bin/tmpl/login.tmpl
+:24 ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:15
+msgid "Password"
+msgstr "Senha"
+
+#: ../ispman-web/cgi-bin/tmpl/mailgroups/add.tmpl
+:6
+msgid "Please enter the name of  mailgroup to create. A mailgroupname can contains characters a - z. <BR> No accent characters, numbers or punctuation marks are allowed."
+msgstr "Porfavor, entre o nome do grupo de contas de email a ser criado. Um grupo de correio pode conter caracteres de a a z. &lt;br&gt; N&atilde;o adicione caracteres com ascento, n&uacute;meros ou pontua&ccedil;&otilde;es s&atilde;o aceitos. "
+
+#: ../ispman-web/cgi-bin/tmpl/hosts/manageHosts.tmpl
+:15
+msgid "Please use the form below to add a new HOST"
+msgstr "Por favor use o campo abaixo para adicionar o servidor"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:64 ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:49
+msgid "Postal code"
+msgstr "C&oacute;digo posta"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_SOA.tmpl
+:16
+msgid "Primary"
+msgstr "Prim&aacute;rio"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_MXrecords.tmpl
+:15
+msgid "Priority"
+msgstr "Prioridade"
+
+#: ../ispman-web/cgi-bin/tmpl/topmenu.tmpl
+:49
+msgid "Processes"
+msgstr "Processos"
+
+#: ../ispman-web/cgi-bin/tmpl/status.tmpl
+:31
+#. ($ispman->countProcessesInSession($ispman->{"sessID"})
+msgid "Processes in queue: %1"
+msgstr "Processo na fila: %1"
+
+#: ../ispman-web/cgi-bin/tmpl/vhosts/edit_acls.tmpl
+:30 ../ispman-web/cgi-bin/tmpl/vhosts/edit_acls.tmpl
+:88
+msgid "Protected area"
+msgstr "&Aacute;rea protegida"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/view_Arecords.tmpl
+:9 ../ispman-web/cgi-bin/tmpl/dns/view_CNAMES.tmpl
+:8 ../ispman-web/cgi-bin/tmpl/dns/view_MXrecords.tmpl
+:9 ../ispman-web/cgi-bin/tmpl/dns/view_NSrecords.tmpl
+:12
+msgid "Readonly access granted."
+msgstr "Acesso somente leitura."
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_SOA.tmpl
+:41 ../ispman-web/cgi-bin/tmpl/status.tmpl
+:42
+msgid "Refresh"
+msgstr "Atualizar"
+
+#: ../ispman-web/cgi-bin/tmpl/status.tmpl
+:36 ../ispman-web/cgi-bin/tmpl/status.tmpl
+:37 ../ispman-web/cgi-bin/tmpl/status.tmpl
+:38
+#. (10)
+#. (30)
+#. (60)
+msgid "Refresh every %1 seconds"
+msgstr "Atualizar a cada %1 segundos"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:13 ../ispman-web/cgi-bin/tmpl/login.tmpl
+:28
+msgid "Reseller"
+msgstr "Revendedor"
+
+#: ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:27
+msgid "Reseller Name"
+msgstr "Nome do revendedor"
+
+#: ../ispman-web/cgi-bin/tmpl/overview.tmpl
+:49
+msgid "ResellerID:"
+msgstr "ID do revendedor:"
+
+#: ../ispman-web/cgi-bin/tmpl/overview.tmpl
+:25
+msgid "ResellerName:"
+msgstr "Nome do revendedor:"
+
+#: ../ispman-web/cgi-bin/tmpl/topmenu.tmpl
+:32
+msgid "Resellers"
+msgstr "Revendedores"
+
+#: ../ispman-web/cgi-bin/tmpl/hostgroups/editHostGroup.tmpl
+:67 ../ispman-web/cgi-bin/tmpl/hostgroups/manageHostGroups.tmpl
+:93 ../ispman-web/cgi-bin/tmpl/hosts/editHost.tmpl
+:30 ../ispman-web/cgi-bin/tmpl/hosts/manageHosts.tmpl
+:85 ../ispman-web/cgi-bin/tmpl/mailgroups/add.tmpl
+:48 ../ispman-web/cgi-bin/tmpl/mailgroups/edit.tmpl
+:64
+msgid "Reset"
+msgstr "Limpar"
+
+#: ../ispman-web/cgi-bin/tmpl/overview.tmpl
+:23
+msgid "ResllerID:"
+msgstr "ID do revendedor:"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_SOA.tmpl
+:35
+msgid "Retry"
+msgstr "Tentar"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_Arecords.tmpl
+:17 ../ispman-web/cgi-bin/tmpl/dns/view_Arecords.tmpl
+:20
+msgid "Rev."
+msgstr "Rev."
+
+#: ../ispman-web/cgi-bin/tmpl/status.tmpl
+:29
+msgid "Running Session"
+msgstr "Executando sess&atilde;o"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:174
+msgid "SOA Records"
+msgstr "Entidades SOA"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_Arecords.tmpl
+:32 ../ispman-web/cgi-bin/tmpl/dns/edit_CNAMES.tmpl
+:70
+msgid "Save"
+msgstr "Salvar"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_MXrecords.tmpl
+:78 ../ispman-web/cgi-bin/tmpl/dns/edit_NSrecords.tmpl
+:51 ../ispman-web/cgi-bin/tmpl/dns/edit_SOA.tmpl
+:57 ../ispman-web/cgi-bin/tmpl/domains/add/footer.tmpl
+:5 ../ispman-web/cgi-bin/tmpl/domains/edit/footer.tmpl
+:7
+msgid "Save Entry"
+msgstr "Salvar entradas"
+
+#: ../ispman-web/cgi-bin/tmpl/vhosts/add.tmpl
+:23 ../ispman-web/cgi-bin/tmpl/vhosts/edit.tmpl
+:31
+msgid "ScriptDirectory is empty"
+msgstr "ScriptDirectory est&aacute; vazio"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:210
+#. ($thisDomain)
+msgid "Search for users under %1"
+msgstr "Pesquisar por usu&aacute;rios em %1 "
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:212
+msgid "Search users"
+msgstr "Pesquisar usu&aacute;rio"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:257
+msgid "Select mailgroup"
+msgstr "Selecionar grupo de correio"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:223
+msgid "Select user"
+msgstr "Selecionar usu&aacute;rio"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:302
+msgid "Select virtualhost"
+msgstr "Selecionar site"
+
+#: ../ispman-web/cgi-bin/tmpl/menu.tmpl
+:279
+msgid "Select web user"
+msgstr "Selecione uma conta de acesso web "
+
+#: ../ispman-web/cgi-bin/tmpl/ro.tmpl
+:2
+msgid "Sorry you don't have write access to this domain."
+msgstr "Descupe-nos, mas voc&ecirc; n&atilde;o tem previl&eacute;gios para alterar esse dom&iacute;no."
+
+#: ../ispman-web/cgi-bin/tmpl/vhosts/add.tmpl
+:33 ../ispman-web/cgi-bin/tmpl/vhosts/edit.tmpl
+:41
+msgid "StatDirectory is empty"
+msgstr "StatDirectory est&aacute; vazio "
+
+#: ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:60 ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:45
+msgid "Street"
+msgstr "Rua"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/list.tmpl
+:3
+msgid "Summary of Clients"
+msgstr "Sum&aacute;rio dos Clientes"
+
+#: ../ispman-web/cgi-bin/tmpl/resellers/list.tmpl
+:3
+msgid "Summary of Resellers"
+msgstr "Sum&aacute;rio dos Revendedores"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/ftpstatus.tmpl
+:6 ../ispman-web/cgi-bin/tmpl/domains/edit/ftpstatus.tmpl
+:7
+msgid "Suspended"
+msgstr "Suspendido"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:56 ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:41
+msgid "Telephone"
+msgstr "Telefone"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/domainmaster.tmpl
+:2
+msgid "This Replica host points to"
+msgstr "Esta r&eacute;pica aponta para"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/edit/domainmaster.tmpl
+:2
+msgid "This Replica points to"
+msgstr "Esta replica aponta para"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/view_Arecords.tmpl
+:11 ../ispman-web/cgi-bin/tmpl/dns/view_CNAMES.tmpl
+:10 ../ispman-web/cgi-bin/tmpl/dns/view_MXrecords.tmpl
+:11 ../ispman-web/cgi-bin/tmpl/dns/view_NSrecords.tmpl
+:14
+#. ($ispman->{'domain'}{'ispmanDomainLockedBy'})
+msgid "This domain is locked and editable by %1"
+msgstr "Este dom&iacute;nio est&aacute; bloquado e s&oacute; pode ser editado por %1"
+
+#: ../ispman-web/cgi-bin/tmpl/hosts/manageHosts.tmpl
+:69
+msgid "This is the hostname of the machine. You can find the correct hostname as ispman-agent sees it with the command ispman.myhostname"
+msgstr "Este &eacute; o nome do servidor. Voc&ecirc; pode encontrar o nome correto do servidor que o ispman-agent usa com o comando ispman.myhostname"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_Arecords.tmpl
+:2
+msgid "To Delete a record, remove its values and click on update."
+msgstr "Para apagar uma entrada, remova os valores e clique em atualizar."
+
+#: ../ispman-web/cgi-bin/tmpl/clients/list.tmpl
+:11 ../ispman-web/cgi-bin/tmpl/resellers/list.tmpl
+:11
+msgid "UID (login id)"
+msgstr "UID (identifica&ccedil;&atilde;o)"
+
+#: ../ispman-web/cgi-bin/tmpl/login.tmpl
+:16 ../ispman-web/cgi-bin/tmpl/login.tmpl
+:3
+msgid "Unauthorized Access prohibited"
+msgstr "O acesso sem identifica&ccedil;&atilde;o nesse servi&ccedil;o &eacute; pro&iacute;bido"
+
+#: ../ispman-web/cgi-bin/tmpl/admins/edit.tmpl
+:28 ../ispman-web/cgi-bin/tmpl/dns/edit_Arecords.tmpl
+:82 ../ispman-web/cgi-bin/tmpl/dns/edit_CNAMES.tmpl
+:48 ../ispman-web/cgi-bin/tmpl/dns/edit_NSrecords.tmpl
+:27 ../ispman-web/cgi-bin/tmpl/hostgroups/editHostGroup.tmpl
+:69 ../ispman-web/cgi-bin/tmpl/hosts/editHost.tmpl
+:32 ../ispman-web/cgi-bin/tmpl/mailgroups/edit.tmpl
+:66
+msgid "Update"
+msgstr "Atualizar"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:106
+msgid "Update this client"
+msgstr "Atualizar este cliente"
+
+#: ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:91
+msgid "Update this reseller"
+msgstr "Atualizar este revendedor"
+
+#: ../ispman-web/cgi-bin/tmpl/admins/add.tmpl
+:18 ../ispman-web/cgi-bin/tmpl/clients/add_edit.tmpl
+:26 ../ispman-web/cgi-bin/tmpl/login.tmpl
+:23 ../ispman-web/cgi-bin/tmpl/resellers/add_edit.tmpl
+:11
+msgid "Username"
+msgstr "Usu&aacute;rio"
+
+#:
+msgid "Users"
+msgstr "Usu&aacute;rios"
+
+#:
+msgid "Vhosts"
+msgstr "Sites"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/view_Arecords.tmpl
+:15
+msgid "Viewing A Records for domain:"
+msgstr "Exibindo entidade A para o dom&iacute;nio:"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/defaultfilehost.tmpl
+:17 ../ispman-web/cgi-bin/tmpl/domains/add/defaultmaildrop.tmpl
+:17 ../ispman-web/cgi-bin/tmpl/domains/add/defaultwebhost.tmpl
+:17 ../ispman-web/cgi-bin/tmpl/domains/edit/defaultmaildrop.tmpl
+:22 ../ispman-web/cgi-bin/tmpl/domains/edit/defaultwebhost.tmpl
+:23
+#. ("fileservergroup")
+#. ("mailstoregroup")
+#. ("httpgroup")
+msgid "WARNING: No members in group %1 defined"
+msgstr "CUIDADEO: n&atilde;o h&aacute; membros denifido no grupo %1"
+
+#: ../ispman-web/cgi-bin/tmpl/overview.tmpl
+:12
+msgid "Welcome to ISPMan"
+msgstr "Bem vindo ao ISPMan"
+
+#: ../ispman-web/cgi-bin/tmpl/domains/add/dnsmasters.tmpl
+:6
+msgid "You can put multiple ip addresses separated by space"
+msgstr "Voc&ecirc; pode adicionar m&uacute;ltiplos endere&ccedil;os ip separados por espa&ccedil;o"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/list.tmpl
+:13
+msgid "ispmanClientId"
+msgstr "ispmanClientId"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/list.tmpl
+:14
+msgid "ispmanClientName"
+msgstr "ispmanClientName"
+
+#: ../ispman-web/cgi-bin/tmpl/clients/list.tmpl
+:12
+msgid "ispmanReseller"
+msgstr "ispmanReseller"
+
+#: ../ispman-web/cgi-bin/tmpl/resellers/list.tmpl
+:12
+msgid "ispmanResellerId"
+msgstr "ispmanResellerId"
+
+#: ../ispman-web/cgi-bin/tmpl/resellers/list.tmpl
+:13
+msgid "ispmanResellerName"
+msgstr "ispmanResellerName"
+
+#: ../ispman-web/cgi-bin/tmpl/mailgroups/add.tmpl
+:26 ../ispman-web/cgi-bin/tmpl/mailgroups/edit.tmpl
+:19 ../ispman-web/cgi-bin/tmpl/mailgroups/view.tmpl
+:10
+msgid "local or  remote"
+msgstr "local ou remoto"
+
+#: ../ispman-web/cgi-bin/tmpl/admins/edit.tmpl
+:19
+msgid "password"
+msgstr "senha"
+
+#: ../ispman-web/cgi-bin/tmpl/dns/edit_SOA.tmpl
+:22
+msgid "rootmail"
+msgstr "senhamestre"
+
+#: ../ispman-web/cgi-bin/tmpl/admins/edit.tmpl
+:17 ../ispman-web/cgi-bin/tmpl/admins/list.tmpl
+:37
+msgid "uid"
+msgstr "uid"
+
+#: ../ispman-web/cgi-bin/tmpl/vhosts/add.tmpl
+:13 ../ispman-web/cgi-bin/tmpl/vhosts/edit.tmpl
+:21
+msgid "vhost homedirectory is empty!"
+msgstr "Diret&oacute;rio de arquivos do site est&aacute; vazio! "

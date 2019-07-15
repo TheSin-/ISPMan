@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+#USAGE: ScriptName domain mailGroup Attribute
+
+BEGIN {
+    print "FOR DEVELOPERS ONLY\n\n";
+    print
+"You may use this command if indicated as part of a support request's response\n";
+    print "See source code for USAGE info\n";
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    exit unless $ARGV[2];
+
+}
+use ISPMan;
+
+my $ispman = ISPMan->new();
+print $ispman->dumper( $ispman->getMailGroupAttributeValues(@ARGV) );
+print "\n";
+

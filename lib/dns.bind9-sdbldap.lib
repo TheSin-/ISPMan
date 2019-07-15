@@ -1,0 +1,94 @@
+# $Id: dns.bind9-sdbldap.lib,v 1.7 2004/05/30 23:35:36 jdelker Exp $
+
+sub make_named_conf {
+    my $zone   = shift;
+    my $filter = shift;
+
+    checkDirectories();
+    $domains = $ispman->makeDomainHash( $ispman->getDomains($filter) );
+
+    open "CONF", ">$namedConfFile" || die "$!";
+    print CONF cat($namedConfHeaderFile);
+
+    for $domain ( sort { $domains->{$a} cmp $domains->{$b} } keys %$domains ) {
+
+        $ispman->log_event("Configuring named for $domain");
+        my $domainInfo = $ispman->getDomainInfo($domain);
+        my $domaintype = $domainInfo->{'ispmanDomainType'};
+
+        print "Domain type: $domaintype, Filter $filter\n";
+
+        if ( $domaintype eq "slave" ) {
+            my $entry =
+              SecondaryEntry( $domain, "$namedSecDir/$domain",
+                $domainInfo->{'ispmanDnsMasters'} );
+            print CONF $entry;
+        }
+
+        if ( $domaintype eq "replica" ) {
+            my $url = "ldap://localhost/";
+            $url .= $ispman->getDNSDN( $domainInfo->{'ispmanReplicaMaster'} );
+
+            my $entry = PrimaryEntry( $domain, $url );
+
+            print CONF $entry;
+        }
+
+        if ( $domaintype eq "primary" ) {
+            my $url = "ldap://localhost/";
+            $url .= $ispman->getDNSDN($domain);
+            my $entry = PrimaryEntry( $domain, $url );
+            print CONF $entry;
+        }
+    }
+
+    print CONF cat($namedConfFooterFile);
+    close("CONF");
+
+    reload_named();
+}
+
+sub checkDirectories {
+    for ( $namedDir, $namedPriDir, $namedSecDir, $namedRevDir ) {
+        $namedUser = $ispman->getConf("namedUser") || "named";
+        my ( $login, $pass, $uid, $gid ) = getpwnam($namedUser)
+          or die "$user not in passwd file";
+
+        unless ( -d $_ ) {
+            print "Directory $_ did not existed. I am creating it now\n";
+            mkpath($_);
+            chown $uid, $gid, $_;
+
+        }
+    }
+}
+
+sub reload_named {
+    if ( $ispman->getConf('namedReloadCommand') ) {
+        system( join " ", ( $ispman->getConf('namedReloadCommand'), "" ) );
+    }
+    else {
+        system( $ispman->getConf('namedStopCommand') );
+        sleep $ispman->getConf('sleepSecondsBetweenRestart');
+        system( $ispman->getConf('namedStartCommand') );
+    }
+}
+
+sub PrimaryEntry {
+    my ( $domain, $url ) = @_;
+    return
+qq|\nzone "$domain" IN {\n\ttype master;\n\tdatabase "ldap $url 172800";\n};\n|;
+
+}
+
+sub SecondaryEntry {
+    my ( $domain, $file, $masters ) = @_;
+    my @masters = split( /\s\s*/, $masters );
+    $file =~ s!//!/!g;
+
+    $masters = join "\n             ", map { "$_;" } @masters;
+    return
+qq|\nzone "$domain" IN {\n\ttype slave;\n\tfile "$file";\n\tmasters {\n\t\t$masters\n\t};\n};\n|;
+}
+1;
+

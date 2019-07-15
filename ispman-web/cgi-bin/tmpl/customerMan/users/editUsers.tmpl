@@ -1,0 +1,40 @@
+<html>
+<head>
+<LINK HREF="<perl>$customer->getConfig('ispmanUrlPrefix')</perl>/control_panel/style.css" REL="stylesheet" TYPE="text/css">
+</head>
+<body>
+<perl>$message</perl>
+
+
+
+
+<script>
+   function editUser(user){
+         parent.usersinfo.location="<perl>$r->url</perl>?mode=editDomainUser&user="+user;
+   }
+</script>
+
+
+            
+<font face="Arial">
+
+<perl>
+        $r->param("message")
+</perl>
+
+
+<P>
+<form>
+<table border=0>
+
+<perl>
+    $text="";
+    my $users=$customer->getDomainUsers();
+    for my $user(keys %$users) {
+      $text.=qq|<tr><td> <a href='#' onClick="editUser('$user')">$users->{$user}</a></td>|;
+      $text.="</tr>";
+    }
+$text
+</perl>
+</table>
+</form>

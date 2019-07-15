@@ -1,0 +1,33 @@
+
+
+<tr>
+    <td><perl>_("Default Web Server Hosts")</perl> </td>
+    <td>
+        <select multiple name="ispmanDomainDefaultWebHost" id="ispmanDomainDefaultWebHost">
+        <perl>
+        my $text="";
+        my @ispmanDomainDefaultWebHosts=$ispman->getGroupMembers("httpgroup");
+        my @defaulthosts=$ispman->as_array($ispman->{'domain'}->{'ispmanDomainDefaultWebHost'});
+
+        for (@ispmanDomainDefaultWebHosts){
+            my $webhost=$_;
+            my $tag="";
+            for (@defaulthosts){
+                if ($webhost eq $_) { $tag="selected" };
+            }
+            $text.="<option VALUE=\"$_\" $tag>$_</option>";
+        }
+
+        if  ($#ispmanDomainDefaultWebHosts<0){
+            $text.="<option VALUE=''>";
+            $text.=_("WARNING: No members in group [_1] defined", "httpgroup");
+            $text.="</option>";
+        }
+
+        $text
+        </perl>
+        </select>
+    </td>
+</tr>
+
+

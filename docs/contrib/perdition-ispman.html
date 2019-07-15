@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.1.0  (Linux)">
+	<META NAME="CREATED" CONTENT="20040114;9270900">
+	<META NAME="CHANGED" CONTENT="20040114;12502300">
+	<STYLE>
+	<!--
+		@page { size: 8.5in 11in; margin-left: 1.25in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P { margin-bottom: 0.08in }
+		H3 { margin-bottom: 0.08in }
+		H3.western { font-family: "Arial", sans-serif }
+		H3.cjk { font-family: "Mincho" }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<P ALIGN=CENTER STYLE="margin-top: 0.17in; page-break-after: avoid"><FONT FACE="Arial, sans-serif"><FONT SIZE=5><B>Using
+Perdition With ISPMan</B></FONT></FONT></P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in"><B>Updated: January 14,
+2004</B></P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in"><B>by Tony Wasson (wasson
+at azxws.com)</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">As an ISPMan administrator, you'll use
+Perdition to let users login with user@domain.com or user_domain_com.
+You can also use it to append a domain name onto a username. You can
+also use Perdition as a &ldquo;traffic directory&rdquo; during email
+migration, however that is outside the scope of this document. 
+</P>
+<H3 CLASS="western">Setting Up Perdition</H3>
+<P STYLE="margin-bottom: 0in">1) If running ISPMan 1.0 or higher,
+skip this step.. 
+</P>
+<P STYLE="margin-bottom: 0in">Older releases did not support the 2
+UIDs (userids) for all users by default. You need to run
+&quot;ispman.fixUsers&quot; to create both UIDs. You need to make
+sure all new users have 2 UIDs also, so you can either make
+&ldquo;ispman.fixUsers&rdquo; a cron job . On 0.9.7 you can patch
+ISPMan to do this for all new users by changing users.ldif.template
+like so:</P>
+<P STYLE="margin-top: 0.08in"><FONT SIZE=2><I>After the 1st UID line,
+add this:</I></FONT></P>
+<P STYLE="margin-top: 0.08in"><FONT SIZE=2><I>uid:  join '@',
+($r-&gt;param(&quot;userid&quot;), $r-&gt;param(&quot;ispmanDomain&quot;))</I></FONT></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">2) Make sure you have access to your
+LDAP server(s)</P>
+<P STYLE="margin-bottom: 0in">You may have to edit tcpwrappers
+(/etc/hosts.allow), iptables/ipchains or other firewall rules
+depending on your security setup. 
+</P>
+<OL START=2>
+	<P STYLE="margin-bottom: 0in"></P>
+</OL>
+<PRE>ldapsearch -xvu -h 127.0.0.1 -LLL -b &quot;o=ispman&quot; ispmanVar=*
+</PRE><P STYLE="margin-bottom: 0in">
+3) Verify the LDAP server is reachable, something like this works
+well</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">4) Install perdition</P>
+<P STYLE="margin-bottom: 0in">You can use packages for your
+distribution, or compile from source available from:
+http://www.vergenet.net/linux/perdition/download/</P>
+<OL START=2>
+	<P STYLE="margin-bottom: 0in"></P>
+</OL>
+<PRE>#apt-get install perdition perdition-ldap</PRE><P STYLE="margin-bottom: 0in">
+<BR>
+</P>
+<P STYLE="margin-bottom: 0in">5) Configure Perdition</P>
+<OL START=3>
+	<P STYLE="margin-bottom: 0in">Keep in mind that your map_libary file
+	may be in a different location.When you &ldquo;go live&rdquo; you
+	should have multiple LDAP servers. As long as they are all on
+	standard ports, set these up on the map_library_opt line. 
+	</P>
+</OL>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>A basic
+/etc/perdition/perdition.conf looks like so:</B></P>
+<PRE>
+<SPAN STYLE="background: #b3b3b3">map_library /usr/lib/libperditiondb_ldap.so.0</SPAN>
+<SPAN STYLE="background: #b3b3b3">map_library_opt &quot;ldap://127.0.0.1/o=ispman?mailroutingaddress?sub?(uid=%25s)&quot;</SPAN>
+<SPAN STYLE="background: #b3b3b3">server_ok_line</SPAN>
+<SPAN STYLE="background: #b3b3b3">username_from_database</SPAN>
+</PRE><P STYLE="margin-bottom: 0in">
+<B>A single domain setup config file will probably look more like </B>
+</P>
+<PRE>
+<SPAN STYLE="background: #b3b3b3">map_library /usr/lib/libperditiondb_ldap.so.0</SPAN>
+<SPAN STYLE="background: #b3b3b3"># The following map_library_opt line needs to be on a single line</SPAN>
+<SPAN STYLE="background: #b3b3b3"># Customize the @azxws.com to match your domain.</SPAN>
+<SPAN STYLE="background: #b3b3b3">map_library_opt &ldquo;ldap://127.0.0.1//o=ispman?mailroutingaddress?sub?(uid=%25s@azxws.com)&quot;</SPAN>
+<SPAN STYLE="background: #b3b3b3">server_ok_line</SPAN>
+<SPAN STYLE="background: #b3b3b3">username_from_database</SPAN></PRE><P STYLE="margin-bottom: 0in">
+<BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>A multi-LDAP server config file will
+probably look more like :</B></P>
+<PRE>
+<SPAN STYLE="background: #b3b3b3">map_library /usr/lib/libperditiondb_ldap.so.0</SPAN>
+<SPAN STYLE="background: #b3b3b3"># The following map_library_opt line needs to be on a single line</SPAN>
+<SPAN STYLE="background: #b3b3b3">map_library_opt &ldquo;ldap://127.0.0.1 192.168.2.10 192.168.3.10 \</SPAN>
+<SPAN STYLE="background: #b3b3b3">/o=ispman?mailroutingaddress?sub?(uid=%25s)&quot;</SPAN>
+<SPAN STYLE="background: #b3b3b3">server_ok_line</SPAN>
+<SPAN STYLE="background: #b3b3b3">username_from_database</SPAN>
+</PRE><P STYLE="margin-bottom: 0in">
+6) Make sure Perdition starts on bootup and start it manually now</P>
+<PRE>/etc/init.d/perdition start</PRE><P STYLE="margin-bottom: 0in">
+<BR>
+</P>
+<P STYLE="margin-bottom: 0in">7) Verify the account and password are
+correct by logging in directly</P>
+<P STYLE="margin-bottom: 0in">against the mail server. I usually do
+something like this on the mail server:</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<PRE>  telnet localhost 110
+  USER user_domain_com
+  PASS thepassword
+</PRE><P STYLE="margin-bottom: 0in">
+Then I  repeat these steps using my new Perdition proxy. If it fails,
+check the logs (perdition uses syslog). You may also use a system
+debugger (like strace) and a network sniffer to verify LDAP is
+functioning. I have also had good success setting an outgoing_server
+in perdition.conf as a debugging measure</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Once you have underscore names working,
+use the user@domain.com name through Perdition. Voila! It works...</P>
+<OL START=4>
+	<P STYLE="margin-bottom: 0in"></P>
+</OL>
+<P STYLE="margin-bottom: 0in">On a side note, you'll most likely want
+to setup postfix to do SMTP authentication. It's pretty easy to get 
+PLAIN and LOGIN  working. If you want other mechanisms, you'll need
+to work harder. Remember, since there are two UIDs, either
+user@domain.com and user_domain_com works.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<H3 CLASS="western">FAQ:</H3>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Q: I got this error:
+perdition[10905]: dlopen of &quot;/usr/lib/libperditiondb_ldap.so.0&quot;
+failed, what should I check?</B></P>
+<P STYLE="margin-bottom: 0in">A: This is usually a configuration
+problem. First verify that your map_library_opt line is correct and
+has no word wrap. Next check your config file like so:</P>
+<PRE>grep -v '^#' /etc/perdition/perdition.conf</PRE><P STYLE="margin-bottom: 0in">
+<BR>
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<PRE></PRE><H3 CLASS="western">
+<B>Single Server Perdition Tric</B>k</H3>
+<P STYLE="margin-bottom: 0in; border: none; padding: 0in"><FONT COLOR="#000000"><SPAN STYLE="background: transparent">If
+you have a small installation and want this on the same machine as
+Cyrus 2.1, you can set it up like so perdition listens on the outside
+IP and Cyrus listens on localhost. Note that you will need to make
+sure any webmail programs point to the external IP address so that
+users can login with their email address as their username.</SPAN></FONT></P>
+<P STYLE="margin-bottom: 0in; border: none; padding: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in; border: none; padding: 0in"><FONT COLOR="#000000"><SPAN STYLE="background: transparent">In
+/etc/cyrus.conf edit these two lines and restart cyrus:</SPAN></FONT></P>
+<PRE STYLE="border: none; padding: 0in">
+<FONT COLOR="#000000"><SPAN STYLE="background: transparent">imap   cmd=&quot;imapd -U 30&quot; listen=&quot;localhost:imap&quot; prefork=0 maxchild=100</SPAN></FONT>
+<FONT COLOR="#000000"><SPAN STYLE="background: transparent">pop3   cmd=&quot;pop3d -U 30&quot; listen=&quot;localhost:pop3&quot; prefork=0 maxchild=50</SPAN></FONT>
+</PRE><P STYLE="margin-bottom: 0in; border: none; padding: 0in">
+<FONT COLOR="#000000"><SPAN STYLE="background: transparent">In
+/etc/perdition/perdition.conf add these lines and restart perdition:</SPAN></FONT></P>
+<PRE STYLE="border: none; padding: 0in">
+<FONT COLOR="#000000"><SPAN STYLE="background: transparent">bind_address XXX.XXX.XXX.XXX  &lt;--- Must be outside IP</SPAN></FONT>
+<FONT COLOR="#000000"><SPAN STYLE="background: transparent">outgoing_server 127.0.0.1</SPAN></FONT>
+</PRE><P STYLE="margin-bottom: 0in; border: none; padding: 0in">
+<FONT COLOR="#000000"><SPAN STYLE="background: transparent">Ensure
+that your hostname resolves to 127.0.0.1. </SPAN></FONT>
+</P>
+<P STYLE="margin-bottom: 0in; border: none; padding: 0in"><FONT COLOR="#000000"><SPAN STYLE="background: transparent">This
+prevents Perdition from connecting back to itself in a loop.</SPAN></FONT></P>
+<P STYLE="margin-bottom: 0in; border: none; padding: 0in"><BR>
+</P>
+<PRE STYLE="border: none; padding: 0in"><FONT COLOR="#000000"><SPAN STYLE="background: transparent">NOTE: I've also seen people setup cyrus to listen on alternate pop and imap ports. This can work too, the choice is up to you.</SPAN></FONT>
+</PRE><H3 CLASS="western">
+For More Information:</H3>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">1) Read the Perdition man pages.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">2) Visit the Perdition website</P>
+<P STYLE="margin-bottom: 0in"><A HREF="http://www.vergenet.net/linux/perdition/">http://www.vergenet.net/linux/perdition/</A></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">3) Read Configuring Perdition Proxy
+Software to Use an Existing LDAP Server</P>
+<P STYLE="margin-bottom: 0in"><A HREF="http://www.vergenet.net/linux/perdition/docs/perdition_ldap.pdf">http://www.vergenet.net/linux/perdition/docs/perdition_ldap.pdf</A></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+</BODY>
+</HTML>

@@ -1,0 +1,19 @@
+# Wrapper script for all mailbox actions
+# Depending on configured imapServerBackend, the appropiate library is loaded
+#
+# All methods take the primary mailbox address (LDAP: mailLocalAddress)
+# The particular mail backend libs need to derive their real mailbox name
+# from that
+
+use ISPMan;
+
+$ispman = ISPMan->new() unless $ispman;
+
+# determine imap backend
+my $imapServerBackend = $ispman->getConf("imapServerBackend");
+
+# load mailbox functions for this particular type
+require "mailbox_actions_$imapServerBackend.lib";
+
+1;
+

@@ -1,0 +1,157 @@
+sub make_named_conf {
+    $domains = $ispman->makeDomainHash( $ispman->getDomains() );
+
+    open "ZONE", ">$namedDir/data" || die "$!";
+
+    # creat or empty the file
+    close(ZONE);
+
+    for $domain ( sort { $domains->{$a} cmp $domains->{$b} } keys %$domains ) {
+        print "$domain\n";
+
+        $ispman->log_event("Configuring named for $domain");
+        my $domainInfo = $ispman->getDomainInfo($domain);
+
+        my $domaintype = $domainInfo->{'ispmanDomainType'};
+
+        if ( $domaintype eq "slave" ) {
+
+     # Do something here that should be done for slave entries.
+     # example domain atif.com should read its master entries from ns1.yahoo.com
+        }
+
+        if ( $domaintype eq "replica" ) {
+
+  # do something here for replica entries
+  # replica entries are the same as the entries of the replicaMaster
+  # with bind, we simply pointed the source  to be the file of the replicamaster
+  # For tinydns/maradns etc, we might have to do something else
+        }
+
+        if ( $domaintype eq "primary" ) {
+            writeZoneFile($domain);
+        }
+    }
+
+    # namedReloadCommand can be something like
+    # make -C /etc/tinydns/root
+
+    if ( $ispman->getConf('namedReloadCommand') ) {
+        system( join " ", ( $ispman->getConf('namedReloadCommand'), "" ) );
+    }
+    else {
+        system( $ispman->getConf('namedStopCommand') );
+        system( $ispman->getConf('namedStartCommand') );
+    }
+}
+
+sub writeZoneFile {
+    my $domain = shift;
+    print "Working on $domain\n";
+    open "ZONE", ">>$namedDir/data" || die "$!";
+    print ZONE "#", '-' x 50, "\n#Start Domain: $domain\n";
+    print ZONE "#", '-' x 50, "\n\n";
+
+    my $soa = $ispman->getSOA($domain);
+
+    if ($soa) {
+
+        #do something with these
+        #$ispman->staticHost($soa->{'primary'})
+        #$ispman->staticHost($soa->{'rootmail'})
+        #$soa->{'serial'}
+        #$soa->{'refresh'}
+        #$soa->{'retry'}
+        #$soa->{'expire'}
+        #$soa->{'minimum'}
+
+        # print NS RECORDS
+        my $nsrecords = $ispman->getDNSnSRecords($domain);
+
+        print ZONE "\n# NS RECORDS\n";
+        for (@$nsrecords) {
+            print ZONE '.';    #start ns record
+
+            my $origion = "";
+            if ( $_->{'origion'} eq "@" ) {
+                $origion = $domain;
+            }
+            else {
+                $origion = join( "\.", $_->{'origion'}, $domain );
+            }
+
+            print ZONE $origion;
+            print ZONE ":";
+            print ZONE $_->{
+                'host'};    # this should be ip. Where shall I get this from?
+            print ZONE ":";
+            print ZONE $_->{'host'};
+            print ZONE "\n";
+
+#print ZONE join ("\t", ($_->{'origion'}, "1D", "IN", "NS", $_->{'host'})), "\n";
+        }
+
+        # print MX RECORDS
+        print ZONE "\n# MX RECORDS\n";
+        my $mxrecords = $ispman->getDNSmXRecords($domain);
+        for (@$mxrecords) {
+            print ZONE '@';    #start mx record
+
+            my $origion = "";
+            if ( $_->{'origion'} eq "@" ) {
+                $origion = $domain;
+            }
+            else {
+                $origion = join( "\.", $_->{'origion'}, $domain );
+            }
+
+            print ZONE $origion;
+            print ZONE ":";
+            print ZONE $_->{
+                'host'};    # this should be ip. Where shall I get this from?
+            print ZONE ":";
+            print ZONE $_->{'host'};
+            print ZONE ":";
+            print ZONE $_->{'pref'};
+            print ZONE "\n";
+        }
+
+        # print A RECORDS
+        print ZONE "\n# A RECORDS\n";
+        my $arecords = $ispman->getDNSaRecords($domain);
+        for (@$arecords) {
+            print ZONE '+';    #start A record
+            my $host = $ispman->make_fqdn( $_->{'host'}, $domain );
+            $host =~ s/\.$//;
+
+            print ZONE $host;
+            print ZONE ":";
+            print ZONE $_->{'ip'};
+            print ZONE "\n";
+        }
+
+        # print CNAMES
+        print ZONE "\n# RR RECORDS\n";
+        my $cnames = $ispman->getDNScNAMERecords($domain);
+        for (@$cnames) {
+            print ZONE 'C';    #start CNAME record
+            my $alias = $ispman->make_fqdn( $_->{'alias'}, $domain );
+            $alias =~ s/\.$//;
+            print ZONE $_->{'alias'};
+            print ZONE ":";
+            print ZONE $_->{'host'};
+            print ZONE "\n";
+        }
+
+        print ZONE "#", '-' x 50, "\n#End Domain: $domain\n";
+        print ZONE "#", '-' x 50, "\n\n";
+
+    }
+
+    close "ZONE";
+}
+
+1;
+
+__END__
+

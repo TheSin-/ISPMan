@@ -1,0 +1,115 @@
+#!/usr/bin/perl
+# $Id: makedocs,v 1.8 2004/06/21 20:07:35 jdelker Exp $
+# a script full of GLOBALS :)
+
+use Pod::Html;
+$pwd = $ARGV[0] || ".";
+chdir $pwd;
+
+@pms = `find ISPMan -type f -name "*.pm"`;
+
+system("mkdir -p tmp/pod");
+
+for (@pms) {
+    $subs = {};
+    chomp;
+    $file = $_;
+    s/^ISPMan\///;
+    $module = $_;
+    $module =~ s/\.pm$//;
+    $module =~ s/\//::/g;
+    $modules->{$module}{'file'} = $file;
+    $text                       = "";
+    $_head_pod                  = "";
+    $_end_pod                   = "";
+    open "F", "$file" or die "Cant open $!";
+
+    while (<F>) {
+        $text .= $_;
+        $subs->{$1}++ if /\s*sub\s\s*(\w+)/;
+    }
+    close("F");
+    for $sub ( keys %$subs ) {
+        ( $subs->{$sub} ) =
+          $text =~ m/sub $sub[\w\W]*?(=item B<$sub>[\w\W]*?=cut)/;
+    }
+    $modules->{$module}{'subs'} = $subs;
+    ($_head_pod) = $text =~ m!(\=head1 NAME[\w\W]*?=cut)!;
+    ($_end_pod)  = $text =~ m!__END__([\w\W]*?=cut)!;
+
+    $_head_pod =~ s/^\s\s*//g;
+    $_end_pod  =~ s/^\s\s*//g;
+    $_head_pod =~ s/\s\s*$//g;
+    $_end_pod  =~ s/\s\s*$//g;
+    $_pod = "";
+    $_pod = ( $_head_pod eq $_end_pod ) ? $_head_pod : join "\n",
+      ( $_head_pod, $_end_pod );
+    $modules->{$module}{'pod'} = $_pod if $_pod;
+
+}
+
+$c = 0;
+
+$index = "<html><head></head><body bgcolor=white><font face=Helvetica size=3>";
+
+for $module ( sort keys %$modules ) {
+    $moduleFile = "$module\.html";
+    $moduleFile =~ s!::!/!g;
+
+    $moduleIndex = "<br><b>";
+    if ( $modules->{$module}{'pod'} ) {
+        $moduleIndex .= "<a target=api_content href='$moduleFile'>$module</a>";
+    }
+    else {
+        $moduleIndex .= "$module";
+    }
+    $moduleIndex .= "</b>";
+
+    for $sub ( keys %{ $modules->{$module}{'subs'} } ) {
+        $c++;
+        if ( $modules->{$module}{'subs'}{$sub} ) {
+            print "Generating documentation for $module\:\:$sub\n";
+            open "T", ">tmp/pod/tmppodin$c.pod";
+            print T "=head1 $module\:\:$sub\n\n";
+            print T "=over 4\n\n";
+            print T $modules->{$module}{'subs'}{$sub};
+            close "T";
+            $outfile = $module;
+            $outfile =~ s!::!/!g;
+            $subLink = "$outfile/$sub\.html";
+            $moduleIndex .=
+              "<br>&nbsp;&nbsp;<a target=api_content href='$subLink'>$sub</a>";
+            $dir = "ispman-web/htdocs/docs/API/$outfile";
+            system("mkdir -p $dir");
+            $out = "ispman-web/htdocs/docs/API/$outfile/$sub.html\n";
+            pod2html( "--infile=tmp/pod/tmppodin$c.pod", "--outfile=$out" );
+        }
+    }
+    if ( $modules->{$module}{'pod'} ) {
+        open "T", ">tmp/pod/podtmppodin$c.pod";
+        print T $modules->{$module}{'pod'};
+        close "T";
+        $outfile = "ispman-web/htdocs/docs/API/$moduleFile";
+        pod2html( "--infile=tmp/pod/podtmppodin$c.pod", "--outfile=$outfile" );
+    }
+    $index .= "<br>$moduleIndex";
+}
+
+open "M", ">ispman-web/htdocs/docs/API/index.htm";
+print M $index;
+close("M");
+
+open( "I", ">ispman-web/htdocs/docs/API/index.html" );
+print I qq|
+<HTML>
+<HEAD><title>ISPMan API DOCS</title>
+
+<frameset cols=250,*>
+<frame name="api_index" src="index.htm">
+<frame name="api_content" src="about:">
+</frameset>                                                                                                                                                   
+</HEAD>
+</HTML>
+|;
+close("I");
+

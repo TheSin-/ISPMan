@@ -1,0 +1,38 @@
+<tr>
+    <td valign=top>
+        Email Aliases <br>
+        <input type=button value="Click here to add a new email alias" onClick="addMailAlias()">
+        
+        
+        </td>
+    <td>
+        <font  color=white><i>
+        The user will be able to recieve emails additionally on the following aliases.<br>
+        The aliases cannot be outside of domain (<perl>$customer->{'domain'}</perl>)
+        </i>
+        </font>
+        </td>
+</tr>
+<tr>
+<td></td>
+<td>                        
+            <perl>
+           my $text="";
+           if (ref $ispman->{'user'}->{"mailacceptinggeneralid"} eq "ARRAY"){
+                my @mailacceptinggeneralid=@{$ispman->{'user'}->{"mailacceptinggeneralid"}};
+                my $size=($#mailacceptinggeneralid>5)?5:$#mailacceptinggeneralid+1;
+                $text.="<select name=mailaliases multiple size=$size>\n";
+                for (@mailacceptinggeneralid){
+                        next if $_ eq $customer->{'user'}{'mail'};
+                        $text.="<option>$_</option>\n";
+                }
+                $text.="</select>\n";
+            } else {
+                $text="No Mail Aliases defined";
+            }                                        
+            $text
+            </perl>
+        </td>
+</tr>
+
+

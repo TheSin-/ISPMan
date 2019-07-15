@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'h', \%opts );
+    unless ( $opts{'h'} ) {
+        print "Usage: $FindBin::Script -h imap_server [filter]\n";
+        print "Example: $FindBin::Script -h localhost\n";
+        print "Example: $FindBin::Script -h localhost user.\*_example_com\n";
+        exit;
+    }
+
+}
+
+require "mailbox_actions.lib";
+
+my $filter = $ARGV[0] || '*';
+
+for ( list_mailboxes( $opts{'h'}, $filter ) ) {
+    print "$_\n";
+}
+exit;

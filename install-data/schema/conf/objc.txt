@@ -1,0 +1,23 @@
+#######################################
+# ISPMan configuration objectclasses
+#######################################
+
+# objectClass  1.3.6.1.4.1.8833.2.2.1003 'ispmanConfModule'
+# objectClass  1.3.6.1.4.1.8833.2.2.1004 'ispmanConfVar'
+
+
+objectClass ( 1.3.6.1.4.1.8833.2.2.1003 NAME 'ispmanConfModule'
+	SUP top STRUCTURAL 
+	DESC 'Class describing configuration ispmanModules'
+	MUST (ispmanModule)
+	MAY (description $ ispmanModuleAlias))
+
+
+objectClass ( 1.3.6.1.4.1.8833.2.2.1004 NAME 'ispmanConfVar'
+	SUP top STRUCTURAL 
+	DESC 'Class describing configuration ispmanVariables'
+	MUST (ispmanModule $ ispmanVar $ ispmanVal $ ispmanQuestion)
+        MAY ( ispmanVarAlias )
+	)
+
+

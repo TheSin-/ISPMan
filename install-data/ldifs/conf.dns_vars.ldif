@@ -1,0 +1,200 @@
+dn: ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanModule: dns_vars
+ispmanModuleAlias: DNS Settings
+objectclass: ispmanConfModule
+description: These are DNS (named) specific variables<br>will put an empty named.conf.header and named.conf.footer in %%installDir%%/templates <br>directory for you which you can later change according to your network.<br>If you already have these files in place then they will be left untouched.
+
+dn: ispmanVar=namedDir, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: namedDir
+ispmanVarAlias: Named data directory
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: /etc/bind
+ispmanQuestion: Named Directory
+
+dn: ispmanVar=namedIspmanSubDir, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: namedIspmanSubDir
+ispmanVarAlias: ISPMan's DNS data directory
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: ispman/
+ispmanQuestion: subdirectory of namedDir to keep ispman managed zone files in.
+
+dn: ispmanVar=namedPriDir, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: namedPriDir
+ispmanVarAlias: Primary Zone directory
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: pri/
+ispmanQuestion: subdirectory to keep primary zone files in.
+
+dn: ispmanVar=namedSecDir, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: namedSecDir
+ispmanVarAlias: Secondary Zone directory
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: sec/
+ispmanQuestion: subdirectory to cache secondary zone files in.
+
+dn: ispmanVar=namedRevDir, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: namedRevDir
+ispmanVarAlias: Reverse Zone directory
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: rev/
+ispmanQuestion: subdirectory to keep reverse zone files in.
+
+dn: ispmanVar=namedConfFile, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: namedConfFile
+ispmanVarAlias: Named Config File
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: /etc/bind/named.conf.ispman
+ispmanQuestion: Configuration file for named
+
+dn: ispmanVar=namedUser, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: namedUser
+ispmanVarAlias: Named User
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: bind
+ispmanQuestion: Username who runs named. Files/Directories created will be owned by the user
+
+dn: ispmanVar=primaryDNS, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: primaryDNS
+ispmanVarAlias: Primary DNS (name)
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: ns1.%%domain%%
+ispmanQuestion: Primary Name Server
+
+dn: ispmanVar=primaryDNSIP, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: primaryDNSIP
+ispmanVarAlias: Primary DNS (IP)
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: i.dont.read.docs
+ispmanQuestion: Primary Name Server's IP address.<br>New domains created will inherit this.
+
+dn: ispmanVar=secondaryDNS, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: secondaryDNS
+ispmanVarAlias: Secondary DNS (name)
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: ns2.%%domain%%
+ispmanQuestion: Secondary Name Server
+
+dn: ispmanVar=secondaryDNSIP, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: secondaryDNSIP
+ispmanVarAlias: Secondary DNS (IP)
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: i.dont.read.docs
+ispmanQuestion: Secondary Name Server's IP address.<br>New domains created will inherit this.
+
+dn: ispmanVar=primaryMX, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: primaryMX
+ispmanVarAlias: Primary Mail Server (name)
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: mx1.%%domain%%
+ispmanQuestion: Primary MX
+
+dn: ispmanVar=primaryMXIP, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: primaryMXIP
+ispmanVarAlias: Primary Mail Server (IP)
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: i.dont.read.docs
+ispmanQuestion: Primary MX's IP address. <br>New domains created will inherit this.
+
+dn: ispmanVar=secondaryMX, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: secondaryMX
+ispmanVarAlias: Secondary Mail Server (name)
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: mx2.%%domain%%
+ispmanQuestion: Seondary MX
+
+dn: ispmanVar=secondaryMXIP, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: secondaryMXIP
+ispmanVarAlias: Secondary Mail Server (IP)
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: i.dont.read.docs
+ispmanQuestion: Seondary MX's IP address. <br>New domains created will inherit this.
+
+dn: ispmanVar=namedStartCommand, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: namedStartCommand
+ispmanVarAlias: Named Start Command
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: /etc/init.d/bind9 start
+ispmanQuestion: Command to start named
+
+dn: ispmanVar=namedStopCommand, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: namedStopCommand
+ispmanVarAlias: Named Stop Command
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: /etc/init.d/bind9 stop
+ispmanQuestion: Command to stop named
+
+dn: ispmanVar=namedReloadCommand, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: namedReloadCommand
+ispmanVarAlias: Named Reload Command
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: /etc/init.d/bind9 reload
+ispmanQuestion: Command to reload named
+
+dn: ispmanVar=dnsMasterEmail, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: dnsMasterEmail
+ispmanVarAlias: Hostmaster's email address
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: dnsmaster.%%domain%%
+ispmanQuestion: Emailaddress of the dns master.<br>This is for SOA record
+
+dn: ispmanVar=namedConfHeaderFile, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: namedConfHeaderFile
+ispmanVarAlias: Header file for named.conf
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: %%installDir%%/templates/named.conf.header
+ispmanQuestion: Header file that I should prepend to the generated named.ispman.conf
+
+dn: ispmanVar=namedConfFooterFile, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: namedConfFooterFile
+ispmanVarAlias: Footer file for named.conf
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: %%installDir%%/templates/named.conf.footer
+ispmanQuestion: Header file that I should append to the generated named.ispman.conf
+
+dn: ispmanVar=namedBackend, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: namedBackend
+ispmanVarAlias: DNS Backend
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: bind9
+ispmanQuestion: DNS backend to use (bind8, bind9, bind9-sdbldap, tinydns)
+
+dn: ispmanVar=catchAllCNAME, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: catchAllCNAME
+ispmanVarAlias: Catch all CNAME
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: catchall 
+ispmanQuestion: DNS name which will be aliased from "<b>*</b>". This will catch all 
+ names that are not explicitly defined.<br>This can work with bind8 and bind9 backend 
+ but not if you are using bind9 with sdb_ldap.<br>Enter "<b>none</b>" to disable. 
+
+dn: ispmanVar=dnsSerialFormat, ispmanModule=dns_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: dnsSerialFormat
+ispmanVarAlias: DNS serial format
+ispmanModule: dns_vars
+objectclass: ispmanConfVar
+ispmanVal: date
+ispmanQuestion: DNS serial format to use ("<b>timestamp</b>" or "<b>date</b>")
+

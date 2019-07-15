@@ -1,0 +1,55 @@
+
+<HTML>
+<HEAD>
+<TITLE>ISPMan summary</TITLE>
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+
+
+</HEAD>
+
+<BODY>
+
+<TABLE border=0 class=table>
+
+<form method="POST">
+<perl>
+my $text="";
+my $dn="ispmanPid=".$r->param("ispmanPid").",".
+       $ispman->getSessionBranchDN($r->param("ispmanSession"));
+my $process=$ispman->getEntryAsHashRef($dn);
+my $editableAttributes={
+        ou => 0,
+        ispmanDomain => 0,
+        ispmanPid => 0,
+        ispmanProcess => 0,
+        ispmanProcess => 0,
+        ispmanUser => 1,
+        ispmanHostName => 1,
+        ispmanParams => 0,
+        ispmanSession => 0,
+        ispmanStatus => 1,
+        objectClass => 0
+};
+
+
+for (keys %$process){
+        $text.="<tr>";
+        $text.="<td class=menuheader>$_</td>";
+        $text.="<td>";
+        if ($editableAttributes->{$_}){
+                $text.="<input type=text name=$_ value='$process->{$_}'>";
+        } else {
+                $text.="<input type=hidden name=$_ value='$process->{$_}'>$process->{$_}";
+        }
+        
+        $text.="</td>";
+        $text.="<tr>";
+}
+
+$text
+</perl>
+     
+     </table>
+<input type=hidden name="mode" value="modifyProcess">
+<input type=submit class=button>
+     

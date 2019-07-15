@@ -1,0 +1,109 @@
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+<script src="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/js/ispman.js"></script>
+ <P>
+<table border=0>
+<form action="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/admin/index.cgi" method="POST" onsubmit="return CheckDomainForm(this)">
+
+<tr>
+    <td colspan=2>Please Select the Domain Type that you want to add</td>
+</tr>    
+<TR>
+    <td colspan=2>
+        <select name="ispmanDomainType">
+        <option value="primary">Primary domain (DNS will be managed by ISPMan)</option>
+        <option value="slave">Secondary domain (DNS will be managed by another Primary DNS server)</option>
+        <option value="replica">Replica domain (This domain points to another domain within ISPMan)</option>
+        <option value="nodns">No Dns Management for this domain</option>
+        </select>
+    </td>
+</tr>
+
+<tr>
+    <td>Domain Name</td>
+    <td>
+        <INPUT size=35 TYPE="TEXT" NAME="ispmanDomain" value="">
+    </td>
+</tr>    
+
+<tr>
+    <td>Domain Owner</td>
+    <td>
+        <INPUT size=35 TYPE="TEXT" NAME="ispmanDomainOwner" value="">
+    </td>
+</tr>
+
+<tr>
+    <td>Domain Customer</td>
+    <td>
+        <INPUT size=35 TYPE="TEXT" NAME="ispmanDomainCustomer" value="">
+    </td>
+</tr>
+
+<tr>
+    <td>Domain Client</td>
+    <td>
+        <select style="size: 45"  name=ispmanClientId>
+        
+        <perl>
+        my $text="";
+        $text="<option value=''>None</option>" if ($ispman->{'session'}->param("logintype") eq "admin");
+        my $clients=$ispman->getClients();
+        for (keys %$clients){
+        $text.=sprintf("<option value=%s>%s / %s</option>", $clients->{$_}{'ispmanClientId'}, $clients->{$_}{'ispmanResellerName'} , $clients->{$_}{'ispmanClientName'}) ;
+        }
+        $text
+        </perl>
+        </select>
+        
+            
+    
+    </td>
+</tr>
+
+<tr>
+    <td>Domain Services</td>
+    <td>
+        <SELECT MULTIPLE name=ispmanDomainServices>
+        <perl>
+        #my $services=$ispman->getConf("ispmanDomainServices");
+        my $services=$ispman->getDomainServices();
+        my $text="";
+        for (keys %$services){
+        
+            $text.="<OPTION ";
+            if ($services->{$_}{'ispmanDomainServiceDefault'} =~/yes/i){
+                $text.=" selected ";
+            }
+             $text.="VALUE='$services->{$_}{'ispmanDomainServiceName'}'>$services->{$_}{'ispmanDomainServiceAlias'} </option>\n";
+        }
+        $text
+        </perl>        
+        </select>
+        
+    </td>
+</tr>
+
+
+
+
+<tr>
+    <td colspan=2>Domain Comment</td>
+</tr>    
+<TR>
+    <td colspan=2>
+        <input type=text size=60 maxlength=255  name=ispmanDomainComment>
+    </td>
+</tr>
+
+
+
+
+
+<input type=hidden name="mode" value="newDomain">
+   <tr><td colspan=2 align=right>  
+        <input type=submit class="submit" value="Next >>">
+      </td></tr>
+   </form></table>
+ 
+ 
+

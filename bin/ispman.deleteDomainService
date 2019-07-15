@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    unless ( $ARGV[0] ) {
+        print "usage: $FindBin::Script  servicename\n";
+        exit;
+    }
+}
+use lib qw("$FindBin::Bin/../lib");
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+$ispman->deleteDomainService(@ARGV);

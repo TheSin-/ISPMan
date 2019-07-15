@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+# exaple script.
+# shows web users in domain
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'd', \%opts );
+    unless ( $opts{'d'} ) {
+        print "Usage: $FindBin::Script -d domain";
+        print "\n";
+        exit;
+    }
+}
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+
+showWebUsers( $opts{'d'} );
+
+sub showWebUsers {
+    my $domain = shift;
+    print "Web Users for $domain\n";
+    my $users = $ispman->getWebusers($domain);
+    print join "\n", keys %$users;
+    print "\n";
+}
+

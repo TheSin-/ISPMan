@@ -1,0 +1,53 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+use Sys::Hostname;
+$hostname = hostname();
+$VERBOSE=1;
+$NOEXEC=0;
+
+$|++;
+
+my $task=shift @ARGV;
+
+$task_func=join "_", ($task, "task");
+$task_dir=$FindBin::Bin . "/../tasks/";
+$task_file="$task_dir/$task_func\.pl";
+
+die "Task dir: $task_dir does not exists" unless (-d $task_dir);
+die "Task file: $task_file does not exists" unless (-e $task_file);
+
+do $task_file;
+
+my $pair="";
+my $pname="";
+my $pval="";
+my $phash={};
+
+for $pair(@ARGV) {
+ ($pname, $pval)=split(/\s*=\s*/, $pair);
+ $phash->{$pname}=$pval;
+}
+
+
+
+&{$task_func}($phash);
+
+
+## function called by the task scripts
+sub executeCommands{
+    my @commands=@_;
+    foreach $command(@commands) {
+        if ($VERBOSE) {
+            print "Command: $command\n";
+        }
+        unless ($NOEXEC){
+            system($command);
+        }
+    }
+}
+
+
+

@@ -1,0 +1,51 @@
+objectClass ( 1.3.6.1.4.1.8833.2.2.1202 NAME 'ispmanVirtualHost'
+	SUP top AUXILIARY
+	DESC 'Ispman http data'
+	MAY (  ispmanDomain $ 
+		ispmanVhostServerAlias $ 
+		ispmanVhostScriptDir $
+		ispmanVhostIpAddress $ 
+                ispmanVhostDocumentRoot $ 
+                ispmanVhostExtraConf $ 
+                ispmanVhostLogdir $
+                ispmanVhostDocumentRootOption $ 
+                ispmanVhostScriptDirOption $ 
+                webHost $ 
+                ispmanVhostStatdir $ 
+                ispmanVhostStats $
+                ispmanVhostName $ 
+                ispmanVhostFeature $
+                ispmanStatus $
+                ispmanCreateTimestamp $ 
+                fileHost $ 
+                DestinationAddress $ 
+                DestinationPort ))
+
+
+objectClass ( 1.3.6.1.4.1.8833.2.2.1203 NAME 'ispmanVirtualHostAcl'
+	SUP top STRUCTURAL
+	DESC 'objectClass for vHost ACLs'
+	MUST (ispmanVhostAclLocation $ ispmanVhostAclAllowUser $ ispmanVhostName $ ispmanDomain)
+        )
+
+
+objectClass ( 1.3.6.1.4.1.8833.2.2.1204 NAME 'ispmanVirtualHostRedirection'
+	SUP top STRUCTURAL
+	DESC 'objectClass for vHost Redirection URLs'
+	MUST (ispmanVhostRedirectLocation $ ispmanVhostRedirectURL $ ispmanVhostName $ ispmanDomain)
+        )
+
+objectClass ( 1.3.6.1.4.1.8833.2.2.1205 NAME 'ispmanVirtualHostUser'
+	SUP top STRUCTURAL 
+	DESC 'User/password pair that can be used to authentify to a web service'
+	MUST (ispmanDomain $ ispmanUserId $ userPassword )
+	MAY (ispmanVirtualHostUser)
+        )
+        
+
+objectClass ( 1.3.6.1.4.1.8833.2.2.1230 NAME 'ispmanVirtualHostAlias'
+	SUP top STRUCTURAL
+	DESC 'Alias to the vhost name'
+	MAY ( ispmanVhostServerAlias $ ou $ ispmanVhostName $ ispmanDomain)
+        )
+

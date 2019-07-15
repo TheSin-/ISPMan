@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'd', \%opts );
+    unless ( $opts{'d'} && $ARGV[0] ) {
+        print "$FindBin::Script -d domain transport";
+        print "\n";
+        exit;
+    }
+}
+
+use ISPMan;
+my $ispman = ISPMan->new();
+$ispman->setMailTransport( $opts{'d'}, @ARGV );
+

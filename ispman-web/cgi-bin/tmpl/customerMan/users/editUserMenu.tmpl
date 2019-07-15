@@ -1,0 +1,61 @@
+<html>
+<head>
+<LINK HREF="<perl>$customer->getConfig('ispmanUrlPrefix')</perl>/control_panel/style.css" REL="stylesheet" TYPE="text/css">
+</head>
+<body>
+<perl>$message</perl>
+
+
+
+
+<script>
+     function Delete(vhost){
+     if (confirm("Are you sure you want to permanently delete this virtualhost?")) 
+        self.location="<perl>$r->url</perl>?mode=deleteVhost&cn="+vhost;
+        //alert("<perl>$r->url</perl>?mode=deleteVhost&vhost="+vhost);
+        
+  }
+   function addUser(){
+         self.location="<perl>$r->url</perl>?mode=addDomainUser";
+   }
+   
+   function editUser(user){
+         self.location="<perl>$r->url</perl>?mode=editDomainUser&user="+user;
+   }
+   
+   function deleteUser(user){
+         self.location="<perl>$r->url</perl>?mode=deleteDomainUser&user="+user;
+   }
+   
+   function changePass(user){
+         if (pass=window.prompt("Please enter new password", "")){
+         self.location="<perl>$r->url</perl>?mode=changeDomainUserPass&user="+user+"&pass="+pass;
+        }
+   }
+</script>
+
+
+            
+<font face="Arial">
+
+<perl>
+        $r->param("message")
+</perl>
+
+
+<P>
+<form>
+<table border=1>
+
+<perl>
+    $text="";
+    my $user=$r->param("user");
+      $text.="<tr><td> $user</td>";
+      $text.=qq|<td><input type="button" value="Edit" onClick="editUser('$user')"></td>|;
+      $text.=qq|<td><input type="button" value="Change pass" onClick="changePass('$user')"></td>|;
+      $text.=qq|<td><input type="button" value="Delete" onClick="deleteUser('$user')"></td>|;
+      $text.="</tr>";
+$text
+</perl>
+</table>
+</form>

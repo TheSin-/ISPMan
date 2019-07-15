@@ -1,0 +1,382 @@
+#!/usr/bin/perl
+# the prefered way to run this tool is via daemon tools
+# see http://cr.yp.to/daemontools.html
+
+# when running with daemon tools
+# ispman-agent should be started with the argument nodetach
+# example /opt/ispman/bin/ispman-agent nodetach
+
+package ISPMan;
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+$|++;
+
+#use strict;
+use vars qw(
+  $VERSION $VERBOSE @ISA @EXPORT @EXPORT_OK $TEST
+  $name $hostname $hostnames $ispman  $domains
+);
+
+require Exporter;
+
+@ISA     = qw(Exporter AutoLoader);
+@EXPORT  = qw();
+$VERSION = '0.01';
+$VERBOSE = 1;
+
+use Data::Dumper;
+use File::Path;
+use Fcntl;
+use POSIX qw(tmpnam setsid);
+use Sys::Hostname;
+use Log::Agent;
+
+require "ispman.conf";
+
+$name        = "ispman-agent";
+$install_dir = $Config->{'installDir'};
+$TEST        = $Config->{'TEST'};
+
+# Determine hostname for which this agent proceses jobs.
+# Use the script ispman.myhostname to see how ispman-agent will see the hostname
+$hostname = hostname();    
+
+######## Additional hostnames by which this agent will    ################
+######## recognize processes for this host.               ################
+##########################################################################
+# If you want this host to be known by multiple names, define them in ispman.conf on this host.
+# This can happen after a machine upgrade etc or merger etc.
+# for example if the hostname is zhisp01 but your mailhost is/was set to mailhost1
+# and your webhost is/was set to webhost 1
+# you may define mailhost1 and webhost1 as additional hostnames for this machine
+# by setting the alias field via "Configure->Hosts" in the UI.
+
+my $pid_file =
+  ( $Config->{"pid_file"} =~ /\S/ ) ? $Config->{"pid_file"} : join "/",
+  ( $Config->{"installDir"}, "var/$hostname.ispman-agent.pid" );
+my $log_file =
+  ( $Config->{"log_file"} =~ /\S/ ) ? $Config->{"log_file"} : join "/",
+  ( $Config->{"installDir"}, "var/$hostname.ispman-agent.log" );
+
+my ( $pid, $job );
+
+if ( $ARGV[0] =~ /stop|restart|forcerestart/i ) {
+    unless ( -e $pid_file ) {
+        print "pid file $pid_file not found\n";
+        print "No ispman-agent processes running?\n";
+        print "Instead use $FindBin::Script start\n";
+        exit(0);
+    }
+
+    my $pid = `cat $pid_file`;
+    chomp $pid;
+    print "Shutting down $name\n";
+    kill 15, $pid;
+    print "killed process $pid\n";
+    print "Shutdown complete\n";
+    unlink $pid_file && exit(0) if $ARGV[0] =~ /stop/i;
+    unlink $pid_file if $ARGV[0] =~ /forcerestart/i;
+    sleep(1)         if $ARGV[0] =~ /restart/i;
+}
+
+if ( $ARGV[0] && ( $ARGV[0] =~ /stop|restart|forcerestart/i ) ) {
+    unless ( -e $pid_file ) {
+        print "pid file $pid_file not found\n";
+        print "No ispman-agent processes running?\n";
+        print "Instead use $FindBin::Script start\n";
+        exit(1);
+    }
+    $pid = `cat $pid_file`;
+    chomp($pid);
+    print "Shutting down $name\n";
+    kill 15, $pid;
+    print "killed process $pid\n";
+    print "Shutdown complete\n";
+    unlink $pid_file && exit(0) if lc( $ARGV[0] ) eq "stop";
+    unlink $pid_file if lc( $ARGV[0] ) eq "forcerestart";
+    sleep(1)         if lc( $ARGV[0] ) eq "restart";
+}
+
+$SIG{TERM} = sub {
+    unlink $pid_file;
+    exit(0);
+};
+
+if ( -e $pid_file ) {
+    print "pid file already exists? unclean shutdown?\n";
+
+    # This shouldn't exit here but it should perhaps use a killall $name ?
+    #exit(1);
+}
+
+sub init_log {
+    require Log::Agent::Driver::File;    # logging made to file
+    logconfig(
+        -driver => Log::Agent::Driver::File->make(
+            -prefix   => $name,
+            -showpid  => $pid,
+            -channels => {
+                'error'  => "$log_file",
+                'output' => "$log_file",
+                'debug'  => "$log_file",
+            },
+        )
+    );
+
+}
+
+sub daemonize {
+    defined( my $pid = fork ) or die "Can't fork: $!";
+    if ($pid) {
+        open( "PID", ">$pid_file" );
+        print PID "$pid\n";
+        close("PID");
+        print "Process forked. ";
+        print "pid is $pid\nUsing pidfile $pid_file\n";
+        setsid or die "Can't start a new session: $!";
+        exit 0;    # I am the parent
+    }
+}
+
+if ( $ARGV[0] ne "nodetach" ) {
+    daemonize();
+}
+
+init_log;
+
+require ISPMan;
+import ISPMan;
+
+$ispman = ISPMan->new();
+
+$agentFrequency = $ispman->getConf("agentFrequency") || 1;
+$ldapBaseDN     = $ispman->getConf('ldapBaseDN');
+
+# get all host aliases
+my $hostInfo = $ispman->getHostInfo($hostname);
+if ( defined($hostInfo) ) {
+    @hostnames = $ispman->as_array( $hostInfo->{'ispmanHostAlias'} );
+}
+push @hostnames, $hostname;
+
+# Stanislav Sinyagin <ssinyagin@yahoo.com>
+# Jobs are ordered by priority. #1 goes first.
+# Default priority is 100.
+%jobPriorities = (
+    'createMailbox'                => 1,
+    'createDomainDirectories'      => 10,
+    'AddVirtualHostDirectories'    => 11,
+    'AddVirtualHost'               => 12,
+    'createHomeDirectory'          => 13,
+    'createMailbox'                => 14,
+    'setMailboxQuota'              => 15,
+    'deleteHomeDirectory'          => 20,
+    'DeleteVirtualHostDirectories' => 21,
+    'deleteDomainDirectories'      => 22,
+    'deleteMailbox'                => 23
+);
+
+sub jobPriority {
+    my $job = shift;
+    return ( defined( $jobPriorities{$job} ) ? $jobPriorities{$job} : 100 );
+}
+
+$ispman = ISPMan->new();
+
+while (true) {
+
+    if (!$ispman->ldap_ping()){
+       print "LDAP connection has failed. Reconnecting...";
+       $ispman->{'ldap'}->connect(true);
+    }
+
+    $processes = $ispman->getProcessesForHost( \@hostnames );
+    my $processHash;
+    my ( $domain, $params, $process );
+    my $message = "";
+
+    for ( keys %$processes ) {
+        $domain  = $processes->{$_}{'ispmanDomain'};
+        $params  = $processes->{$_}{'ispmanParams'} || "";
+        $process = $processes->{$_}{'ispmanProcess'};
+        $pid     = $_;
+        push @{ $processHash->{$domain}{$process}{$params} }, $pid;
+    }
+
+    #Only Dump the process data if debug is more than 2
+    print Dumper($processHash)
+      if $processHash && $ispman->{'Config'}{'debug'} > 2;
+
+    for $domain ( keys %$processHash ) {
+        for $job (
+            sort { jobPriority($a) <=> jobPriority($b) }
+            keys %{ $processHash->{$domain} }
+          )
+        {
+            for $params ( keys %{ $processHash->{$domain}{$job} } ) {
+                logsay("Doing $job on $domain with parameters $params");
+
+                # Make a hash from params
+                my @pairs = ();
+                my $pair  = "";
+                my $pname = "";
+                my $pval  = "";
+                my $phash = {};
+
+                @pairs = split( '&', $params );
+                for $pair (@pairs) {
+                    ( $pname, $pval ) = split( /\s*=\s*/, $pair );
+                    $phash->{$pname} = $pval;
+                }
+                $phash->{'domain'} = $domain;
+                $message = &{$job}($phash);
+                if ( $message == 1 ) {
+                    $ispman->deleteProcesses(
+                        $processHash->{$domain}{$job}{$params} );
+                }
+                else {
+                    $ispman->updateProcess(
+                        $processHash->{$domain}{$job}{$params},
+                        "error", $message );
+                }
+
+            }
+        }
+    }
+
+    if ($TEST) {
+        logsay( "Sleeping for ", 2 * $agentFrequency, " seconds" );
+        sleep( 2 * $agentFrequency );
+
+    }
+    else {
+        sleep( 60 * $agentFrequency );
+    }
+
+}
+
+## function called by the task scripts
+sub executeCommands {
+    $NOEXEC = 0;
+    my @commands = @_;
+    my $errs     = 0;
+    foreach $command (@commands) {
+        my $rc = -1;
+
+        unless ($NOEXEC) {
+            $rc = system($command);
+        }
+        logsay( "Command=\"$command\", rc=" . $rc );
+
+        $errs += ( $rc != 0 );
+
+    }
+    return $errs;
+}
+
+sub AUTOLOAD {
+    my $self = shift;
+    my $type = ref($self);
+    my $params;
+    my $retVal;
+
+    if ( $type eq "HASH" ) {
+        $params = $self;
+    }
+    else {
+        $params = shift;
+    }
+
+    our @cmd = ();
+
+    my $name = $AUTOLOAD;
+    $name =~ s/.*://;    # strip fully-qualified portion
+    $text = "You tried to call $name with ";
+    $text .= join ",", map { "$_=$params->{$_}" } keys %$params;
+    $text .= "\n";
+
+    $task_func = join "_", ( $name, "task" );
+    $task_dir  = $FindBin::Bin . "/../tasks/";
+    $task_file = "$task_dir/$task_func\.pl";
+
+    $text .= "Task dir: $task_dir does not exists"   unless ( -d $task_dir );
+    $text .= "Task file: $task_file does not exists" unless ( -e $task_file );
+
+    if ( -f $task_file ) {
+        do $task_file;
+        $retVal = &{$task_func}($params);
+    }
+    else {
+        print $text;
+    }
+    if ( $retVal == 0 ) {
+        return $text;
+    }
+
+    my $errs = executeCommands(@cmd);
+    if ( $errs == 0 ) {
+        return 1;
+    }
+    else {
+        return "There were $errs errors on\n" . join( "\n", @cmd );
+    }
+}
+
+sub DESTROY {
+    close("STDERR");
+}
+__END__
+
+=head1 NAME
+
+ISPMan::Agent - Agent to monitor LDAP server for processes and execute them
+
+=head1 SYNOPSIS
+
+   to start
+     ispman-agent start  
+   
+   to restart
+     ispman-agent restart  
+   
+   to stop
+     ispman-agent stop  
+     
+   to start in foreground
+     ispman-agent nodetach
+     This is useful if you are running ispman-agent under daemontool's supervisor
+     Highly recommended
+
+   to force restart after a crash
+     ispman-agent forcerestart
+     This will remove the existing PID file and start ispman-agent instance.
+
+
+
+
+=head1 DESCRIPTION
+
+This agent runs as a daemon and checks periodically for processes, in the LDAP server.
+If it finds any then it deletes them after performing the task.
+
+
+=head1 AUTHOR
+
+Atif Ghaffar <atif@developer.ch>
+
+=head1 CONTRIBUTORS
+
+Justin F. Hallett <thesin@southofheaven.org>
+Stanislav Sinyagin <ssinyagin@yahoo.com>
+
+=head1 SEE ALSO
+
+perl(1).
+
+=cut
+

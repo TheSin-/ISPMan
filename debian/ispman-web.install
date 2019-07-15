@@ -1,0 +1,6 @@
+cgi-bin usr/share/ispman
+htdocs usr/share/ispman
+conf/nls.conf etc/ispman
+conf/locale etc/ispman
+
+

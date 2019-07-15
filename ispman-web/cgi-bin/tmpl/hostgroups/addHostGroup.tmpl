@@ -1,0 +1,44 @@
+<script language="Javascript">
+function checkHostGroupName(str){
+        if (str.indexOf(" ")!=-1) {
+                alert("You cannot have spaces in a hostGroupName");
+                return false;
+        } else {
+                return true;                
+        }
+                        
+                        
+}
+</script>
+
+<form onsubmit="return checkHostGroupName(this.cn.value)">
+<table>
+<tr>
+    <td>
+        <perl>_("Host group name")</perl>
+    </td>
+    <td>
+        <INPUT TYPE="TEXT" NAME=cn>
+    </td>
+</tr>
+<tr>
+    <td>
+        <perl>_("Host group Description")</perl>
+    </td>
+    <td>
+        <textarea name=description cols=30 rows=5 wrap=virtual></textarea>
+    </td>
+</tr>
+
+<tr>
+  <td align=right colspan=2>
+    <input type=hidden name="mode" value="addHostGroup">
+	<input type=button class="button" onClick="self.location='<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=configure'" value="<perl>_("Back")</perl>">
+    <input type=button class="button" onClick="document.forms[0].reset()" value="<perl>_("Reset")</perl>">
+    <input type=button class="button" onClick="document.forms[0].submit()" value="<perl>_("Add hostgroup")</perl>">
+  </td>
+</tr>
+</table>
+</form>
+ 
+ 

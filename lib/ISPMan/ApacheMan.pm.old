@@ -1,0 +1,653 @@
+=head1 NAME
+ISPMan::ApacheMan- Takes care of apache vhosts creation/modification
+
+
+
+=head1 SYNOPSIS
+
+	dont use this module directly.
+	use ISPMan instead.
+
+
+   
+
+=head1 DESCRIPTION
+
+
+   This module manages vhosts related functions such as 
+   addVhost
+   deleteVhost
+   updateVhost
+   getVhostInfo
+   getVhostCount
+	addVhostProcess
+   etc
+   
+
+   It only adds data to the LDAP directory.
+   The actual vhosts.conf is done by ispman-agent or script ldap2apache
+
+
+=head1 METHODS
+
+
+=over 4
+
+=cut
+
+package ISPMan::ApacheMan;
+
+use strict;
+use vars qw($VERSION @ISA @EXPORT @EXPORT_OK $Config);
+require Exporter;
+@ISA = qw(ISPMan Exporter AutoLoader);
+use ISPMan::ApacheMan::Redirects;
+use ISPMan::ApacheMan::Acls;
+use ISPMan::ApacheMan::Aliases;
+
+push @EXPORT, @ISPMan::ApacheMan::Redirects::EXPORT;
+push @EXPORT, @ISPMan::ApacheMan::Acls::EXPORT;
+push @EXPORT, @ISPMan::ApacheMan::Aliases::EXPORT;
+
+
+push @EXPORT , qw(
+getVhostsBranchDN
+getVhostDN
+getApacheVhosts
+createVhost
+editVhost
+updateVhost
+suspendVhost
+suspend_vhost
+unsuspendVhost
+unsuspend_vhost
+addVhost
+newVhost
+deleteVhost
+getVhostInfo
+getVhostCount
+getVhostsCount
+delete_vhost
+update_vhost
+addVhostProcess
+addVirtualHostDirectoriesProcess
+changeVhostPassword
+getVhostAttribute
+setVhostAttribute 
+);
+$VERSION = '0.01';
+
+
+
+
+sub editVhost {
+   my $self=shift;
+   my $r=shift;
+   my $dn;
+   if ($r->param("dn")) {
+       $dn=$r->param("dn");
+   } else {
+       $dn=$self->getVhostDN($r->param("ispmanDomain") , $r->param("ispmanVhostName"));
+   }
+
+   $self->{'vhost'}=$self->getVhostInfo($dn);
+   my $vhostDN=$self->getVhostDN($r->param("ispmanDomain"), $r->param("ispmanVhostName"));
+
+   my $template;
+   my $tmpl;
+   my $text=$self->getTemplate("vhosts/edit_header.tmpl")->fill_in(PACKAGE => "ISPMan");
+
+   if ($self->isDomainEditable($r->param("ispmanDomain"))) {
+       $tmpl=($r->param("section"))? join "_", ("edit", $r->param("section")) : "edit";
+       $template=$self->getTemplate("vhosts/$tmpl\.tmpl");
+   } else {
+       $template=$self->getTemplate("vhosts/view.tmpl");
+   }
+   $text.=$template->fill_in(PACKAGE => "ISPMan");
+   print $text;
+}
+
+
+
+
+
+sub getApacheVhosts {
+   my $self=shift;
+   my $dn=shift;
+
+   unless ($dn=~/^(ispmanVhostName|ou=)/){
+      #its a domain name instead
+        $dn=$self->getVhostsBranchDN($dn);
+    }
+   my $vhostsHash=$self->getEntriesAsHashRef($dn, "objectclass=ispmanVirtualHost", ["ispmanVhostName"]);
+   my $vhosts;
+   for (keys %$vhostsHash) {
+      $vhosts->{$vhostsHash->{$_}{'ispmanVhostName'}}=$_;
+   }
+   return $vhosts;
+}
+
+
+
+sub updateVhost{
+   my $self=shift;
+   my $r=shift;
+   if ($self->update_vhost($r)) {
+	   $self->editVhost($r);
+	}
+}
+
+sub suspendVhost {
+   my $self=shift;
+   my $r=shift;
+   if ($self->suspend_vhost($r->param("ispmanDomain"), $r->param("ispmanVhostName"))) {
+	   $self->editVhost($r);
+	}
+}
+
+sub unsuspendVhost {
+   my $self=shift;
+   my $r=shift;
+   if ($self->unsuspend_vhost($r->param("ispmanDomain"), $r->param("ispmanVhostName"))) {
+	   $self->editVhost($r);
+	}
+}
+
+
+sub suspend_vhost {
+   my $self=shift;
+   my ( $domain , $vhost)=@_;
+   my $dn=$self->getVhostDN($domain, $vhost);
+   $self->updateEntryWithData($dn, {'FTPStatus' => 'disabled', 'ispmanStatus' => "suspended"});
+   $self->addVhostProcess($domain, $vhost, "ModifyVirtualHost", $vhost);
+
+   return 1;
+}
+
+sub unsuspend_vhost {
+   my $self=shift;
+   my ( $domain , $vhost)=@_;
+   my $dn=$self->getVhostDN($domain, $vhost);
+   $self->updateEntryWithData($dn, {'FTPStatus' => 'enabled', 'ispmanStatus' => "active"});
+   $self->addVhostProcess($domain, $vhost, "ModifyVirtualHost", $vhost);
+
+   return 1;
+}
+
+sub update_vhost {
+   my $self=shift;
+   my $r=shift;
+    my $dn=$self->getVhostDN($r->param("ispmanDomain"), $r->param("ispmanVhostName"));
+
+   my $domain=$r->param("ispmanDomain");
+   my $domain_info=$self->getDomainInfo($domain);
+
+   
+   if ($r->param("ispmanVhostServerAlias")){
+      my $serveralias=[split(/\s\s*/, $r->param("ispmanVhostServerAlias"))];
+      $r->param("ispmanVhostServerAlias", $serveralias) if $serveralias;
+   } else {
+      $r->param("ispmanVhostServerAlias", " ");
+   }
+   
+   my $data={};
+
+   for (qw(ispmanVhostServerAlias ispmanVhostExtraConf ispmanVhostIpAddress
+           ispmanVhostDocumentRoot ispmanVhostScriptDir
+           FTPQuotaMBytes FTPStatus ispmanVhostStats ispmanVhostLogdir
+           ispmanVhostStatdir)) {
+      if (defined $r->param($_)) {
+          $data->{$_}=$r->param($_);
+      } else {
+          $data->{$_}="";
+      }
+   }
+   
+   $data->{'userPassword'}=$self->encryptPassWithMethod($r->param("userPassword"),$self->getConf('userPassHashMethod'));
+   #update the objectclasses if they are different
+   $data->{'objectClass'}=$self->{'Config'}{'ispmanVhostObjectclasses'};
+
+   for (qw(ispmanVhostDocumentRootOption ispmanVhostScriptDirOption)) {
+      if ($r->param($_)) {
+            $data->{$_}=[$r->param($_)];
+      } else {
+         $data->{$_}="";
+      }
+   }
+    
+   
+   if ($self->{'ldap'}->updateEntryWithData($dn, $data)){
+      $self->addVhostProcess($r->param("ispmanDomain"), $r->param("ispmanVhostName"), "ModifyVirtualHost", $r->param("ispmanVhostName"));
+   }
+
+    return 1;
+}
+
+
+
+
+sub createVhost {
+   my $self=shift;
+   my $r=shift;
+   my $dn=$r->param("dn");
+   my $template;
+
+   $self->{'domain'}=$self->getDomainInfo($r->param("ispmanDomain"));
+
+   if ($self->isDomainEditable($r->param("ispmanDomain"))) {
+      $template=$self->getTemplate("vhosts/add.tmpl");
+   } else {
+      $template=$self->getTemplate("ro.tmpl");
+   }
+   print $template->fill_in(PACKAGE => "ISPMan");
+}
+
+
+
+sub newVhost{
+   my $self=shift;
+   my $r=shift;
+   if ($self->addVhost($r)){
+      print $self->refreshSignal($r->param("ispmanDomain"));
+      $self->editVhost($r);
+   };
+}
+
+
+
+
+sub addVhost{
+   my $self=shift;
+   my $r=shift;
+   my $ispmanVhostName=$r->param("ispmanVhostName");
+   $ispmanVhostName=lc($ispmanVhostName);
+   $ispmanVhostName=~s/[^a-zA-Z0-9\.-]//g;
+   my ($vhostIp,$vhostPort)=split ":", $r->param("ispmanVhostIpAddress");
+   $r->param("ispmanVhostName", $ispmanVhostName);
+   my $domain=$r->param("ispmanDomain");
+   my $domain_info=$self->getDomainInfo($domain);
+   my $dn=$self->getVhostDN($domain, $ispmanVhostName);
+   $r->param("dn", $dn);
+   
+   my $domainMaxVhosts = $self->getDomainAttribute($domain,"ispmanMaxVhosts");
+   my $domainVhostCount = $self->getVhostCount($domain);
+   
+   if ($domainMaxVhosts>0 && $domainVhostCount >= $domainMaxVhosts) {
+   	  $self->{'message'}="Max vhosts limit exceeded. <br>Your limit is $domainMaxVhosts <br>You cannot create any more vhosts.";
+   	  print $self->{'message'};
+   	  return;
+   }
+   
+
+   $self->prepareBranchForDN($self->getVhostsBranchDN($domain));
+   
+   my $documentrootoptions=$self->as_arrayref($r->param("ispmanVhostDocumentRootOption"));
+   my $scriptdiroptions=$self->as_arrayref($r->param("ispmanVhostScriptDirOption"));;
+   my $webhosts=$self->as_arrayref($r->param("webHost"));
+   if ($self->isEmpty($webhosts)){
+       # This can happen. For example from CCP
+       $webhosts=$self->getDefaultWebHost($domain);
+   }
+
+   unless ($webhosts){
+       print "The webhost for $ispmanVhostName cannot be determined!<br>Please check DefaultFileHost for domain $domain!\n";
+       return;
+   }
+   
+
+
+   if ($r->param("ispmanVhostServerAlias")) {
+      my $serveralias=[split(/\s\s*/, $r->param("ispmanVhostServerAlias"))];
+      $r->param("ispmanVhostServerAlias", $serveralias) if $serveralias;
+   } else {
+      $r->param("ispmanVhostServerAlias", " ");
+   }
+
+   my $data;
+   $data ={
+            "objectClass" => $self->{'Config'}{'ispmanVhostObjectclasses'},
+            "ispmanVhostName" =>  $r->param("ispmanVhostName"),
+            "cn" => (join '.', ($r->param("ispmanVhostName"), $domain)),
+            'uidNumber' => $self->getUid(),
+            'gidNumber' => $domain_info->{'gidNumber'},
+            "ispmanDomain" => $domain,
+            "loginShell" => $self->getConf('loginShell'),
+            "uid" => (join '.' , ($r->param("ispmanVhostName"), $r->param("ispmanDomain"))),
+            "homeDirectory" => $r->param("homeDirectory") ||
+		(join "/",($domain_info->{'homeDirectory'},
+			   "vhosts",
+			   $r->param("ispmanVhostName"))),
+            "userPassword" => $self->encryptPassWithMethod($r->param("userPassword"),$self->getConf('userPassHashMethod')),
+            "ispmanVhostServerAlias" => $r->param("ispmanVhostServerAlias") || "",
+            "FTPStatus" => $r->param("FTPStatus") || "",
+            "ispmanVhostStats" => $r->param("ispmanVhostStats") || "",
+            "FTPQuotaMBytes" => $r->param("FTPQuotaMBytes") || "",
+            "ispmanVhostDocumentRootOption" => $documentrootoptions || "",
+            "ispmanVhostScriptDirOption" => $scriptdiroptions || ""
+   };
+   
+   $data->{"ispmanVhostExtraConf"} = $r->param("ispmanVhostExtraConf") if $r->param("ispmanVhostExtraConf");
+   $data->{"ispmanVhostDocumentRoot"} = $r->param("ispmanVhostDocumentRoot") || "htdocs";
+   $data->{"ispmanVhostScriptDir"} =  $r->param("ispmanVhostScriptDir") || "cgi-bin";
+   $data->{"ispmanVhostIpAddress"} = $r->param("ispmanVhostIpAddress") || $self->getConf("apacheVhostsIP") || "*";
+   $data->{"webHost"} = $webhosts;
+   $data->{"fileHost"} = $r->param("fileHost")  || $domain_info->{'ispmanDomainDefaultFileServer'};
+   $data->{"DestinationAddress"} = $r->param("fileHost")  || $domain_info->{'ispmanDomainDefaultFileServer'};
+
+   my $substmap={
+       vhost => $r->param("ispmanVhostName"),
+       domain => $r->param("ispmanDomain")};
+
+   # process ispmanVhostLogdir
+   if ($r->param("ispmanVhostLogdir")) {
+       $data->{"ispmanVhostLogdir"} = $r->param("ispmanVhostLogdir");
+   } else {
+       $data->{"ispmanVhostLogdir"} = $self->substitute($self->getConf('apacheLogsDirectory'),$substmap);
+   }
+
+   # process ispmanVhostStatdir
+   if ($r->param("ispmanVhostStatdir")) {
+       $data->{"ispmanVhostStatdir"} = $r->param("ispmanVhostStatdir");
+   } else {
+       $data->{"ispmanVhostStatdir"} = $self->substitute($self->getConf('apacheStatDirectory'),$substmap);
+   }
+
+   # write data to LDAP
+   if (! $self->addNewEntryWithData($dn, $data)){ return 0};
+
+   # add new A-record for webhost(s) if domain is primary
+   if ($domain_info->{'ispmanDomainType'} eq "primary"){
+       if ($#$webhosts==0){
+	   
+	   # only single webhost is defined
+	   # (ispmanVhostIpAddress overrides webhost ip)
+	   my $ip=(($r->param("ispmanVhostIpAddress") eq "*") ? 
+		   $self->getHostIp(@$webhosts[0]) : $vhostIp);
+	   $self->addVhostDNSRecord($r->param("ispmanDomain"),
+				    $r->param("ispmanVhostName"),
+				    $ip);
+       } else {
+	   
+	   # multiple webhosts are defined
+	   # (apacheVhostsVIP overrides webhost ips)
+	   
+	   if ($self->getConf("apacheVhostsVIP")=~/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/){
+	       $self->addVhostDNSRecord($r->param("ispmanDomain"),
+					$r->param("ispmanVhostName"),
+					$self->getConf("apacheVhostsVIP"));
+	   } else {
+	       
+	       # this will create multiple a-records which
+	       # will act as simple round-robin loadbalancing.
+	       # Change them manually for proper hardware loadbalancing!
+	       for (@$webhosts){
+		   $self->addVhostDNSRecord($r->param("ispmanDomain"),
+					    $r->param("ispmanVhostName"),
+					    $self->getHostIp($_));
+	       }
+	   }
+       }
+   }
+	
+   # add process for each webhost
+   for (@$webhosts){
+       $self->addProcessToHost($r->param("ispmanDomain"),
+			       $_,
+			       "AddVirtualHost",
+			       $r->param("ispmanVhostName"));
+   }
+
+   # add process for vhost directory creation
+   $self->addVirtualHostDirectoriesProcess(
+               $r->param("ispmanDomain"), 
+               $r->param("ispmanVhostName"),
+               "AddVirtualHostDirectories",
+            join ",", (
+               $r->param("ispmanVhostName"), 
+               $data->{'homeDirectory'}, 
+               $data->{"ispmanVhostDocumentRoot"}, 
+               $data->{"ispmanVhostScriptDir"}, 
+               $data->{'uidNumber'}, 
+               $data->{'gidNumber'},
+               $data->{"ispmanVhostLogdir"},
+               $data->{"ispmanVhostStatdir"}
+               ));
+   return 1;
+}
+
+
+
+sub getVhostDN {
+   my $self=shift;
+   my ($domain, $vhost)=@_;
+   return join ",", ("ispmanVhostName=$vhost", $self->getVhostsBranchDN($domain));
+
+}
+
+sub getVhostsBranchDN {
+   my $self=shift;
+   my $domain=shift;
+   return join  (",",  "ou=httpdata", "ispmanDomain=$domain", $self->getConf('ldapBaseDN'));
+}
+
+
+
+sub delete_vhost {
+   my $self=shift;
+   my ($ispmanVhostName, $ispmanDomain)=@_;
+   my $dn=$self->getVhostDN($ispmanDomain, $ispmanVhostName);
+   if ($self->branchExists($dn)) {
+      my $vhostInfo=$self->getVhostInfo($ispmanVhostName, $ispmanDomain);
+      my $domainInfo=$self->getDomainInfo($ispmanDomain);
+      
+      # first we add the process to delete the directories
+      $self->addVirtualHostDirectoriesProcess(
+         $ispmanDomain, 
+         $ispmanVhostName, 
+         "DeleteVirtualHostDirectories",
+         join ",", (
+            $ispmanVhostName, 
+            $vhostInfo->{'homeDirectory'}, 
+            $vhostInfo->{"ispmanVhostDocumentRoot"}, 
+            $vhostInfo->{"ispmanVhostScriptDir"},
+            $vhostInfo->{"ispmanVhostLogdir"},
+            $vhostInfo->{"ispmanVhostStatdir"}
+            )
+         );
+
+      $self->addVhostProcess($ispmanDomain, $ispmanVhostName, "DeleteVirtualHost", $ispmanVhostName);
+      # Delete the A Record from DNS for this vhost
+      # It will only be deleted if it was added bythis vhost process
+      if ($self->deleteVhostDNSRecord($ispmanDomain, $ispmanVhostName)>=0) {
+	  $self->modifyDnsProcess($ispmanDomain);
+      }
+      
+
+      if ($self->delTree($dn)) {
+         return 1;
+      }
+   } else {
+      print "Vhost $ispmanVhostName does not exists under $ispmanDomain\n";
+   }
+      
+
+}
+
+
+sub deleteVhost{
+   my $self=shift;
+   my $r=shift;
+   if ($self->delete_vhost($r->param("ispmanVhostName"), $r->param("ispmanDomain"))) {
+      print $self->refreshSignal($r->param("ispmanDomain"));
+      print "Virtualhost ",  $r->param("ispmanVhostName"), " scheduled for deletion";
+      return 1;
+   } else {
+      print "Error: ISPMan::ApacheMan::deleteVhost. Could not delete entry ";
+   }
+}
+
+
+
+
+sub getVhostInfo {
+
+=item B<getVhostInfo>
+
+returns a hash with information about virtualhost
+
+
+usage
+
+either pass it vhost name and domain
+
+Example:
+
+my $vhostInfo=$ispman->getVhostInfo("www", "apache.org");
+
+
+or pass it the complete dn
+
+my $vhostInfo=$ispman->getVhostInfo("ispmanVhostName=www, ou=httpdata, ispmanDomain=apache.org, o=ispman");
+
+
+
+=cut
+
+   my $self=shift;
+   my $ispmanVhostName=shift;
+   my $domain=shift;
+   my $dn;
+
+   if  ($ispmanVhostName !~ /^ispmanVhostName=/){
+      $dn="ispmanVhostName=$ispmanVhostName, ou=httpdata, ispmanDomain=$domain, ";
+      $dn.=$self->getConf("ldapBaseDN");
+   } else {
+      # we have been passed a dn
+      $dn=$ispmanVhostName;
+   }
+
+
+   #uncomment this block  if you want it to cache the result
+   #unless ($self->{'vhostInfo'}{$domain}{$ispmanVhostName}){
+      $self->{'vhostInfo'}{$domain}{$ispmanVhostName}=$self->getEntryAsHashRef($dn);
+   #}
+   return $self->{'vhostInfo'}{$domain}{$ispmanVhostName};
+}
+
+
+
+sub getVhostsCount {
+   my ($self)=@_;
+   return $self->getCount($self->getConf('ldapBaseDN'),  "&(objectclass=ispmanVirtualHost)");
+}
+
+
+
+sub getVhostCount {
+
+=item B<getVhostCount>
+
+	Returns number of vhosts in a domain.
+	
+	Accepts domain name as argument.
+
+	example:
+
+	print $ispman->getVhostCount("developer.ch");
+
+=cut
+
+
+   my $self=shift;
+   my $domain=shift;
+   my $base=join ",", ("ou=httpdata", "ispmanDomain=$domain", $self->getConf("ldapBaseDN"));
+   return $self->getCount($base, "objectclass=ispmanVirtualHost");
+}
+
+
+sub addVhostProcess {
+	my $self=shift;
+	my ($domain, $vhost, $process, $param)=@_;
+	my $vhostInfo=$self->getVhostInfo($vhost, $domain);
+	my @webHosts=$self->as_array($vhostInfo->{'webHost'});
+	
+	unless (@webHosts){
+		# No webHosts defined.
+		
+		my $_webhost;
+				 
+		if ($_webhost=$self->getDefaultWebHost($domain)){
+			push @webHosts, $_webhost;
+		} else {
+			print "No host in webserver is the group found. \nYou cannot add vhosts untill you define some hosts in the httpgroup\n";
+			return;
+		}
+	}
+
+ 
+	foreach (@webHosts){
+		$self->addProcessToHost($domain, $_, $process, $param);
+	}	
+}
+
+
+sub addVirtualHostDirectoriesProcess {
+   # The admin can choose where the files for this vhost live.
+   # The can be on the fileserver, webserver etc.
+   # so according to fileHost, we 
+   # create web directory
+   # delete web direcory
+   
+   my $self=shift;
+   my ($domain, $vhost, $process, $param)=@_;
+   my $vhostInfo=$self->getVhostInfo($vhost, $domain);
+
+
+   if ($vhostInfo->{'fileHost'}){
+      $self->addProcessToHost($domain, $vhostInfo->{'fileHost'} , $process, $param);
+   } else {
+      $self->addProcessToGroup($domain, 'fileservergroup' , $process, $param);
+   }
+}
+
+
+sub changeVhostPassword {
+   my $self=shift;
+   my ($vhost, $domain, $pass)=@_;
+
+   my $dn=$self->getVhostDN($domain, $vhost);
+   
+   my $data={};
+   $data->{'userPassword'}=$self->encryptPassWithMethod($pass,$self->getConf('userPassHashMethod'));
+   return $self->updateEntryWithData($dn, $data);
+}
+
+
+
+
+sub getVhostAttribute {
+	my $self=shift;
+	my ($domain, $vhost, $attribute)=@_;	
+	my $dn=$self->getVhostDN($domain, $vhost);
+	return unless $self->entryExists($dn);
+
+
+	my $entry=$self->getEntry($dn, 'objectclass=*', $attribute);
+   
+   return $self->get_attr_value($entry, $attribute);
+
+}
+
+sub setVhostAttribute {
+	my $self=shift;
+	my ($domain, $vhost, $attribute, @values)=@_;
+	my $value=$self->as_arrayref(@values);
+	my $dn=$self->getVhostDN($domain, $vhost);
+	$self->modifyAttribute($dn, $attribute, $value);
+}
+
+1;
+
+
+__END__
+

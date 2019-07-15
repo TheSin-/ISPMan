@@ -1,0 +1,8 @@
+# ldap search for relay_recipient_maps
+version = 3
+server_host = ldap.example.com
+server_port = 389
+search_base = o=ispman
+query_filter = (|(mailLocalAddress=%s)(mailAlias=%s))
+# the result atribute can be anything except an empty value
+result_attribute = mailRoutingAddress

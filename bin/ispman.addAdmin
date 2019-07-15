@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'flmp', \%opts );
+    unless ( $opts{'l'} && $opts{'p'} && $ARGV[0] ) {
+        print "$FindBin::Script -l level [-f fullname]  [-m email] -p password uid";
+        print "\n";
+        exit;
+    }
+}
+
+
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+
+$ispman->_addAdmin( $ARGV[0], map { $opts{$_} } qw(p l f m) )
+

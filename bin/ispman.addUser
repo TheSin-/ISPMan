@@ -1,0 +1,124 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'qdflmph', \%opts );
+    unless ( $opts{'d'} && $ARGV[0] ) {
+        print "$FindBin::Script options username\n";
+        print "\nRequired options:\n";
+        print " -d domain\n";
+        print "\nOther options:\n";
+        print " -f firstname\n";
+        print " -l lastname\n";
+        print " -h filehost\tHost where the homeDirectory is created\n";
+        print " -m mailhost\tHost where the mailbox is created\n";
+        print " -q mailquota\tin MB\n";
+        print " -p password\n";
+        print "\n";
+        print
+"If -h fileHost is not provided then the default fileserver for this domain will be used\n";
+        print
+"  If there is no default fileserver for this domain then the first from the list \n";
+        print "  of fileservers will be used\n\n";
+
+        print
+"If -m maildropserver is not provided then the default maildrop server for this domain will be used\n";
+        print
+"  If there is no default maildropserver for this domain then the first from the list \n";
+        print "  of maildropservers will be used\n";
+        print
+"If you do not want to create a mailbox for this user then use -m none\n\n";
+
+        print
+"if -p password is not provided then 'secret' will be used as the password\n";
+        print "\n";
+        exit;
+    }
+}
+
+use ISPMan;
+use CGI;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+$user   = shift @ARGV;
+
+my $r = new CGI();
+
+# provide defaults when unset
+$opts{'f'} ||= $user;
+$opts{'l'} ||= $user;
+$opts{'p'} ||= "secret";
+
+# fill parameters for addUser
+$r->param( "givenName",    $opts{"f"} );
+$r->param( "sn",           $opts{"l"} );
+$r->param( "ispmanDomain", $opts{"d"} );
+$r->param( "uid",          $user );
+$r->param( "userPassword", $opts{"p"} );
+$r->param( "mailQuota",    $opts{"q"} ) if $opts{"q"};
+
+# check domain
+my $domain = $ispman->getDomainInfo( $opts{'d'} );
+
+unless ($domain) {
+    print "unknown domain \"$opts{'d'}\"!\n";
+    exit 1;
+}
+
+# If we don't want to create a mailbox for this user we
+# can specify -m none  perhaps for just mailforwardings
+unless ( $opts{"m"} eq "none" ) {
+    if ( $opts{"m"} ) {
+
+        # there should be some checking here that value of -m is actually
+        # a host defined in LDAP
+        $r->param( "mailHost", $opts{"m"} );
+
+    }
+    elsif ( $_mailhost = $ispman->getDefaultMailHost( $opts{'d'} ) ) {
+
+        # see if there is a ispmanDomainDefaultMailDropHost defined
+        # for this domain
+        $r->param( "mailHost", $_mailhost );
+
+    }
+    else {
+
+        # all failed. die with warning
+        print "Automatic detection for mailhost failed\n";
+        print
+          "Please either define a mailhost for this user or define\n-m none\n";
+        exit;
+    }
+}
+
+# We need to know on which host to create the homeDirectory for this user.
+# We can have one or more fileservers.
+
+unless ( $opts{"h"} eq "none" ) {
+    if ( $opts{"h"} ) {
+
+        # there should be some checking here that value of -h is actually
+        # a host defined in LDAP
+        $r->param( "fileHost", $opts{"h"} );
+
+    }
+    elsif ( $_filehost = $ispman->getDefaultFileHost( $opts{"d"} ) ) {
+
+        # get fileHost suggestio
+        $r->param( "fileHost", $_filehost );
+
+    }
+    else {
+
+        # all failed. die with warning
+        print
+"Please define a filehost for this user where the homedirectory should be created with the -h switch \n";
+        exit;
+    }
+}
+
+$ispman->addUser($r);
+

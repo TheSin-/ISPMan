@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'h', \%opts );
+    unless ( $opts{'h'} ) {
+        print "Usage: $FindBin::Script  -h imap_server mailbox quota (in bytes)\n";
+        exit;
+    }
+}
+require "mailbox_actions.lib";
+
+my $err = set_quota( $opts{'h'}, $ARGV[0], $ARGV[1] );
+
+exit $err;
+

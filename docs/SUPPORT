@@ -1,0 +1,46 @@
+ISPMan Support
+==============
+
+As explained in INSTALL, bug fixes are available only through cvs.  Read
+through INSTALL and UPGRADING to learn how to upgrade.  Incremental bug-fix
+upgrades are very easy and painless.
+
+There are a variety of options for technical support. 
+
+1) Search the online archives.  
+
+There are technical forums that although are not necessarily monitored
+regularly, do occasionally contain useful information:
+    http://sourceforge.net/forum/?group_id=8390
+
+The mailing list archives are the most active.  Search through ispman-users
+first, then ispman-developers for your answer.
+    http://sourceforge.net/mailarchive/forum.php?forum=ispman-users
+    http://sourceforge.net/mailarchive/forum.php?forum=ispman-developers
+
+2) Join the ispman-users mailing list.
+
+Subscribe to ispman-users and ask your question there.  If it hasn't been
+answered in the archives, this is your best bet for free help.  The
+ispman-developers list is for discussions on the design and implmentation of
+ispman and not for technical support.  Most of us are subscribed to
+ispman-users anyway, so ask there.
+    http://lists.sourceforge.net/lists/listinfo/ispman-users
+
+3) Log into the IRC chat channel #ispman at irc.freenode.net.
+
+You may find users and developers logged in there occasionally.  I did when I
+needed it while learning about ISPMan.  Now I'm a developer.
+
+4) Hire an ISPMan support firm.
+
+Support firms are available that can provide you with commercial support for
+ISPMan and other isp design, implementation and related services.  These
+options include training, fixes, implementation of new features and
+maintenance.  Companies are available by remote and in various locations in the
+USA, and Europe.
+
+http://ispman.sourceforge.net/support.php
+Contact by email: sales@ispman.net
+Contact by phone: +41 78 8453164
+

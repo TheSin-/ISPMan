@@ -1,0 +1,109 @@
+#!/usr/bin/perl
+package ISPMan;
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopts( 'vns:f:d:m:', \%opts );
+    unless ( $opts{'d'} && $opts{'m'} ) {
+        print
+"Usage: $FindBin::Script. [-v] -d domainName|all -s 'subject' -m file_with_the_email_text  [-f 'Name <email>']\n";
+        exit;
+    }
+    unless ( $opts{'s'} ) {
+        print
+"Are you sure you want to send a mass email without a subject?\nI don't think so.\n";
+        exit;
+    }
+    unless ( $opts{'f'} ) {
+        print
+"You have not defined a sender address.\nI will use whatever email is defined in LDAP as rootEmail.\n";
+        print
+"You can check this email with the command ispman.getConf rootEmail.\n";
+        print
+"Are you sure you want to send this mail with the rootEmail address [y/N]: ";
+        chomp( my $ans = <> );
+        unless ( $ans =~ /^y/i ) {
+            exit;
+        }
+    }
+}
+
+$|++;
+undef $/;
+
+
+use vars
+  qw($VERSION @ISA @EXPORT @EXPORT_OK %opts $Config $from $subject $domain);
+use Net::SMTP;
+use ISPMan;
+require "ispman.conf";
+
+open M, $opts{'m'};
+my $mailText = join "", <M>;
+close(M);
+
+my $ldap = ISPMan::LDAP->new(
+    $Config->{'ldapBaseDN'}, $Config->{'ldapHost'},
+    $Config->{'ldapRootDN'}, $Config->{'ldapRootPass'}
+);
+$ldap->setConfig($Config);    #pass config to ISPMan::LDAP
+if ( !$ldap->connected() ) {
+    $ldap->connect();
+}
+
+my $domain = ( lc( $opts{'d'} ) eq "all" ) ? '*' : $opts{'d'};
+
+my $users = $ldap->getEntriesAsHashRef(
+    $Config->{"ldapBaseDN"},
+    "&(ispmanDomain=$domain)(objectclass=ispmanDomainUser)",
+    [ "uid", "cn", "mailLocalAddress", "mailAlias", "mailRoutingAddress" ]
+);
+
+my $mailhost = $self->{'Config'}{"mailhost"} || "localhost";
+
+$subject = $opts{'s'} || "No Subject";
+$from    = $opts{'f'} || $ldap->getConf('rootEmail');
+print "Sending email to users for $opts{'d'} domain\n";
+print "Sending from $from\n";
+
+for ( keys %$users ) {
+    $mailAddress = $users->{$_}{'mailLocalAddress'};
+    $cn = $users->{$_}{'cn'};
+
+    if ($mailAddress) {
+        print "Sending mail to $mailAddress for  $users->{$_}{'cn'}\n"
+          if $opts{'v'} || $opts{'n'};
+        &send_user_mail( $mailAddress, $mailText ) unless $opts{'n'};
+    }
+    else {
+        print STDERR "Not sending mail to ", $users->{$_}{'uid'},
+" ($users->{$_}{'cn'}). No mailRoutingAddress or mailLocalAddress defined\n";
+    }
+}
+
+sub send_user_mail {
+    my ( $to, $data ) = @_;
+
+    my $smtp     = Net::SMTP->new($mailhost);
+    $smtp->mail($from);
+    $smtp->to($to);
+    $smtp->data();
+
+    $smtp->datasend("From: $from\n");
+    $smtp->datasend("To: $to \n");
+    $smtp->datasend("Subject: $subject \n");
+    $smtp->datasend("\n");
+    $smtp->datasend($data);
+    $smtp->dataend();
+    $smtp->quit;
+
+}
+
+sub log_event { 1; }
+
+__END__
+
+

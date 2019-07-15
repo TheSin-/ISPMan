@@ -1,0 +1,78 @@
+dn: <perl>$r->param("dn")</perl>
+
+<perl>
+$text = '';
+foreach my $oc (@{$ispman->getConf('ispmanVhostObjectclasses')}) {
+  $text .= "objectClass: " . $oc . "\n";
+}
+$text
+</perl>
+<perl>($vhost,$port) = split ":",$r->param("ispmanVhostName");""</perl>
+
+ispmanVhostName: <perl>$r->param("ispmanVhostName")</perl>
+cn: <perl>"$vhost.".$r->param("ispmanDomain").($port?":$port":"")</perl>
+uid: <perl>"$vhost.".$r->param("ispmanDomain").($port?":$port":"")</perl>
+uidNumber: <perl>$ispman->getUid()</perl>
+gidNumber: <perl>$r->param("domain_info")->{'gidNumber'}</perl>
+ispmanDomain: <perl>$r->param("ispmanDomain")</perl>
+homeDirectory: <perl>$r->param("homeDirectory") ||
+		(join "/",($r->param("domain_info")->{'homeDirectory'},
+			   "vhosts", $r->param("ispmanVhostName")))</perl>
+userPassword: <perl>$ispman->encryptPassWithMethod($r->param("userPassword")||"",
+		$ispman->getConf('userPassHashMethod'))</perl>
+loginShell: <perl>$ispman->getConf("vhostShell")</perl>
+ispmanVhostServerAlias: <perl>$r->param("ispmanVhostServerAlias") || ""</perl>
+FTPStatus: <perl>$r->param("FTPStatus") || "active"</perl>
+ispmanStatus: active
+ispmanVhostStats: <perl>$r->param("ispmanVhostStats") || "enable"</perl>
+FTPQuotaMBytes: <perl>$r->param("FTPQuotaMBytes") || $ispman->getConf("defaultVhostFtpQuota")</perl>
+ispmanVhostDocumentRoot: <perl>$r->param("ispmanVhostDocumentRoot") || "htdocs"</perl>
+ispmanVhostScriptDir: <perl>$r->param("ispmanVhostScriptDir") || "cgi-bin"</perl>
+ispmanVhostIpAddress: <perl>$r->param("ispmanVhostIpAddress") || $ispman->getConf("apacheVhostsIP") || "*"</perl>
+fileHost: <perl>$r->param("fileHost") || $r->param("domain_info")->{'ispmanDomainDefaultFileServer'}</perl>
+DestinationAddress: <perl>$r->param("fileHost") || $r->param("domain_info")->{'ispmanDomainDefaultFileServer'}</perl>
+
+
+<perl>
+  $text = '';
+
+  # setting ispmanVhostDocumentRootOption  
+  foreach my $option ($ispman->as_array($r->param("ispmanVhostDocumentRootOption"))) {
+    $text .= "ispmanVhostDocumentRootOption: " . $option . "\n";
+  }
+
+  # setting ispmanVhostScriptDirOption
+  foreach my $option ($ispman->as_array($r->param("ispmanVhostScriptDirOption"))) {
+    $text .= "ispmanVhostScriptDirOption: " . $option . "\n";
+  }
+
+  # setting ispmanVhostExtraConf
+  if ($r->param("ispmanVhostExtraConf")){
+    $text.="ispmanVhostExtraConf: " . $r->param("ispmanVhostExtraConf")."\n";
+  }
+
+  # setting webHost
+  foreach my $webhost ($ispman->as_array($r->param("webHost"))) {
+    $text .= "webHost: " . $webhost . "\n";
+  }
+  $text;
+</perl>
+<perl>
+   $substmap={ vhost => $r->param("ispmanVhostName"), domain => $r->param("ispmanDomain")};
+   
+   # process ispmanVhostLogdir
+   $text = "ispmanVhostLogdir: " . ($r->param("ispmanVhostLogdir") ||
+   		$ispman->substitute($ispman->getConf('apacheLogsDirectory'),$substmap));
+   $text .= "\n";    
+   $text .= "ispmanVhostStatdir: " . ($r->param("ispmanVhostStatdir") ||
+   		$ispman->substitute($ispman->getConf('apacheStatDirectory'),$substmap));
+   $text
+</perl>
+<perl>
+   #If there is a site specific file load and evaluate it
+   $template=$ispman->getTemplate(join "/", ($ispman->getConf("installDir"), "templates/vhost.ldif.template.local"));
+   return $template->fill_in(PACKAGE => __PACKAGE__);
+</perl>
+
+
+

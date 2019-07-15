@@ -1,0 +1,183 @@
+# Domain related items. Not DNS related.
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1201 'ispmanDomain'
+#  name of the domain such as ispman.org
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1202 'ispmanDomainType'
+#  type of the domain (primary, secondary, noDNS, replica)
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1203 'ispmanDomainOwner'
+#  name of the owner of the domain
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1205 'ispmanDomainCustomer'
+#  could be a string that refers you to some record in an internal database
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1204 'ispmanDomainComment'
+#  couple of words about this domain
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1206 'ispmanDomainService'
+#  each domain can have multiple services allocated to it
+#  see domainServices section
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1302 'ispmanDomainDefaultMailDropHost'
+#  In a Mailfarm, you may want to decide that a certain domain
+#  will get its mailboxes on server X, y,z etc
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1207 'ispmanReplicaMaster'
+#  if this is a replica domain, then this value points to 
+#  its parent domain
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1106 'ispmanMaxAccounts'
+#  how many user accounts can be created in this domain
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1409 'ispmanMaxVhosts'
+#  how many virtual hosts can be created in this domain
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1422 'ispmanMaxDatabases'
+#  how many databases can be created in this domain
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1215 'ispmanDnsMasters'
+#  if this is a secondary domain, then we get its DNS informations
+#  from the value(s) of this attribute.
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1408 'ispmanControlPanelPassword'
+#  A different password that the domain owner can use to manage the
+#  domain with customer control panel
+#  This password is intentionally different than the normal userPassword
+#  The reason is that the userPassword is used for ftp logins.
+#  A domain owner may wish to share his ftp password with other people
+#  such as a web design company but sharing a controlpanel password
+#  is more risky. Imagine changing MX records and no mails for a couple of days
+
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1220 'ispmanDomainMailDeliveryMethod'
+#  A domain's mail maybe delivered localy or can be forwarded to its MX
+#  This parameter saves you when you are running webmails etc on the same machines
+#  that are your SMTP hosts
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1221 'ispmanDomainLocked'
+# A domain can have this attribute set to true and then it is not editable by any other 
+# administrator except the one who locked it. 
+
+
+
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1201 NAME 'ispmanDomain'
+	DESC 'A string naming an ISPMan ispmanDomain'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1202 NAME 'ispmanDomainType'
+	DESC 'String describing the administrative ispmanDomain type'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{128} )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1203 NAME 'ispmanDomainOwner'
+	DESC 'A string describing the owner of a ispmanDomain'
+	SUP name )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1204 NAME 'ispmanDomainComment'
+	DESC 'A string containing a comment on a ispmanDomain'
+	EQUALITY caseIgnoreMatch
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{1024} )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1205 NAME 'ispmanDomainCustomer'
+	DESC 'A string naming the customer the ispmanDomain belongs to'
+	SUP name )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1106 NAME 'ispmanMaxAccounts'
+	DESC 'An integer determining the max number of Accounts in a ispmanDomain'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE)
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1302 NAME 'ispmanDomainDefaultMailDropHost'
+	DESC 'fqdn of final SMTP destination to this recipient'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} 
+	SINGLE-VALUE )
+
+attributeType (1.3.6.1.4.1.8833.2.1.1207 NAME 'ispmanReplicaMaster'
+	DESC 'pointer to the master ispmanDomain of replica'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256}
+	SINGLE-VALUE )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1215 NAME 'ispmanDnsMasters'
+	DESC 'If this is a secondary domain then we should get the DNS info from the masters'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1409 NAME 'ispmanMaxVhosts'
+	DESC 'An integer determining the max number of vhosts in a ispmanDomain'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE)
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1422 NAME 'ispmanMaxDatabases'
+	DESC 'An integer determining the max number of databases in a ispmanDomain'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE)
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1408 NAME 'ispmanControlPanelPassword' SUP userPassword )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1220 NAME 'ispmanDomainMailDeliveryMethod'
+	DESC 'An string local or smtp determining weather the mail should be forwarded to MX or accepted localy'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{5} )
+
+
+attributetype ( 1.3.6.1.4.1.8833.2.1.1221 NAME ('ispmanDomainLocked')
+	DESC 'set this to true or false'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{5} )
+
+
+attributetype ( 1.3.6.1.4.1.8833.2.1.1222 NAME ('ispmanDomainLockedBy')
+	DESC 'REMOTE_USER who locked this domain'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{100} )
+
+attributetype ( 1.3.6.1.4.1.8833.2.1.1223 NAME ('ispmanDomainSignature')
+	DESC 'A signature line that is appended to outgoing mails via the webmail'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{100} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1224 NAME 'ispmanDomainDefaultWebHost'
+	DESC 'default web host for this domain.'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1225 NAME 'ispmanDomainDefaultFileServer'
+	DESC 'default homedirectory server for this domain.'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} 
+	SINGLE-VALUE )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1226 NAME 'dnsHost'
+	DESC 'dns hosts for this  domain.'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} 
+	)
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1227 NAME 'smtpHost'
+	DESC 'smtp hosts for this  domain.'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} 
+	)
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1228 NAME 'ispmanDomainDefaultDBHost'
+	DESC 'default database host for this domain.'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} 
+	SINGLE-VALUE )

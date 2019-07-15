@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+
+use ISPMan;
+my $ispman = ISPMan->new();
+my $domains;
+
+if ( $ARGV[0] ) {
+    $domains->{ $ARGV[0] } =
+      "ispmanDomain=$ARGV[0], " . $ispman->getConf("ldapBaseDN");
+}
+else {
+    $domains = $ispman->makeDomainHash( $ispman->getDomains() );
+}
+
+for $domain ( keys %$domains ) {
+    next
+      if ( $ispman->getDomainAttribute( $domain, "domaintype" ) =~ /replica/ );
+    $transport =
+      $ispman->getDomainAttribute( $domain, "ispmanDomainMailDeliveryMethod" )
+      || "local";
+    print join "\t", ( $domain, $transport );
+    print "\n";
+
+}
+

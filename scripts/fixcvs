@@ -1,0 +1,7 @@
+find . -name Repository | xargs perl -pi -e 's!^install-data!ispman/install-data!g' 
+find . -name Repository | xargs perl -pi -e 's!^ispman-utils!ispman!g' 
+find . -name Repository | xargs perl -pi -e 's!^ispman-web!ispman/ispman-web!g' 
+find . -name Repository | xargs perl -pi -e 's!^locale!ispman/locale!g' 
+find . -name Repository | xargs perl -pi -e 's!^scripts!ispman/scripts!g' 
+find . -name Repository | xargs perl -pi -e 's!^\.$!ispman!g' 
+

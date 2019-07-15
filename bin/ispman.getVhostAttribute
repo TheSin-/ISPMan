@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+# For expert use only
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    unless ( $ARGV[2] ) {
+        print "For expert use only\n";
+        print "$FindBin::Script  domain vhost attributename\n";
+        exit;
+    }
+}
+
+use ISPMan;
+
+my $ispman = ISPMan->new();
+
+my $vals = $ispman->as_arrayref( $ispman->getVhostAttribute(@ARGV) );
+
+for (@$vals) {
+    print "$_";
+}
+
+print "\n";

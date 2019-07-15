@@ -1,0 +1,29 @@
+<HTML>
+<TITLE>ISPMan help</TITLE>
+<link HREF="/ispman.css" REL="stylesheet" TYPE="text/css">
+<BODY>
+<table class="table" cellspacing=5 border=0>
+<tr><td class=menuheader>Understanding Processes</td>
+
+<tr><td>ISPMan schedules system changes using processes. Processes are
+directed to hosts based on hostgroup membership. 
+<tr><td>You can view the Processes
+"in the queue" by clicking on the Processes tab at the top of the screen.
+<br><img src="images/processes.png">
+<tr><td>A process can have the status of "new" or "insession". 
+<ul><li>insession - the process is waiting for the user to click "Commit
+session". Clicking Commit session changes the state to new.
+<li>new - the process is waiting for the ispman-agent to execute it.
+</ul>
+<tr><td>If the user logs out before clicking "Commit session" the process
+will stay in the "insession" status until it is manually deleted or manually
+changed to the "new" status.
+
+
+
+<p>
+<tr><td><A HREF="administrator-guide.html">Return to Administrator Guide</A>
+</BODY>
+</HTML>
+
+

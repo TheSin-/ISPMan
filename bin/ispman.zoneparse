@@ -1,0 +1,339 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'df', \%opts );
+    unless ( $opts{'f'} && $opts{'d'} ) {
+        print "$FindBin::Script -d domain -f zonefile\n";
+        print "A utility to load dns info for a domain from zone file\n\n";
+        print "\n\n";
+        exit;
+    }
+}
+
+# DNS::ZoneParse
+# Parse and Manipulate DNS Zonefiles
+# Version 0.8
+package DNS::ZoneParse;
+
+use vars qw($VERSION);
+use strict;
+use Carp;
+
+$VERSION = '0.8';
+
+sub new {
+    my $class = shift;
+
+    croak "No filename or string specified" unless @_;
+    croak "Too many arguments" if @_ > 1;
+
+    my $self = {};
+    bless $self, $class;
+    $self->load_file(@_);
+    return $self;
+}
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Accessor Methods
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+sub DESTROY { }
+
+sub AUTOLOAD {
+    my $self = shift;
+    ( my $method = $DNS::ZoneParse::AUTOLOAD ) =~ s/.*:://;
+
+    my @accessors = map { lc } keys( %{ $self->{_Zone} } );
+    croak "Invalid method called: $method"
+      unless grep { $_ eq $method } @accessors, qw(origin zonefile);
+
+    return $self->{Identity}->{ZoneFile} if $method eq "zonefile";
+    return $self->{Identity}->{Origin}   if $method eq "origin";
+
+    return $self->{_Zone}->{ uc $method };
+}
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Public OO Methods
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+sub Dump {
+
+    # returns a HOH for use with XML modules, etc
+    return $_[0]->{_Zone};
+}
+
+sub newSerial {
+    my $self = shift;
+    my $incriment = shift || 0;
+    if ( $incriment > 0 ) {
+        $self->{_Zone}->{SOA}->{serial} += $incriment;
+    }
+    else {
+        my ( $hour, $day, $mon, $year ) = ( localtime() )[ 2 .. 5 ];
+        my $newserial =
+          sprintf( "%d%02d%02d%02d01", $year + 1900, $mon + 1, $day, $hour );
+
+        for ( 1 .. 10 ) {
+            if ( $newserial > $self->{_Zone}->{SOA}->{serial} ) {
+                $self->{_Zone}->{SOA}->{serial} = $newserial;
+                return 1;
+            }
+            else {
+                $newserial++;
+            }
+        }
+
+        $self->{_Zone}->{SOA}->{serial}++;
+    }
+    return 1;
+}
+
+sub PrintZone {
+    my $self           = shift;
+    my @quick_classes  = qw(A CNAME);
+    my $temp_zone_file = "";
+    $temp_zone_file .= <<ZONEHEADER;
+;
+;  Database file $self->{Identity}->{ZoneFile} for $self->{Identity}->{Origin} zone.
+;	Zone version: $self->{_Zone}->{SOA}->{serial}
+; 
+
+$self->{_Zone}->{SOA}->{origin}		$self->{_Zone}->{SOA}->{ttl}	IN  SOA  $self->{_Zone}->{SOA}->{primary} $self->{_Zone}->{SOA}->{email} (
+				$self->{_Zone}->{SOA}->{serial}	; serial number
+				$self->{_Zone}->{SOA}->{refresh}	; refresh
+				$self->{_Zone}->{SOA}->{retry}	; retry
+				$self->{_Zone}->{SOA}->{expire}	; expire
+				$self->{_Zone}->{SOA}->{minimumTTL}	; minimum TTL
+				)
+;
+; Zone NS Records
+;
+
+ZONEHEADER
+
+    foreach my $rr ( @{ $self->{_Zone}->{NS} } ) {
+        $temp_zone_file .=
+          "$rr->{name}	$rr->{ttl}	$rr->{class}	NS	$rr->{host}\n";
+    }
+
+    $temp_zone_file .= "\n\;\n\; Zone Records\n\;\n\n";
+
+    foreach my $class (@quick_classes) {
+        foreach my $rr ( @{ $self->{_Zone}->{$class} } ) {
+            $temp_zone_file .=
+              "$rr->{name}	$rr->{ttl}	$rr->{class}	$class	$rr->{host}\n";
+        }
+    }
+
+    foreach my $rr ( @{ $self->{_Zone}->{MX} } ) {
+        $temp_zone_file .=
+"$rr->{name}	$rr->{ttl}	$rr->{class}	MX	$rr->{priority}  $rr->{host}\n";
+    }
+
+    $self->{ZoneFile} = $temp_zone_file;
+    return $self->{ZoneFile};
+}
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Private Methods
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+sub _initialize {
+    my $self = shift;
+    $self->{_Zone} = {
+        SOA   => {},
+        AAAA  => [],
+        A     => [],
+        NS    => [],
+        CNAME => [],
+        MX    => [],
+        PTR   => [],
+        TXT   => [],
+    };
+    $self->{Identity} = {};
+    return 1;
+}
+
+sub load_file {
+    my ( $self, $zonefile ) = @_;
+    if ( ref($zonefile) eq "SCALAR" ) {
+        $self->{ZoneFile} = $$zonefile;
+    }
+    else {
+        if ( open( inZONE, "$zonefile" ) ) {
+            while (<inZONE>) { $self->{ZoneFile} .= $_; }
+            close(inZONE);
+        }
+        else {
+            croak
+              "DNS::ParseZone Could not open input file: \"$zonefile\" $!\n";
+        }
+    }
+    if ( $self->_parse() ) { return 1; }
+}
+
+sub _parse {
+    my $self = shift;
+    $self->_initialize();
+
+    my $chars = qr/[a-z\-\.0-9]+/i;
+    $self->{ZoneFile} =~ /Database file ($chars)( dns)? for ($chars) zone/si;
+    $self->{Identity} = { ZoneFile => $1, Origin => $3 };
+
+    $self->{RRs} = [];
+    $self->_clean_records();
+    my $valid_name = qr/[\@a-z\-\.0-9\*]+/i;
+    my $rr_class   = qr/in|hs|ch/i;
+    my $rr_types   = qr/ns|a|cname/i;
+    my $rr_ttl     = qr/\d{1,}\w{0,1}/;
+
+    foreach my $RR ( @{ $self->{RRs} } ) {
+
+        if ( $RR =~
+/($valid_name)?\s+($rr_ttl)?\s*?($rr_class)?\s*?($rr_types)\s+($valid_name)/i
+          )
+        {
+            my $class = uc $4;
+            push(
+                @{ $self->{_Zone}->{$class} },
+                {
+                    name  => $1 . '',
+                    class => $3 . '',
+                    host  => $5 . '',
+                    ttl   => $2 . ''
+                }
+            );
+        }
+        elsif ( $RR =~
+/($valid_name)\s+($rr_ttl)?\s*?($rr_class)?\s*?mx\s(\d+)\s($valid_name)/i
+          )
+        {
+            push(
+                @{ $self->{_Zone}->{MX} },
+                {
+                    name     => $1 . '',
+                    priority => $4 . '',
+                    host     => $5 . '',
+                    ttl      => $2 . '',
+                    class    => $3
+                }
+            );
+        }
+        elsif ( $RR =~
+/($valid_name)\s+($rr_ttl)?\s*?($rr_class)?\s*?SOA\s+($valid_name)\s+($valid_name)\s*?\(?\s*?($rr_ttl)\s+($rr_ttl)\s+($rr_ttl)\s+($rr_ttl)\s+($rr_ttl)\s*\)?/i
+          )
+        {
+            $self->{_Zone}->{SOA} = {
+                origin     => $1 . '',
+                ttl        => $2 . '',
+                primary    => $4 . '',
+                email      => $5 . '',
+                serial     => $6 . '',
+                refresh    => $7 . '',
+                retry      => $8 . '',
+                expire     => $9 . '',
+                minimumTTL => $10 . ''
+            };
+        }
+        elsif ( $RR =~
+            /([\d\.]+)\s+($rr_ttl)?\s*?($rr_class)?\s*?PTR\s+($valid_name)/i )
+        {
+            push(
+                @{ $self->{_Zone}->{PTR} },
+                {
+                    name  => $1 . '',
+                    class => $2 . '',
+                    ttl   => $3 . '',
+                    host  => $4 . ''
+                }
+            );
+        }
+        elsif ( $RR =~
+            /($valid_name)\s+($rr_ttl)?\s*?($rr_class)?\s*?TXT\s+\"([^\"]*)\"/i
+          )
+        {
+            push(
+                @{ $self->{_Zone}->{TXT} },
+                {
+                    name  => $1 . '',
+                    ttl   => $2 . '',
+                    class => $3 . '',
+                    text  => $4 . ''
+                }
+            );
+        }
+    }
+
+    # comment the next two lines for debugging.
+    undef $self->{ZoneFile};
+    undef $self->{RRs};
+    return 1;
+}
+
+sub _clean_records {
+    my $self = shift;
+
+    my $zone = $self->{ZoneFile};
+    $zone =~ s/\;.{0,}$//mg;    # Remove comments
+    $zone =~ s/^\s*?$//mg;      # Remove empty lines
+    $zone =~ s#$/{2,}#$/#g;     # Remove double carriage returns
+
+# Concatenate everything split over multiple lines i.e. elements surrounded by parentheses can be
+# split over multiple lines. See RFC 1035 section 5.1
+    $zone =~ s{(\([^\)]*?\))}{_concatenate( $1)}egs;
+
+    @{ $self->{RRs} } = split( m#$/#, $zone );
+    foreach ( @{ $self->{RRs} } ) { s/\s+/\t/g; }
+
+    return 1;
+}
+
+sub _concatenate {
+    my $text_in_parenth = shift;
+    $text_in_parenth =~ s{$/}{}g;
+    return $text_in_parenth;
+}
+
+package main;
+use vars qw (%opts);
+
+my $dnsfile = DNS::ZoneParse->new( $opts{'f'} );
+my $domain  = $opts{'d'};
+
+my $a  = $dnsfile->a();
+my $mx = $dnsfile->mx();
+my $ns = $dnsfile->ns();
+my $c  = $dnsfile->cname();
+
+use Data::Dumper;
+
+#print Dumper($c);
+
+#exit;
+
+for (@$a) {
+    print join " ", ( "A", $domain, $_->{'name'}, $_->{'host'} );
+    print "\n";
+}
+for (@$ns) {
+    $_->{'name'} ||= '@';
+
+    print join " ", ( "NS", $domain, $_->{'name'}, $_->{'host'} );
+    print "\n";
+}
+for (@$mx) {
+    $_->{'name'} ||= '@';
+    print join " ",
+      ( "MX", $domain, $_->{'name'}, $_->{'priority'}, $_->{'host'} );
+    print "\n";
+}
+
+for (@$c) {
+    print join " ", ( "CNAME", $domain, $_->{'name'}, $_->{'host'} );
+    print "\n";
+}
+

@@ -1,0 +1,263 @@
+###  List of attributes
+#
+#  Internal ISPMan attributes
+# attributeType 1.3.6.1.4.1.8833.2.1.1001 'ispmanService'
+# attributeType 1.3.6.1.4.1.8833.2.1.1002 'ispmanDefault'
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1015 'ispmanPid'
+# attributeType 1.3.6.1.4.1.8833.2.1.1017 'ispmanProcess'
+# attributeType 1.3.6.1.4.1.8833.2.1.1018 'ispmanStatus'
+# attributeType 1.3.6.1.4.1.8833.2.1.1019 'ispmanMessage'
+# attributeType 1.3.6.1.4.1.8833.2.1.1020 'ispmanSession'
+
+#  Uh, Other ISPMan attributes - ispmanUsers, groups, things
+# attributeType 1.3.6.1.4.1.8833.2.1.1105 'ispmanGroupName'
+# attributeType 1.3.6.1.4.1.8833.2.1.1108 'ispmanUser'
+# attributeType 1.3.6.1.4.1.8833.2.1.1109 'ispmanGroupMember'
+# attributeType 1.3.6.1.4.1.8833.2.1.1112 'ispmanParams'
+#
+#  Domain and DNS attributes
+# attributeType 1.3.6.1.4.1.8833.2.1.1208 'ispmanRecord'
+# attributeType 1.3.6.1.4.1.8833.2.1.1209 'ispmanRefresh'
+# attributeType 1.3.6.1.4.1.8833.2.1.1210 'ispmanMinimum'
+# attributeType 1.3.6.1.4.1.8833.2.1.1211 'ispmanRootmail'
+# attributeType 1.3.6.1.4.1.8833.2.1.1212 'ispmanPrimary'
+# attributeType 1.3.6.1.4.1.8833.2.1.1213 'ispmanExpire'
+# attributeType 1.3.6.1.4.1.8833.2.1.1214 'ispmanRetry'
+
+
+
+
+#
+#  Mail attributes
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1305 'ispmanFramesMode'
+# attributeType 1.3.6.1.4.1.8833.2.1.1306 'ispmanSigdashes'
+# attributeType 1.3.6.1.4.1.8833.2.1.1307 'ispmanSigfirst'
+# attributeType 1.3.6.1.4.1.8833.2.1.1308 'ispmanFullname'
+# attributeType 1.3.6.1.4.1.8833.2.1.1309 'ispmanFromaddr'
+# attributeType 1.3.6.1.4.1.8833.2.1.1310 'ispmanReplytoaddr'
+# attributeType 1.3.6.1.4.1.8833.2.1.1311 'ispmanSavesentmail'
+# attributeType 1.3.6.1.4.1.8833.2.1.1312 'ispmanComposePopup'
+# attributeType 1.3.6.1.4.1.8833.2.1.1313 'ispmanLanguage'
+# attributeType 1.3.6.1.4.1.8833.2.1.1314 'ispmanNavexpanded'
+# attributeType 1.3.6.1.4.1.8833.2.1.1315 'ispmanFolders'
+# attributeType 1.3.6.1.4.1.8833.2.1.1316 'ispmanIpAddress'
+
+#
+###  List of objectClasses
+#
+#  Internal classes
+# objectClass  1.3.6.1.4.1.8833.2.2.1005 'ispmanGlobalDnsVars'
+# objectClass  1.3.6.1.4.1.8833.2.2.1007 'ispmanProcesses'
+#
+#  Domain and DNS classes
+# objectClass  1.3.6.1.4.1.8833.2.2.1104 'ispmanDomainUsers'
+# objectClass  1.3.6.1.4.1.8833.2.2.1105 'ispmanDomainUserGroup'
+# objectClass  1.3.6.1.4.1.8833.2.2.1106 'ispmanDomainAdmins'
+# objectClass  1.3.6.1.4.1.8833.2.2.1107 'ispmanDomainRelatedObject'
+#  Web classes
+# objectClass  1.3.6.1.4.1.8833.2.2.1201 'ispmanHttpData'
+# objectClass  1.3.6.1.4.1.8833.2.2.1202 'ispmanVirtualHost'
+# objectClass  1.3.6.1.4.1.8833.2.2.1203 'ispmanVhostAcl'
+# objectClass  1.3.6.1.4.1.8833.2.2.1204 'ispmanVhostAclGroup'
+
+
+########################################################
+###  Attributes start
+########################################################
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1001 NAME 'ispmanService'
+	DESC 'A string naming an available ispmanService'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1002 NAME 'ispmanDefault'
+	DESC 'A string indication wether a ispmanService is available by ispmanDefault'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{4} )
+
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1015 NAME 'ispmanPid'
+	DESC 'An integer for ispmanProcess id counting'
+	EQUALITY integerMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1017 NAME 'ispmanProcess'
+	DESC 'A string naming a ispmanProcess'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1020 NAME 'ispmanSession'
+	DESC 'A session for ispmanProcess'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1018 NAME 'ispmanStatus'
+	DESC 'A string describing the ispmanStatus of a ispmanProcess'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1019 NAME 'ispmanMessage'
+	DESC 'A string describing the error message of a failed ispmanProcess'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{4096} )
+
+
+
+
+#############################################
+### Other attribs - ispmanUsers, groups, things ###
+#############################################
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1101 NAME 'ispmanAclid'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27{256} )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1102 NAME 'ispmanLocation'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch 
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1103 NAME 'ispmanAllow'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1105 NAME 'ispmanGroupName'
+	DESC 'A string naming an ISPMan ispmanUser group'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1108 NAME 'ispmanUser'
+	DESC 'User identifier'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1109 NAME 'ispmanGroupMember' SUP name )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1110 NAME 'ispmanModify' SUP name )
+
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1112 NAME 'ispmanParams'
+	DESC 'A string naming a parameter'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+
+
+
+#############################################
+### Domain and DNS stuff
+#############################################
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1206 NAME 'ispmanDomainService'
+	DESC 'A string naming the services allowed for this domain'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+
+
+
+attributeType (1.3.6.1.4.1.8833.2.1.1208 NAME 'ispmanRecord'
+	DESC 'Minimum TTL'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256})
+
+
+attributeType (1.3.6.1.4.1.8833.2.1.1209 NAME 'ispmanRefresh'
+	DESC 'Minimum TTL'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{16}
+	SINGLE-VALUE )
+
+
+attributeType (1.3.6.1.4.1.8833.2.1.1210 NAME 'ispmanMinimum'
+	DESC 'Minimum TTL'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{16}
+	SINGLE-VALUE )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1211 NAME 'ispmanRootmail'
+	DESC 'RFC822 email address to send root mail to'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+
+attributeType (1.3.6.1.4.1.8833.2.1.1212 NAME 'ispmanPrimary'
+	DESC 'fqdn of ispmanPrimary dns'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256}
+	SINGLE-VALUE )
+
+
+attributeType (1.3.6.1.4.1.8833.2.1.1213 NAME 'ispmanExpire'
+	DESC 'Time to ispmanExpire ispmanDomain entry'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{16} 
+	SINGLE-VALUE )
+
+
+attributeType (1.3.6.1.4.1.8833.2.1.1214 NAME 'ispmanRetry'
+	DESC 'Retry timing'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{16}
+	SINGLE-VALUE )
+
+
+attributeType (1.3.6.1.4.1.8833.2.1.1216 NAME 'ispmanCreateTimestamp'
+	DESC 'timestamp when the client, reseller, domain is created'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+
+
+#############################################
+### MAil attributes
+#############################################
+
+
+
+#############################################
+### ftp-proxy attributes
+#############################################
+
+attributeType (1.3.6.1.4.1.8833.2.1.1217 NAME 'DestinationAddress'
+        DESC 'On which host should the ftp connection be routed to '
+        EQUALITY caseIgnoreIA5Match
+        SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+
+attributeType (1.3.6.1.4.1.8833.2.1.1218 NAME 'DestinationPort'
+        DESC 'On which port should the ftp connection be routed to '
+        EQUALITY caseIgnoreIA5Match
+        SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+

@@ -1,0 +1,51 @@
+<table class=list>
+<tr>
+<th><perl>_("Hostname")</perl></th>
+<th><perl>_("IP Address")</perl></th>
+<th><perl>_("Description")</perl></th>
+<th>&nbsp;</th>
+</tr>
+
+<perl>
+my $hosts=$ispman->getHosts();
+
+my $text="";
+for  $host(keys %$hosts){
+    my $hostname=$hosts->{$host}{'ispmanHostName'};
+    my $name=$hosts->{$host}{'ispmanHostName'};
+    my @aliases=$ispman->as_array($hosts->{$host}{'ispmanHostAlias'});
+    if (@aliases) {
+       $name.=" (" . join(", ", @aliases) . ")";
+    }
+    
+    my $ip=$hosts->{$host}{'ispmanHostIp'}|| "undefined";
+    my $description=$hosts->{$host}{'ispmanHostInfo'}|| "undefined";
+    $ip=($ip =~/undefined/)?"<FONT COLOR=RED><B>$ip</b></font>":$ip;
+    
+    $text.= "<tr class=list>\n";
+    $text.=join "\n", map{"<td>$_</td>"} ($name, $ip, $description);
+    
+    $text.="  <td><a href='".$ENV{'SCRIPT_NAME'}."?mode=editHost&hostname=$hostname'>".
+	       "<img src='".$ispman->getConfig("ispmanUrlPrefix")."/gfx/modify.gif' border=0>".
+		   "</a>";
+    $text.="<a href='".$ENV{'SCRIPT_NAME'}."?mode=deleteHost&hostname=$hostname'>".
+    	   "<img src='".$ispman->getConfig('ispmanUrlPrefix')."/gfx/delete.gif' border=0>".
+           "</a></td>\n";
+    $text.= "</tr>\n";
+}
+$text
+
+</perl>
+
+</table>
+
+<HR>
+
+<form>
+  <input type=button class="button" onClick="self.location='<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=configure'" value="<perl>_("Back")</perl>">
+  <input type=button class="button" onClick="self.location='<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=addHostForm'" value="<perl>_("Add host")</perl>">
+</form>
+ 
+ 
+
+

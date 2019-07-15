@@ -1,0 +1,14 @@
+
+<tr>
+    <td><perl>_("Locked")</perl></td>
+    <td> 
+    <input class=checkbox type=checkbox name="ispmanDomainLocked"
+    <perl>
+       ($ispman->{'domain'}{'ispmanDomainLocked'} && 
+        $ispman->{'domain'}{'ispmanDomainLocked'} eq "true")?
+        " checked>by $ispman->{'domain'}{'ispmanDomainLockedBy'}":">"
+    </perl>
+    </td>
+</tr>
+
+

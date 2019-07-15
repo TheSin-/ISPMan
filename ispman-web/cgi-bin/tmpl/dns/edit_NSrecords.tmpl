@@ -1,0 +1,84 @@
+<script type="text/javascript">
+  var domain="<perl>$r->param("ispmanDomain")</perl>";
+  var cgiurl=window.location.pathname;
+  var hrefurl=window.location.href;
+  
+  function sortBy(column){
+    location=cgiurl+"?mode=editDNSnSRecords&ispmanDomain="+domain+"&sortby="+column;
+  }
+  
+  function submitForm(f,action){
+    switch(action){
+	   case 'add':    f.mode.value="addDNSnSRecord"; break;
+	   case 'update': f.mode.value="modifyDNSnSRecord"; break;
+	   case 'delete': f.mode.value="deleteDNSnSRecord"; break;
+	}
+	f.ispmanDomain.value=domain;
+	f.action=cgiurl;
+	f.submit();
+  }
+</script>
+
+<perl>
+my $text="";
+my $c=1;
+my $thisDomain=$r->param("ispmanDomain");
+
+$text.=qq|        
+<P>
+@{[_("Editing NS Records for domain:")]} $thisDomain
+
+<table class=dns>
+  <tr>
+    <th><a href='javascript:sortBy("origion")'>@{[_("Origin")]}</a></th>
+    <th><a href='javascript:sortBy("host")'>@{[_("Name Server")]}</a></th>
+    <th>&nbsp;</th>
+  </tr>
+
+  <tr>
+    <form method=POST>
+	<input type=hidden name='ispmanDomain'>
+    <input type=hidden name='mode'>
+    <td><input type=text name=origion value=''></td>
+    <td><input type=text name=host value=''></td>
+    <td><input type=button onClick='submitForm(this.form,"add")' value='@{[_("Add")]}'></td>
+    </form>
+  </tr>
+|;
+
+my $sortby=$r->param("sortby") || "origin";
+my @sorted=();
+
+if ($ispman->{'domain'}{'dns'}){
+    if ($sortby eq 'host') {
+	@sorted=sort { 
+            $a->{'host'} cmp $b->{'host'} || $a->{'origion'} cmp $b->{'origion'}
+        } @{$ispman->{'domain'}{'dns'}};
+    } else {	
+	@sorted=sort {
+            $a->{'origion'} cmp $b->{'origion'} || $a->{'host'} <=> $b->{'host'} 
+        } @{$ispman->{'domain'}{'dns'}};
+    }
+}
+
+for (@sorted){
+		$text.="<tr>";
+        $text.="<form method=POST>";
+		$text.="<input type=hidden name='dn' value='@{[$ispman->getnSRecordDn($thisDomain, $_->{'origion'}, $_->{'host'})]}'>";
+		$text.="<input type=hidden name='ispmanDomain'>";
+		$text.="<input type=hidden name='mode'>";
+        $text.="<td><input type=text name='origion' value='$_->{'origion'}'></td>";
+        $text.="<td><input type=text name='host' value='$_->{'host'}'></td>";
+        $text.="<td>\n";
+		$text.="<input type=image onClick='submitForm(this.form,\"update\")' src='".$ispman->getConfig("ispmanUrlPrefix")."/gfx/apply.gif'>\n";
+		$text.="<input type=image onClick='submitForm(this.form,\"delete\")' src='".$ispman->getConfig("ispmanUrlPrefix")."/gfx/delete.gif'>\n";
+		$text.="</td>\n";
+        $text.="</form>";
+        $text.="</tr>";
+        $c++;
+}
+$text
+</perl>
+
+</table>
+

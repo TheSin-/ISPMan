@@ -1,0 +1,42 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    print "Name of the service: ";
+    chomp( $service->{'ispmanDomainServiceName'} = <> );
+    print "Common display info for this service: ";
+    chomp( $service->{'ispmanDomainServiceAlias'} = <> );
+    print "Optional description for this service: ";
+    chomp( $service->{'ispmanDomainServiceInfo'} = <> );
+
+    while ( $service->{'ispmanDomainServiceDefault'} !~ /(y|n)/i ) {
+        print "Is the service active by default (y/n) :";
+        chomp( $service->{'ispmanDomainServiceDefault'} = <> );
+    }
+    $service->{'ispmanDomainServiceDefault'} =
+      ( $service->{'ispmanDomainServiceDefault'} eq "y" ) ? "YES" : "NO";
+    unless ( $service->{'ispmanDomainServiceName'}
+        && $service->{'ispmanDomainServiceDefault'} )
+    {
+        print "Sorry, you did you fill the required fields\n";
+        exit;
+    }
+
+}
+
+
+use ISPMan;
+my $ispman = ISPMan->new();
+if (
+    $ispman->addDomainService(
+        $service->{'ispmanDomainServiceName'},
+        $service->{'ispmanDomainServiceAlias'},
+        $service->{'ispmanDomainServiceDefault'},
+        $service->{'ispmanDomainServiceInfo'}
+    )
+  )
+{
+    print "Service Added\n";
+}
+

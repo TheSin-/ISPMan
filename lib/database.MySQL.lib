@@ -1,0 +1,160 @@
+$dbadmin = $ispman->getConf("dbAdminName");
+$dbpass  = $ispman->getConf("dbAdminPass");
+
+$defaultsfile = "/tmp/ispman.mysql.cnf";
+
+%cmnds = (
+    mysql      => "mysql",
+    mysqladmin => "mysqladmin",
+    mysqldump  => "mysqldump" );
+
+sysopen( DEF, $defaultsfile, O_WRONLY | O_TRUNC | O_CREAT, 0600 )
+  || die("unable to create $defaultsfile");
+print DEF qq|
+[client]
+host     = localhost
+user     = $dbadmin
+password = $dbpass
+socket   = /var/run/mysqld/mysqld.sock
+|;
+close DEF;
+
+# prepare MySQL user notation
+sub sql_user {
+    my ( $user, $host ) = @_;
+    return "\'" . $user . "\'\@\'" . $host . "\'";
+}
+
+# prepare GRANT SQL statement
+sub sql_grant {
+    my $params = shift;
+
+    # evaluate privileges
+    my @privs;
+    my @priv_opts;
+    foreach ( split ",", $params->{'ispmanDBPrivilege'} ) {
+        if   ( $_ eq "GRANT" ) { push @priv_opts, "GRANT OPTION" }
+        else                   { push @privs,     $_; }
+    }
+
+    # skip if no privileges given
+    return if scalar(@privs) == 0;
+
+    # we need to go the dirty way of revoking the table grants,
+    # because REVOKE fails if no privileges exist yet
+    my $sql = "DELETE FROM mysql.db"
+            . " WHERE Db=\'" . $params->{'ispmanDBName'} . "\'"
+            . " AND User=\'" . $params->{'ispmanDBUser'} . "\'"
+            . " AND Host=\'" . $params->{'ispmanDBAccessFilter'} . "\';";
+    $sql .=
+        "GRANT " . join( ",", @privs ) 
+      . " ON " . $params->{'ispmanDBName'} . ".*"
+      . " TO " . sql_user( $params->{'ispmanDBUser'}, $params->{'ispmanDBAccessFilter'} )
+      . " IDENTIFIED BY PASSWORD \'" . $params->{'ispmanDBPass'} . "\'"
+      . (( scalar(@priv_opts) > 0 ) ? " WITH " . join( ",", @priv_opts ) : "") . ";";
+    return $sql;
+}
+
+# generate CMD for add database
+sub add_database {
+    my $params = shift;
+
+    my $sql = "CREATE DATABASE " . $params->{'ispmanDBName'} . ";";
+    $sql .= sql_grant($params);
+
+    return "echo \"$sql\" | $cmnds{'mysql'} --defaults-file=$defaultsfile";
+}
+
+
+# generate CMD for update database
+sub update_database {
+    my $params = shift;
+
+    my $sql="";
+
+    # DBHost change
+    if ($params->{'old_ispmanDBHost'} ne $params->{'new_ispmanDBHost'}) {
+       print STDERR "Error: Function not implemented!\n";
+       return;
+    }
+
+    # DBUser or DBAccessFilter change
+    if ($params->{'old_ispmanDBUser'} ne $params->{'new_ispmanDBUser'} || 
+        $params->{'old_ispmanDBAccessFilter'} ne $params->{'new_ispmanDBAccessFilter'}) {
+      $sql .= sql_grant(
+         { ispmanDBName         => $params->{'new_ispmanDBName'},
+           ispmanDBPrivilege    => $params->{'new_ispmanDBPrivilege'},
+           ispmanDBUser         => $params->{'new_ispmanDBUser'},
+           ispmanDBAccessFilter => $params->{'new_ispmanDBAccessFilter'},
+           ispmanDBPass         => $params->{'new_ispmanDBPass'},
+         } );
+      $sql .= "DROP USER ".sql_user($params->{'old_ispmanDBUser'},$params->{'old_ispmanDBAccessFilter'}).";";
+      $sql .= "FLUSH PRIVILEGES;";
+    }
+
+    # DBPass change
+    if ($params->{'old_ispmanDBPass'} ne $params->{'new_ispmanDBPass'}) {
+       $sql .= "SET PASSWORD FOR ".sql_user( $params->{'new_ispmanDBUser'}, $params->{'new_ispmanDBAccessFilter'})
+            . " = \'". $params->{'new_ispmanDBPass'} ."\';";
+    }
+
+    # DBPrivilege change
+    if ($params->{'old_ispmanDBPrivilege'} ne $params->{'new_ispmanDBPrivilege'}) {
+      $sql .= sql_grant(
+         { ispmanDBName         => $params->{'new_ispmanDBName'},
+           ispmanDBPrivilege    => $params->{'new_ispmanDBPrivilege'},
+           ispmanDBUser         => $params->{'new_ispmanDBUser'},
+           ispmanDBAccessFilter => $params->{'new_ispmanDBAccessFilter'},
+           ispmanDBPass         => $params->{'new_ispmanDBPass'},
+         } );
+      $sql .= "FLUSH PRIVILEGES;";
+    }
+
+    return "echo \"$sql\" | $cmnds{mysql} --defaults-file=$defaultsfile" if $sql;
+}
+
+
+# generate CMD for delete database
+sub delete_database {
+    my $params = shift;
+
+    my $sql =
+        "DROP USER "
+      . sql_user( $params->{'ispmanDBUser'}, $params->{'ispmanDBAccessFilter'} )
+      . ";";
+    $sql .= "DROP DATABASE " . $params->{'ispmanDBName'} . ";";
+
+    return "echo \"$sql\" | $cmnds{mysql} --defaults-file=$defaultsfile";
+}
+
+
+sub rename_database {
+    my $params = shift;
+
+    my @cmd;
+    my $bakfile = tmpnam();
+
+    my $olddb = $params->{'old_ispmanDBName'};
+    my $newdb = $params->{'new_ispmanDBName'};
+
+    push @cmd, "$cmnds{mysqldump} --defaults-file=$defaultsfile -r $bakfile $olddb";
+    push @cmd, "$cmnds{mysqladmin} --defaults-file=$defaultsfile create $newdb";
+    push @cmd, "$cmnds{mysql} --defaults-file=$defaultsfile $newdb < $bakfile";
+
+    # to be uncommented by the brave...
+    #push @cmd, "$cmnds{mysqladmin} --defaults-file=$defaultsfile -f drop $olddb";
+    unlink($bakfile);
+
+    # migrate privilege
+    push @cmd, "echo \"update mysql.db set Db=\'$newdb\' where Db=\'$olddb\' \" | "
+             . "$cmnds{mysql} --defaults-file=$defaultsfile";
+
+    return @cmd;
+}
+
+END {
+  unlink($defaultsfile);
+}
+
+1;
+

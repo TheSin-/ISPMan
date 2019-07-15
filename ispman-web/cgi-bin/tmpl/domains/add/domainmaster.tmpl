@@ -1,0 +1,20 @@
+<tr>
+    <td valign=center><perl>_("This Replica host points to")</perl> </td>
+    <td>
+        <select name="ispmanReplicaMaster">
+        <perl>
+        my $text="";
+        my $domains=$ispman->makeDomainHash($ispman->getDomains());
+        my $ispmanDomainType;
+        for ( sort { $domains->{$a} cmp $domains->{$b} } keys %$domains) {
+            #a replica cannot point to another replica
+            next if lc($ispman->getDomainType($_)) eq "replica";
+            $text.="<option VALUE ='$_'>$_</option>";        
+        }
+        $text
+        </perl>
+        </select>
+   </td>
+</tr>
+    
+

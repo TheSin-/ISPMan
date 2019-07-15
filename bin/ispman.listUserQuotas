@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+# exaple script.
+# shows users in domain
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'h', \%opts );
+    unless ( $opts{'h'} ) {
+        print "Usage: $FindBin::Script -h imap_server\n";
+        exit;
+
+    }
+}
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+
+require "mailbox_actions.lib";
+
+my $uid_filter = $ARGV[0] || '*';
+
+my $users = $ispman->getEntriesAsHashRef( $ispman->{'Config'}{'ldapBaseDN'},
+    "&(objectclass=ispmanDomainUser)(uid=$uid_filter)" );
+
+USER: for ( keys %$users ) {
+    @uids      = $ispman->as_array( $users->{$_}{'uid'} );
+    $uid       = $uids[0];
+    $mailQuota = $users->{$_}{'mailQuota'};
+    $ftpQuota  = $users->{$_}{'FTPQuotaMBytes'};
+    @q         = get_quota( $opts{'h'}, $uid );
+
+    write();
+
+}
+
+format STDOUT_TOP =
+UID                       FTPQuota MailQuota  MailQuota MailQuota
+                            MBytes  (in LDAP)    Cyrus    Used
+-------------------------------------------------------------------------------
+.
+
+format STDOUT =
+@<<<<<<<<<<<<<<<<<<<<<<<<< @<<<<<<<<<< @<<<<<<<<<< @<<<<<<<<<< @<<<<<<<<<< 
+$uid, $ftpQuota, $mailQuota , $q[2], $q[1]
+.
+

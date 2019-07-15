@@ -1,0 +1,19 @@
+sub logsay {
+    my $message = join ' ', @_;
+    chomp($message);
+    print "$message\n";
+}
+
+my $dns_backend = $ispman->getConf("namedBackend");
+my $backends    = {
+    'bind8'         => 'bind8',
+    'bind9'         => 'bind8',
+    'bind9-sdbldap' => 'bind9-sdbldap',
+    'tinydns'       => 'tinydns',
+    'djbdns'        => 'tinydns'
+};
+
+require "dns." . $backends->{$dns_backend} . ".lib";
+
+1;
+

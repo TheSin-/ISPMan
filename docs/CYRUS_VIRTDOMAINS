@@ -1,0 +1,90 @@
+Cyrus Virtdomains Experimental Support
+======================================
+ 1 - Introductory Comment
+   1.1 - Cyrus & Saslauthd
+   1.2 - Postfix
+ 2 - Final Thought's
+   2.1 - Perdition
+======================================
+
+1 - Introductory Comment
+-----------------------------------------------------------------------------
+Currently, ISPMan uses the mailRoutingAddress to route mail arround for
+several mailstores. So username@domain.tld get's tranlated to
+username_domain_tld@cyrus_mailstore_backend.
+
+My problem with this approach is that user would have to login to POP/IMAP
+like username_domain_tld unless an IMAP/POP proxy was in the middle to do the
+needed translation from username@domain.tld to username_domain_tld.
+
+The mailRoutingAddress now just becomes the normal email address of the user,
+ie, username@domain.tld.
+
+
+1.1 - Cyrus & Saslauthd
+-----------------------------------------------------------------------------
+To support this new behaviour, one must set cyrus `virtdomains` setting to
+`userid` or `on`(I'm using userid), `unixhierarchysep` to `yes` and also pass
+the `-r` flag allong with all other's you already passed to saslauthd init
+script.
+
+In `imap.conf` you must also set `lmtp_admins` with `cyrus` in it. This cyrus
+user is the one we've setup in `ispman.conf`, so set it to the one you've set
+in `ispman.conf` if you changed that. This is for all cyrus mailstores you
+have.
+
+
+1.2 - Postfix
+-----------------------------------------------------------------------------
+The needed changes of postfix from the old behaviour are that every domain we
+hanlde will be relayed wether it is set to deliver localy or trough smtp.
+
+No more `virtual_alias_domains` because with this setting we're promissing
+postfix that we're gonna re-write the address for a domain listed there, and
+we're not doin't that. Instead, every domain we host will be in
+`relay_domains`.
+
+The `relay_recipient_maps` will have all the addresses meant to be handled
+localy(ie, not forwarded).
+
+The `virtual_alias_maps` will only be used to handle mail forwards.
+
+The `tranport_maps` will become the heart of this setup. It will be used to
+let postfix know how to relay. We're gonna use lmtp for that.
+
+All ldap-* and `main.cf` example files can be found on the ISPMan source
+under `install-data/examples/postfix_configuration/with_cyrus_virtdomains/`
+
+
+
+2 - Final Thought's
+-----------------------------------------------------------------------------
+Although a user is now able to login into IMAP/POP, with username@domain.tld,
+in order to be able to fetch the correct mailbox from the correct cyrus
+mailstore, an IMAP/POP proxy is still needed, unless we setup cyrus murder,
+or we use only one cyrus mailstore.
+
+
+2.1 - Perdition
+-----------------------------------------------------------------------------
+With perdition CVS(1.17 has a bug in the ldap code), one is able to solve the
+problem I said earlier, ie, we use perdition to proxy for the several cyrus
+backends.
+
+Perdition queries the ldap database for the user logging in and returns the
+mailHost, which then uses to know where to proxy to.
+
+And example `perdition.conf` snippet is also found under
+`install-data/examples/postfix_configuration/with_cyrus_virtdomains/`
+
+And that's all there's needed to solve the final problem with this kind of
+setup :)
+
+Of course on perdition.conf you might use other options with these, I did,
+specially the debuging parts, and so should you when testing, but, these are
+the real important settings. 
+
+
+------------------------------
+Pedro Algarvio, aka, s0undt3ch
+------------------------------

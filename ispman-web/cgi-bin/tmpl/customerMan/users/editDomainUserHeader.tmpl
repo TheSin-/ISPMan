@@ -1,0 +1,109 @@
+<html>
+<head>
+<LINK HREF="<perl>$customer->getConfig('ispmanUrlPrefix')</perl>/control_panel/style.css" REL="stylesheet" TYPE="text/css">
+<script>
+         function Delete(){
+         if (confirm("<perl>$customer->getText("Are you sure you want to permanently delete this account?\nThis action will also delete this user's  email folders \nand all files from  homedirectory.")</perl>")) 
+            self.location="<perl>$r->url</perl>?mode=deleteDomainUser&user=<perl>$customer->{'user'}{'ispmanUserId'}</perl>";
+              }
+
+        function addMailAlias(){
+                alias=prompt("Alias@<perl>$r->param("ispmanDomain")</perl>" , "");
+                
+                if(alias){
+                        self.location="<perl>$r->url</perl>?mode=addMailAlias&user=<perl>$customer->{'user'}{'ispmanUserId'}</perl>&alias="+alias;
+                }
+        }
+        
+        
+        function addMailDrop(){
+                maildrop=prompt("<perl>$customer->getText("Enter address to forward\nThe address should be a fully qualified Email address\nAdding a bad address here will be bad for our mailservers and will\n decrease the quality of service for both you and other customers\n\nPlease check that the email addres is valid.")</perl>" , "");
+                if(maildrop){
+                        self.location="<perl>$r->url</perl>?mode=addMailDrop&user=<perl>$customer->{'user'}{'ispmanUserId'}</perl>&maildrop="+maildrop;
+                }
+        }
+
+        function changePass(){
+                pass=prompt("<perl>$customer->getText("New password")</perl>" , "");
+                if(pass){
+                        self.location="<perl>$r->url</perl>?mode=changeDomainUserPass&user=<perl>$customer->{'user'}{'ispmanUserId'}</perl>&pass="+pass;
+                }
+        }
+        
+
+        function gotoUser(item){
+                if (item.options[item.selectedIndex].value){
+                        self.location="<perl>$r->url</perl>?mode=editDomainUser&section=<perl>$r->param("section")</perl>&user="+item.options[item.selectedIndex].value;
+                }
+                
+        }
+        
+</script>
+<style type=text/css>
+A {text-decoration: none;}
+A:vlink { text-decoration: underline;}
+</style>
+
+</head>
+<body>
+
+
+
+<perl>$r->param("message")</perl>
+<font color=maroon size=+1>   <perl>$r->param("error")</perl></font>
+<table border=0>
+<form action="<perl>$ENV{'SCRIPT_NAME'}</perl>" method="GET">
+<tr><td colspan=2>
+    <perl>$customer->getText("Editing user")</perl> 
+<select onChange=gotoUser(this)>
+<perl>
+    $text="";
+    my $users=$customer->getDomainUsers();
+    unless ($r->param("user")){
+      $text.=qq|<option value=''>@{[$customer->getText("Please select a user")]}</option>|;
+    }
+    
+    for my $user(sort {lc($users->{$a}) cmp lc($users->{$b})} keys %$users) {
+      
+      $text.=qq|<option value='$user'|;
+      if ($r->param("user") eq $user){
+        $text.= " selected ";
+      }
+      $text.=qq|>$users->{$user}</option>|;
+    }
+$text
+</perl>
+</select>
+</tr>
+<perl>
+if ($r->param("user")){
+        return "";
+} else {
+        return "</table>\n<!--";
+}
+</perl>
+
+
+<tr><td colspan=2>
+<a href="<perl>$r->url</perl>?mode=editDomainUser&section=PersonalInfo&user=<perl>$r->param("user")</perl>"><perl>$customer->getText("personal Infos")</perl></a>
+| <a href="javascript:changePass()"><perl>$customer->getText("Password")</perl></a>
+| <a href="<perl>$r->url</perl>?mode=editDomainUser&section=EmailAliases&user=<perl>$r->param("user")</perl>"><perl>$customer->getText("Email aliases")</perl></a>
+| <a href="<perl>$r->url</perl>?mode=editDomainUser&section=EmailForwards&user=<perl>$r->param("user")</perl>"><perl>$customer->getText("Email forwarding")</perl></a>
+| <a href="javascript:Delete()"><perl>$customer->getText("Delete User")</perl></a>
+<br><hr noshade>
+</td>
+</tr>
+
+<perl>
+if ($r->param("user")){
+        $text="</form>\n\n";
+        $text.="<form name='";
+        $text.=$r->param("section");
+        $text.="'>\n";
+        return $text;
+} else {
+        return "-->";
+}
+</perl>
+
+

@@ -1,0 +1,27 @@
+<perl>
+$_acl = qq|
+
+	# Authentication with auth_ldap (apache 1.3)
+	<IfModule mod_auth_ldap.c>
+		<Location $location>
+			AuthType Basic
+			AuthName $vhost.$ispmanDomain
+			AuthLDAPURL ldap://$ldapHost/ispmanDomain=$ispmanDomain,$ldapBaseDN?ispmanUserId?sub?$filter
+			require valid-user
+		</Location>
+	</IfModule>
+
+	# Authentication with authnz_ldap (apache 2.2)
+	<IfModule mod_authnz_ldap.c>
+		<Location $location>
+			AuthType Basic
+			AuthName $vhost.$ispmanDomain
+			AuthBasicProvider ldap
+			AuthzLDAPAuthoritative Off
+			AuthLDAPURL ldap://$ldapHost/ispmanDomain=$ispmanDomain,$ldapBaseDN?ispmanUserId
+			require ldap-filter \|$filter
+		</Location>
+	</IfModule>
+|;
+$_acl;
+</perl>

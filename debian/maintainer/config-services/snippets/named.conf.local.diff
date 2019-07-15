@@ -1,0 +1,7 @@
+--- /etc/bind/named.conf.local.orig	2006-11-16 18:05:57.000000000 +0100
++++ /etc/bind/named.conf.local	2006-11-16 18:06:43.000000000 +0100
+@@ -6,3 +6,4 @@
+ // organization
+ //include "/etc/bind/zones.rfc1918";
+ 
++include "/etc/bind/named.conf.ispman";

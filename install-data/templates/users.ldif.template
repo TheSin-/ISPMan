@@ -1,0 +1,77 @@
+dn: uid=<perl>$r->param("uid")</perl>, ou=users, ispmanDomain=<perl>$r->param("ispmanDomain")</perl>, <perl>$ispman->getConf("ldapBaseDN")</perl>
+<perl>
+$text = '';
+foreach my $oc (@{$ispman->getConf('ispmanUserObjectclasses')}) {
+  $text .= "objectClass: " . $oc . "\n";
+}
+$text
+</perl>
+<perl>
+        $text="";
+        if ($r->param("dialupAccess") && $r->param("dialupAccess") eq "enabled"){
+                $text="dialupAccess: yes\n";
+        }
+        $text
+</perl>
+<perl>
+        $text="";
+        if ($r->param("radiusProfileDN")) {
+                $text="radiusProfileDN: ". $r->param("radiusProfileDN");
+        }
+        $text
+</perl>
+
+givenName: <perl>$r->param("givenName")</perl>
+sn: <perl>$r->param("sn")? $r->param("sn"):$r->param("userid")</perl>
+cn: <perl>($r->param("givenName") && $r->param("sn"))? join " ", ($r->param("givenName"), $r->param("sn")) :$r->param("userid")</perl>
+
+uid: <perl>$r->param("uid")</perl>
+uid: <perl>join '@', ($r->param("userid"), $r->param("ispmanDomain"))</perl>
+userPassword: <perl>$r->param("userPassword") || "noEntry"</perl>
+uidNumber: <perl>$ispman->getUid()</perl>
+gidNumber: <perl>$ispman->getDomainGid($r->param("ispmanDomain"))</perl>
+homeDirectory: <perl>join '/', ($r->param("domaininfo")->{'homeDirectory'}, "users", $r->param("uid"))</perl>
+loginShell: <perl>$r->param("loginShell")||$ispman->getConf("loginShell")</perl>
+
+ispmanStatus: active
+ispmanCreateTimestamp: <perl>time()</perl>
+ispmanUserId: <perl>$r->param("userid")</perl>
+ispmanDomain: <perl>$r->param("ispmanDomain")</perl>
+
+DestinationAddress: <perl>$r->param("fileHost") || "127.0.0.1"</perl>
+DestinationPort: <perl>$ispman->getConf("FTPDestinationPort") || $r->param("DestinationPort") || 21</perl>
+FTPStatus: <perl>$r->param("FTPStatus")</perl>
+FTPQuotaMBytes: <perl>$r->param("FTPQuotaMBytes")</perl>
+
+mailLocalAddress: <perl>join '@', ($r->param("userid"), $r->param("ispmanDomain"))</perl>
+mailQuota: <perl>$r->param("mailQuota")*1024</perl>
+<perl>
+   $text="";
+   if ($r->param("mailHost")){
+      my $address="";
+      if ( lc( $ispman->getConf("cyrusVirtDomainFeature") ) eq 'yes') {
+         $address=join '@', ($r->param("userid"), $r->param("ispmanDomain"));
+      } else {
+         $address=join '@', ($r->param("uid"), $r->param("mailHost"));
+      }
+      $text.="mailHost: ".$r->param("mailHost")."\n";
+      $text.="mailRoutingAddress: $address\n";
+   }
+   if ($r->param("fileHost")){
+      $text.="fileHost: ".$r->param("fileHost")."\n";
+   }
+   $text
+</perl>
+
+<perl>
+   #If there is a site specific file load and evaluate it
+   $template=$ispman->getTemplate(join "/", ($ispman->getConf("installDir"), "templates/users.ldif.template.local"));
+   return $template->fill_in(PACKAGE => __PACKAGE__);
+</perl>
+
+# PAB Stuff
+dn: ou=<perl>$r->param("uid")</perl>, ou=<perl>$r->param("ispmanDomain")</perl>, ou=pabs, <perl>$ispman->getConf("ldapBaseDN")</perl>
+objectClass: top
+objectClass: organizationalUnit
+ou: <perl>$r->param("uid")</perl>
+

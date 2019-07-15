@@ -1,0 +1,21 @@
+# attributeType 1.3.6.1.4.1.8833.2.1.1020 'ispmanSysadminLevel'
+# attributeType 1.3.6.1.4.1.8833.2.1.1021 'ispmanSysadminMail'
+
+attributetype ( 1.3.6.1.4.1.8833.2.1.1030
+	NAME ('ispmanSysadminLevel')
+	DESC 'An integer number defining the level of admin status'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+	SINGLE-VALUE 
+	USAGE  userApplications )
+
+attributetype ( 1.3.6.1.4.1.8833.2.1.1031
+	NAME ('ispmanSysadminMail')
+	DESC 'Email address for the admin'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256}
+	SINGLE-VALUE 
+	USAGE  userApplications )
+
+

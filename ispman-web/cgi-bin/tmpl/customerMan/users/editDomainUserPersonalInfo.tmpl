@@ -1,0 +1,35 @@
+
+<tr>
+    <td><perl>$customer->getText("Firstname")</perl> </td>
+    <td>
+        <input size=35 type=text name=givenName value="<perl> $ispman->{'user'}->{"givenName"}</perl>">
+    </td>
+</tr>
+<tr>
+    <td><perl>$customer->getText("Surname")</perl></td>
+    <td>
+        <input  size=35 type=text name=sn value="<perl>$ispman->{'user'}->{"sn"}</perl>">
+    </td>
+</tr>
+
+<tr>
+    <td><perl>$customer->getText("Displayname")</perl> </td>
+    <td>
+        <input size=35 type=text name=cn value="<perl> $ispman->{'user'}->{"cn"}</perl>">
+    </td>
+</tr>
+
+<tr>
+    <td><perl>$customer->getText("Email")</perl> </td>
+    <td> 
+        <perl>$customer->{'user'}{'mailLocalAddress'}</perl>
+    </td>
+</tr>
+
+   <tr><td align=left colspan=2>  
+         <input type=reset>
+         <input type=submit>
+      </td></tr>
+
+<input type=hidden name="mode" value="changeDomainUserPersonalInfo">
+

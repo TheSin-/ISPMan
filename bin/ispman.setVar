@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'mh', \%opts );
+    if ( !$opts{'m'} || !defined($ARGV[1]) || $opts{'h'} ) {
+        print "USAGE: $FindBin::Script  -m module_name variable_name value\n\n";
+        print "Example:\n";
+        print "$FindBin::Script -m sys_vars sleepSecondsBetweenRestart 2\n";
+        print "\n";
+        exit;
+    }
+}
+
+
+use ISPMan;
+my $ispman = ISPMan->new();
+my $var    = shift @ARGV;
+$ispman->setConfVar( $opts{'m'}, $var, join " ", @ARGV );
+
+__END__
+
+=head1 NAME 
+
+ispman.setVar - ispman command to set  various configuration variables
+
+=head1 SYNOPSIS
+  
+B<ispman.setVar -m module_name variable_name value>
+
+=head1 Examples
+
+ispman.setVar -m sys_vars sleepSecondsBetweenRestart 2
+
+=head1 Author
+
+Atif Ghaffar
+
+=head1 Homepage
+
+http://ispman.sourceforge.org
+
+=head1 MailingLists
+
+ispman-developers@lists.sourceforge.org  - For developers
+
+ispman-users@lists.sourceforge.org  - For users
+
+=head1 Bug reporting / Support / Patches / Feature requests
+
+http://sourceforge.net/tracker/?group_id=8390
+
+=cut
+

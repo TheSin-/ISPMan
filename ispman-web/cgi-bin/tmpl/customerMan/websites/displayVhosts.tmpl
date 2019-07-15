@@ -1,0 +1,45 @@
+<html>
+<head>
+<LINK HREF="<perl>$customer->getConfig('ispmanUrlPrefix')</perl>/control_panel/style.css" REL="stylesheet" TYPE="text/css">
+</head>
+<body>
+
+
+
+
+<perl>
+        $r->param("message")
+</perl>
+
+<font color=maroon>
+<!-- errors if any -->
+<perl>$r->param("errors")</perl>
+</font>
+
+
+
+<P>
+You can have a maximum of <perl>$customer->getDomainVhostQuota</perl> websites.
+<BR>
+The following websites have been defined.
+<br>
+<br>
+
+
+
+<perl>
+    $text="";
+    my $vhosts=$customer->getVhosts();
+    for my $vhost(keys %$vhosts) {
+      $text.="<a href='@{[$r->url]}?mode=editVhost&vhost=$vhost'>$vhost.$customer->{'domain'}</a><br>";
+    }
+$text
+</perl>
+
+
+
+
+
+
+   
+

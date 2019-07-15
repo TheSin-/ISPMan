@@ -1,0 +1,46 @@
+attributeType ( 1.3.6.1.4.1.8833.2.1.1901 NAME 'amavisVirusLover'
+	DESC 'Boolean Value. Should this person recieve amavisVirus Messages'
+	EQUALITY booleanMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 
+	SINGLE-VALUE )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1902 NAME 'amavisBannedFilesLover'
+	DESC 'Boolean Value. Should this person recieve banned files'
+	EQUALITY booleanMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 
+	SINGLE-VALUE )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1903 NAME 'amavisBypassVirusChecks'
+	DESC 'Boolean Value. Should VirusChecks be bypassed for this user'
+	EQUALITY booleanMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 
+	SINGLE-VALUE )
+	
+attributeType ( 1.3.6.1.4.1.8833.2.1.1904 NAME 'amavisBypassSpamChecks'
+	DESC 'Boolean Value. Should SpamChecks be bypassed for this user'
+	EQUALITY booleanMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 
+	SINGLE-VALUE )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1905 NAME 'amavisSpamTagLevel'
+	DESC 'Intege value: At which level a message is marked as Spam'
+	EQUALITY numericStringMatch
+	SYNTAX  1.3.6.1.4.1.1466.115.121.1.36 
+	SINGLE-VALUE )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1906 NAME 'amavisSpamKillLevel'
+	DESC 'Intege value: At which level a message is killed as Spam'
+	EQUALITY numericStringMatch
+	SYNTAX  1.3.6.1.4.1.1466.115.121.1.36 
+	SINGLE-VALUE )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1908 NAME 'amavisWhitelistSender'
+	DESC 'Multiple email addresses of users who should be whitelisted'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1909 NAME 'amavisBlacklistSender'
+	DESC 'Multiple email addresses of users who should be blacklisted'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+

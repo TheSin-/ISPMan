@@ -1,0 +1,48 @@
+<html>
+<head>
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+</head>
+<body>
+<perl>$message</perl>
+
+
+
+
+<form action="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/admin/index.cgi" method="POST">
+
+
+<center>
+<table border=0 bgcolor="#d4eaf9">
+<td>
+        <table border=0>
+                <tr><th><perl>_("Username")</perl></th>
+                        <td><input type=text size=30 name="uid" value="<perl>$ispman->{'admin'}{'uid'}</perl>"></tr>
+                <tr><th><perl>_("Fullname")</perl></th><td><input  size=30 type=text name="cn" value="<perl>$ispman->{'admin'}{'cn'}</perl>"></tr>
+                <tr><th><perl>_("Password")</perl></th><td><input  size=30 type=text name="userPassword" value="<perl>$ispman->{'admin'}{'userpassword'}</perl>"></tr>
+                <tr><th><perl>_("Email address")</perl></th><td><input  size=30 type=text name="ispmanSysadminMail" value="<perl>$ispman->{'admin'}{'ispmanSysadminMail'}</perl>"></tr>
+                <tr><th><perl>_("Authority Level")</perl></th><td><input  size=30 type=text name="ispmanSysadminLevel" value="<perl>$ispman->{'admin'}{'ispmanSysadminLevel'}</perl>"></tr>
+        </table>
+
+
+
+<tr bgcolor="#b8d8f1"
+        onmouseover="javascript:style.background='#d4eaf9'" 
+        onmouseout="javascript:style.background='#b8d8f1'">
+<td >
+        Authority level is a number between 1 and 100.<br>
+        Admins with level 100 have almost all authorities<br>
+        For help-desk staff use 20.<br>
+        With level 20, an admin can add/modify domains but cannot <br>
+        change configuration settings for the complete system
+</td></tr>
+
+<tr bgcolor="#b8d8f1"
+<td colspan=2 align=right>
+        <input type=hidden name="mode" value="newAdmin">
+         <input type=submit class="button" value="<perl>_("Add admin")</perl>">
+
+</td></tr>
+
+</table>
+
+ </form>

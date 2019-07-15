@@ -1,0 +1,52 @@
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+   
+<perl>
+my $text="";
+my $c=1;
+my $thisDomain=$r->param("ispmanDomain");
+
+$text.=qq|        
+@{[_("Readonly access granted.")]}
+<br>
+@{[_("This domain is locked and editable by [_1]", $ispman->{'domain'}{'ispmanDomainLockedBy'})]}
+
+<P>
+<table border=1 cellpadding=0 cellspacing=5><tr>
+<th><a href='$ENV{'SCRIPT_NAME'}?mode=editDNSmXRecords&ispmanDomain=$thisDomain&sortby=origion'>Origin</a></th>
+<th><a href='$ENV{'SCRIPT_NAME'}?mode=editDNSmXRecords&ispmanDomain=$thisDomain&sortby=host'>Host</a></th>
+<th><a href='$ENV{'SCRIPT_NAME'}?mode=editDNSmXRecords&ispmanDomain=$thisDomain&sortby=prio'>Priority</a></th>
+</tr>|;
+
+my $sortby=$r->param("sortby");
+my @sorted=();
+
+if ($sortby eq 'host') {
+	@sorted=sort { 
+		$a->{'host'} cmp $b->{'host'} ||
+		$a->{'origion'} cmp $b->{'origion'}
+		} @{$ispman->{'domain'}{'dns'}};
+} elsif ($sortby eq 'prio') {
+	@sorted=sort { 
+		$a->{'pref'} <=> $b->{'pref'} ||
+		$a->{'origion'} cmp $b->{'origion'}
+		} @{$ispman->{'domain'}{'dns'}};
+} else {	
+	@sorted=sort {
+		$a->{'origion'} cmp $b->{'origion'} ||
+		$a->{'pref'} <=> $b->{'pref'} 
+		} @{$ispman->{'domain'}{'dns'}};
+}
+
+for (@sorted){
+        $text.="<tr>";
+        $text.="<td>$_->{'origion'}</td>";
+        $text.="<td>$_->{'host'}</td>";
+        $text.="<td>$_->{'pref'}</td>";
+        $text.="</tr>";
+        $c++;
+}
+$text
+</perl>
+
+</table>
+

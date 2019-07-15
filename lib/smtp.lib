@@ -1,0 +1,130 @@
+# these functions here are an alternative to writting the dynamic main.cf file
+# with the dynamic main.cf. the ldap server is hit on each mail sent, recieved
+
+sub add_relay_domain_entry {
+    my ($domain) = @_;
+    my $map_file = join "/", ( $ispman->getConf("smtpServerConfDir"), "relay_domains" );
+    my $relay_domains = read_map($map_file);
+    $relay_domains->{$domain} = $domain;
+    write_map( $map_file, $relay_domains );
+    return 1;
+}
+
+sub modify_transport_map_entry {
+    my ( $domain, $mapinfo ) = @_;
+    my $map_file = join "/", ( $ispman->getConf("smtpServerConfDir"), "transport_domains" );
+    my $transport_map = read_map($map_file);
+    $transport_map->{$domain} = $mapinfo;
+    write_map( $map_file, $transport_map );
+    return 1;
+}
+
+sub remove_relay_domain_entry {
+    my ($domain) = @_;
+    my $map_file = join "/",
+      ( $ispman->getConf("smtpServerConfDir"), "relay_domains" );
+    my $relay_domains = read_map($map_file);
+    delete $relay_domains->{$domain};
+    write_map( $map_file, $relay_domains );
+    return 1;
+}
+
+sub add_destination_domain_entry {
+    my ($domain) = @_;
+    my $map_file = join "/",
+      ( $ispman->getConf("smtpServerConfDir"), "destination_domains" );
+    my $destination_domains = read_map($map_file);
+    $destination_domains->{$domain} = $domain;
+    write_map( $map_file, $destination_domains );
+    return 1;
+}
+
+sub remove_destination_domain_entry {
+    my ($domain) = @_;
+    my $map_file = join "/",
+      ( $ispman->getConf("smtpServerConfDir"), "destination_domains" );
+    my $destination_domains = read_map($map_file);
+    delete $destination_domains->{$domain};
+    write_map( $map_file, $destination_domains );
+    return 1;
+}
+
+sub add_canonical_map_entry {
+    my ( $replica, $parent ) = @_;
+    my $map_file = join "/",  ( $ispman->getConf("smtpServerConfDir"), "canonical" );
+    my $canonical_map = read_map($map_file);
+    $replica = "\@$replica" unless $replica =~ /^\@/;
+    $parent  = "\@$parent"  unless $parent  =~ /^\@/;
+    $canonical_map->{$replica} = $parent;
+    write_map( $map_file, $canonical_map );
+    return 1;
+}
+
+sub remove_canonical_map_entry {
+    my ($replica) = @_;
+    my $map_file = join "/",
+      ( $ispman->getConf("smtpServerConfDir"), "canonical" );
+    my $canonical_map = read_map($map_file);
+    $replica = "\@$replica" unless $replica =~ /^\@/;
+    delete $canonical_map->{$replica};
+    write_map( $map_file, $canonical_map );
+    return 1;
+}
+
+sub write_map {
+    my $map_file = shift;
+    my $map      = shift;
+    open "MAP", ">$map_file" || die "Cannot open $map_file to write: $!";
+    for ( keys %$map ) {
+        print MAP join "\t", ( $_, $map->{$_} );
+        print MAP "\n";
+    }
+    close("MAP");
+    make_postmap($map_file);
+    return 1;
+}
+
+sub read_map {
+    my $map_file = shift;
+    open "MAP", "<$map_file";
+    my @lines = <MAP>;
+    close("MAP");
+    my $map;
+
+    for (@lines) {
+        chomp;
+        next unless /\S/;
+        next if /^\s*#/;
+        my ( $key, $val ) = split( /\s\s*/, $_ );
+        $map->{$key} = $val;
+    }
+    return $map;
+}
+
+sub make_relay_domains {
+
+    # make a list of all domains to which we can allow emails from this server
+
+}
+
+sub make_destinations {
+
+    # make a list of all domains to which we are the mail servers
+    # defined by domainservice=mail
+}
+
+sub make_postmap {
+    my $map = shift;
+    my $command = join " ", ( $ispman->getConf("makeMapCommand"), $map );
+    print "$command\n";
+    system($command);
+    return 1;
+}
+
+sub reload_postfix {
+    system( $ispman->getConf("smtpServerReloadCommand") );
+    return 1;
+}
+
+1;
+

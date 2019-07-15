@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'dua', \%opts );
+    unless ( $opts{'d'} && $opts{'u'} && $opts{'a'} ) {
+        print "Usage: $FindBin::Script -d domain -u username -a attribute\n";
+        exit;
+    }
+}
+
+use ISPMan;
+
+my $ispman = ISPMan->new();
+
+my @list =
+  $ispman->as_array(
+    $ispman->getUserAttributeValues( $opts{'u'}, $opts{'d'}, $opts{'a'} ) );
+
+for (@list) {
+    print "$_\n";
+}
+

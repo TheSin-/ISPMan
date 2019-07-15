@@ -1,0 +1,61 @@
+<html>
+<head>
+<title>INSTALLING APACHE FOR ISPMAN</title>
+<LINK HREF="/ispman.css" REL="stylesheet" TYPE="text/css">
+</head>
+<body>
+<h1>INSTALLING APACHE FOR ISPMan.</h2>
+<hr>
+
+ISPMan runs best with mod_perl.
+<br>
+You can run it with your webserver that is serving other stuff, but I prefer to run a separate server for ISPMan.
+
+<p align=justify>
+You can run without mod_perl but the speed will not be so good, since ISPMan will have to make a connection to the LDAP server and create the objects each time you load any page.
+</p>
+
+<p align=justify>
+ISPMan also requires some way of authentication for users.
+It will not work properly unless a user is authentified and a $ENV{'REMOTE_USER'} is set.
+I use mod_ldap.1.8.c for authentification and I will explain in the rest of the document on how to set that up.
+</p>
+
+<p align=justify>
+Create a build directory.<BR>
+/opt/ispman/build <BR>
+(I like the keep the sources and the build even on production machines so that I can make a change if I want to quickly rather than looking for sources and remembering what I did before to get this software compiled)
+<BR>
+
+cd to that directory.
+<BR>
+
+
+<p align=justify>
+You may obtain the sources either from a mirror or from the links provided.
+<BR>obtain sources of apache from http://httpd.apache.org/dist/apache_1.3.14.tar.gz
+<BR>obtain sources of mod_perl from CPAN  http://www.cpan.org/authors/id/DOUGM/mod_perl-1.24_01.tar.gz
+<BR>obtain mod_ldap.c from http://www.kie.berkeley.edu/people/jmorrow/mod_ldap/mod_ldap.1.8.c.tar.gz
+<BR>
+<BR>untar all files.
+<BR>
+<BR>rename apache-1.3.xx to apache
+<BR>rename mod_perl-1.24.xx to mod_perl
+<BR>rename mod_ldap.1.8.c to mod_ldap.c
+<BR>
+<BR>move mod_ldap.c to apache_1.3.14/src/modules/extra directory
+<BR>
+<BR>copy the Makefile.ISPMan.apache to Makefile in /opt/ispman/build
+<BR>cp Makefile.ISPMan.apache /opt/ispman/build/Makefile
+<BR>EDIT the Makefile if neccessary
+<BR>
+<BR>cd to /opt/ispman/build and run 
+<BR>make all
+<BR>
+<BR>this should build apache with mod_perl and mod_ldap for you.
+<BR>
+<BR>For more information see the <A HREF="Makefile.ISPMan.apache">Makefile</a>
+
+</p>
+
+

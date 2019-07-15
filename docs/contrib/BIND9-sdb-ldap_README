@@ -1,0 +1,30 @@
+With this method, all zone data stays within LDAP and Bind queries LDAP 
+to get each record.
+
+This is the fastest way to change records. You may use a simple 
+LDAP editor, change a record and bind will resolve the address with the new record
+
+
+Download sdb-ldap from http://www.venaas.no/ldap/bind-sdb/
+Download bind-9.2.x from http://www.isc.org/products/BIND/bind9.html
+READ the INSTALL file for sdb-ldap and install bind9 with sdb-ldap
+
+Please do not report problems about bind or sdb-ldap to ispman mailing lists.
+You will have better chances of getting a response if you report promblems
+to bind or sdb-ldap mailing lists.
+
+
+Set the following varaibles for ispman
+
+namedBackend = bind9-sdbldap
+
+You can set the following either via the web interface under 
+Configure ISPMan | dns_vars
+
+or you can set with the command line (preferred method)
+cd to /opt/ispman/bin directory
+./ispman.setVar -m dns_vars namedBackend bind9-sdbldap
+
+read more on setting DNS in DNS_README
+
+

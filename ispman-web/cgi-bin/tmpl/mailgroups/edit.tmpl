@@ -1,0 +1,72 @@
+<script>
+        function Delete(){
+                if (confirm("Are you sure you want to permanently delete this mailgroup?")) 
+                self.location="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=deleteMailGroup&cn=<perl>$ispman->{'mailgroup'}{'cn'}</perl>&ispmanDomain=<perl>$r->param("ispmanDomain")</perl>";
+        }
+</script>
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+   
+
+   
+<table border=0>
+<form>
+<tr><td colspan=2>
+    <b><perl>_("Mailgroup")</perl>: </b> 
+    <perl>$ispman->{'mailgroup'}{'cn'}</perl>@<perl>$r->param('ispmanDomain')</perl>
+    <br><hr noshade></td></tr>
+
+<tr>
+    <td valign=top><perl>_("Mail group members")</perl></td><td>( <perl>_("local or  remote")</perl> )</td>
+</tr>
+
+<tr>
+    <td colspan=2>
+        <textarea cols=50 rows=3 name=mailForwardingAddress><perl>
+       my $text="";
+       if (ref $ispman->{'mailgroup'}->{"mailForwardingAddress"} eq "ARRAY"){
+        my @maildrops=@{$ispman->{'mailgroup'}->{"mailForwardingAddress"}};
+           for   (@maildrops){
+              $text.= "$_\n";
+           }
+        } else {
+            $text=$ispman->{'mailgroup'}->{"mailForwardingAddress"};
+        }
+       $text;
+       </perl></textarea>
+   </td>
+</tr>
+
+<tr>
+    <td valign=top><perl>_("Mail group aliases")</perl></td>
+</tr>
+
+<tr>
+    <td colspan=2>
+        <textarea cols=50 rows=3 name=mailAlias><perl>
+       my $text="";
+       if (ref $ispman->{'mailgroup'}->{"mailAlias"} eq "ARRAY"){
+        my @maildrops=@{$ispman->{'mailgroup'}->{"mailAlias"}};
+           for   (@maildrops){
+              $text.= "$_\n";
+           }
+        } else {
+            $text=$ispman->{'mailgroup'}->{"mailAlias"};
+        }
+       $text;
+       </perl></textarea>
+   </td>
+</tr>
+
+<input type=hidden name="mode" value="updateMailGroup">
+<input type=hidden name="ispmanDomain" value="<perl>$r->param("ispmanDomain")</perl>">
+<input type=hidden name="mailGroup" value="<perl>$ispman->{'mailgroup'}{'cn'}</perl>">
+
+<tr><td align=right colspan=2>  
+         <input type=button class="button" onClick="document.forms[0].reset()" value="<perl>_("Reset")</perl>">
+         <input type=button class="button" onClick="Delete()" value="<perl>_("Delete")</perl>">
+         <input type=button class="button" onClick="document.forms[0].submit()" value="<perl>_("Update")</perl>">
+</td></tr>
+</form></table>
+ 
+ 
+

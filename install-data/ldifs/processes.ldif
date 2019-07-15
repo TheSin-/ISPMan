@@ -1,0 +1,6 @@
+dn: ou=processes, %%ldapBaseDN%%
+objectclass: ispmanBranch
+ou: processes
+
+
+

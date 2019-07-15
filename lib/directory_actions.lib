@@ -1,0 +1,93 @@
+
+###################### D O M A I N #######################
+
+sub create_domain_directories {
+    my ( $home, $owner, $group ) = @_;
+    my @cmds = ();
+	
+    push @cmds, "mkdir -p \"$home\"";
+	push @cmds, "mkdir    \"$home/vhosts\"";
+	push @cmds, "mkdir    \"$home/users\"";
+    push @cmds, "chown -R $owner:$group \"$home\"";
+    
+	my $errs;
+    for (@cmds) {
+        my $rc=system($_);
+		print "System: \"$_\", rc=" . $rc . "\n";
+		$errs += ( $rc != 0 );
+    }
+	return $errs;
+}
+
+sub delete_domain_directories {
+    my ( $home, $owner, $group ) = @_;
+    my $rc=0;
+	
+    # backup the homedirectory before delete if you want 
+	# or do something your site specific here
+    #system("cp -a $home /tmp/backups$home");
+
+    # delete the directory
+    # do as many checks as possible here
+    # deleteing / is a bad thing to do.
+    # make sure, that only the domain's home_directory will be deleted
+    if ( -e $home ) {
+
+        my $cmd = "find \"$home\" -depth ".
+		          "-user $owner -group $group ".
+				  "-type d -exec rm -rf {} \\;";
+
+        $rc=system($cmd);
+		print "System: \"$cmd\", rc=" . $rc . "\n";
+    }
+
+	return $rc;
+}
+
+
+###################### U S E R #######################
+
+sub create_user_directories {
+    my ( $home, $owner, $group ) = @_;
+    my @cmds = ();
+
+    push @cmds, "mkdir -p \"$home\"";
+	push @cmds, "mkdir    \"$home/public_html\"";
+    push @cmds, "chown -R $owner:$group \"$home\"";
+
+	my $errs;
+    for (@cmds) {
+        my $rc=system($_);
+		print "System: \"$_\", rc=" . $rc . "\n";
+		$errs += ( $rc != 0 );
+    }
+	return $errs;
+}
+
+
+sub delete_user_directories {
+    my ( $home, $owner, $group ) = @_;
+    my $rc = 0;
+	
+    # backup the homedirectory before delete if you want
+	# or do something your site specific here
+    #system("cp -a \"$home\" \"/tmp/backups$home\"");
+
+    # delete the directory
+    # do as many checks as possible here
+    # make sure, that only the user's home_directory will be deleted
+    if ( -e $home ) {
+
+        my $cmd = "find \"$home\" -depth ".
+		          "-user $owner -group $group ".
+				  "-type d -exec rm -rf {} \\;";
+        $rc=system($cmd);
+		print "System: \"$cmd\", rc=" . $rc . "\n";
+    }
+
+	return $rc;
+}
+
+
+1;
+

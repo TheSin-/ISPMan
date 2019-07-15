@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    unless ( $ARGV[1] ) {
+        print "$FindBin::Script  hostname ipAddress [Display Name]  [Description]\n";
+        exit;
+    }
+}
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+$ispman->add_host(@ARGV);
+

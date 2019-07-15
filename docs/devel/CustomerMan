@@ -1,0 +1,154 @@
+CustomerMan Design Document
+===========================
+Sat Jun 26 16:31:44 PDT 2004
+
+CustomerMan needs work.  It doesn't work well under mod_perl and to make it so,
+it might as well be redesigned.  Here are requirements and specifications
+documents that are precursor to the redesign.  Straight forward requirements
+are not discussed in the specs.
+
+
+Requirements
+------------
+System
+- Secure login and session handling (currently not done).
+- Session info will be stored either in ldap tree if there is a place for it,  
+  or in /tmp.
+- Data is stored and read from ldap tree.
+- Runs under CGI as well as mod_perl with strict and taint mode on.
+
+User - Nonfunctional
+- Input data will be checked for validity. (currently not all of it is).
+- Interface will be intuitive to work with.  (its kind of clunky now).
+
+User - Functional
+- Manages http authentication usernames (web users)
+- Manages email accounts, aliases, forwarding (domain user)
+- Manages email lists
+- Manages domain signature  (does this actually work, currently?)
+- Manages virtual hosts
+- Manages DNS
+- Provides vhost log downloads
+- Displays quotas: No users/vhosts, amount of space
+- Displays server statistics: perl/php, versions and paths
+- Displays web statistics: webalizer/awstats
+- Support framework for mysql databases (not in first release).
+
+
+
+Specifications
+--------------
+Platform
+- Customerman will be available from the main ispman.domain.com login screen.  
+  Perhaps in future it will be available as customerdomain.com/ispman, but
+  not in the first release.
+
+Security
+- A non-guessable session id will be insert into an expirable cookie upon
+  successful authentication.  This session ID will also go into the ldap tree  
+  or in /tmp with an expiry date.
+
+- Each action will be checked to see if the cookie has a valid session id.
+
+- All input data will be validated against the type of input expected.
+
+- Runs with taint mode and strict on to promote more secure programming.
+
+Interface
+- Layout will be based around functional categories (email accounts, lists,
+  vhosts) rather than operation (add, modify) as is done currently.
+
+Misc
+- Mod_perl compiles the perl script only once, thus some perl functions are
+  only run once (such as BEGIN and END blocks).  In order to support mod_perl
+  and CGI, these CustomerMan will be designed to run only at runtime.  Perl 5.6
+  and later is required in order for mod_perl to override die() and exit()
+  functions.  Running under Apache::Registry is also required for this
+  override.
+
+
+Design
+------
+
+- CustomerMan does not provide any functions for other modules, thus does not
+  need it's own package.  Functions used throughout ispman should be in the
+  ispman library (ie /lib and in the package).  CustomerMan should therefore
+  utilize this library as much as possible.
+
+Templates in cgi-bin/tmpl/customerMan/*.tmpl have all non-data output
+CGI: htdocs/control_panel/index.cgi
+Support functions: lib/*
+
+
+User connects control_panel/index.cgi:
+[5] A counter is retreived from /tmp/ispman-sessions.
+    If it is >=100 expired session files /tmp/ispman-session-* are removed.
+
+[10] System checks for an authorized session id in a cookie upon each page
+access.
+    If the session is valid, commands are carried out [15].  
+    Else is the user logging in? [20].
+    Else the login screen is shown from template.
+Script exits.  
+
+[20] The supplied domain and password are verified against the ldap tree.
+    If the credentials are valid
+	A random number is generated.
+	The connecting ip address is retreived.
+	The date, ip and domain are written to /tmp/ispman-session-########
+	    where # is the random number.
+	The number is given back to the browser in a 1 hour cookie.
+	Browser is forwarded to the script again.
+	Return.
+    Else a templated error message is displayed.
+    Return.
+
+[15]
+What are the category and command requested? (One indent is category, two
+indents is action, three indents if any are pseudo code.  Each action returns.
+All data is stored in ldap tree.)
+    default
+	    Show templated summary screen[50].
+	    Return.
+    Misc
+	Logout
+	    /tmp/ispman-session-######## is removed.
+	    Cookie is removed from client.
+	    Browser is forwarded to the script again.
+	    Return.
+    Domain Accounts (email/ftp)
+	Add account
+	Modify name, password, (email*)
+	Delete account
+	Add/Modify/Delete alias
+	Add/Modify/Delete forward
+    Lists
+	Add/Delete list
+	Modify list members
+    VHosts
+	Add/Delete vhost
+	Modify permission settings
+	Add/Modify/Delete web alias
+	Add/Modify/Delete web redirect
+	Add/Modify/Delete web access accounts
+	Add/Modify/Delete web access control lists
+	Access Log files
+    Domain signature  (does this actually work, currently?)
+	Add/Modify/Delete signature
+    DNS
+	Add/Modify/Delete NS/MX/A/CNAME/other? records 
+    
+    
+[50] Overview information:
+Server statistics: perl/php, versions and paths
+quotas: Number of email accounts, web users, vhosts, amount of space
+Web statistics: webalizer/awstats
+
+
+
+----
+
+* Email: In another release, modification of email address and moving of
+  underlying files should be supported.
+
+

@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'flcm', \%opts );
+    unless ( $ARGV[0] ) {
+        print
+"$FindBin::Script [-f firstname] [-l lastname] [-m maxclients]  [-c displayname]  resellerName ";
+        print "\n";
+        exit;
+    }
+}
+
+
+use ISPMan;
+use CGI;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+$user   = shift @ARGV;
+
+my $r = new CGI();
+
+$opts{'f'} ||= $user;
+$opts{'l'} ||= $user;
+$opts{'p'} ||= "secret";
+$opts{'c'} ||= join " ", ( $opts{'f'}, $opts{'l'} );
+
+$r->param( "givenName",                $opts{"f"} );
+$r->param( "sn",                       $opts{"l"} );
+$r->param( "cn",                       $opts{"c"} );
+$r->param( "uid",                      $user );
+$r->param( "userPassword",             $opts{"p"} );
+$r->param( "ispmanResellerName",       $user );
+$r->param( "ispmanResellerMaxClients", $opts{'m'} ) if $opts{'m'};
+
+$ispman->addReseller($r);
+print $ispman->{'message'}, "\n";
+

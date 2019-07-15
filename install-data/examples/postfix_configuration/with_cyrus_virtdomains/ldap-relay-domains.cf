@@ -1,0 +1,7 @@
+# ldap search for relay_domain
+version = 3
+server_host = ldap.example.com
+server_port = 389
+search_base = o=ispman
+query_filter = (&(objectclass=ispmanDomain)(ispmanDomain=%s)(|(ispmanDomainMailDeliveryMethod=local)(ispmanDomainMailDeliveryMethod=smtp)))
+result_attribute = ispmanDomain

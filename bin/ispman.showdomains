@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+use Getopt::Std;
+
+use ISPMan;
+getopt( 't', \%opts );
+
+my $ispman = ISPMan->new();
+showDomains( $ispman, $opts{'t'} );
+
+sub showDomains {
+    my $self = shift;
+    my $type = shift;
+    $filters = {
+        'primary' => 'ispmanDomainType=primary',
+        'slave'   => 'ispmanDomainType=slave',
+        'nodns'   => 'ispmanDomainType=nodns',
+        'replica' => 'ispmanDomainType=replica'
+    };
+
+    my $domains =
+      $self->makeDomainHash( $self->getDomains( $filters->{$type} ) );
+    for ( keys %$domains ) {
+        print "$_\n";
+    }
+}
+

@@ -1,0 +1,83 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopts( 'c:h:q', \%opts );
+    unless ( $opts{'c'} && $ARGV[0] ) {
+        print "$FindBin::Script [-q] [-h sitename] -c /path/to/webalizer vhost_directory";
+        print "\n";
+        exit;
+    }
+}
+
+@dir       = @ARGV;
+$webalizer = $opts{'c'};
+$sitename  = $opts{'h'};
+$quiet     = $opts{'q'};
+
+if ($quiet) {
+       $quiet = "-q";
+} else {
+       $quiet = "";
+}
+
+$mon->{'Jan'} = 1;
+$mon->{'Feb'} = 2;
+$mon->{'Mar'} = 3;
+$mon->{'Apr'} = 4;
+$mon->{'May'} = 5;
+$mon->{'Jun'} = 6;
+$mon->{'Jul'} = 7;
+$mon->{'Aug'} = 8;
+$mon->{'Sep'} = 9;
+$mon->{'Oct'} = 10;
+$mon->{'Nov'} = 11;
+$mon->{'Dec'} = 12;
+
+for $dir (@dir) {
+    next unless -d $dir;
+    next unless -d "$dir/raw";
+
+    if (!$sitename) {
+        $sitename = $dir;
+        @sitename = split( "/", $dir );
+        $sitename =
+          join( '.', ( $sitename[$#sitename], $sitename[ $#sitename - 1 ] ) );
+    }
+
+    chdir "$dir/raw" or die "Cant chdir";
+
+    my @files = <*>;
+    for (@files) {
+        next unless /\d\d\-\w+?\-\d\d\d\d/;
+        ( $day, $month, $year ) = $_ =~ /(\d\d)\-(\w+)?\-(\d\d\d\d)/;
+        $date->{$year}{$month}{$day}++;
+    }
+
+    for $y ( sort { $date->{$a} <=> $date->{$b} } keys %$date ) {
+        for $m ( sort { $mon->{$a} <=> $mon->{$b} } keys %{ $date->{$y} } ) {
+            for $d ( sort { $a <=> $b } keys %{ $date->{$y}{$m} } ) {
+                $f = "$d-$m-$y";
+                push @logs, $f;
+            }
+        }
+    }
+
+    for $log (@logs) {
+        $cmd =
+"$webalizer $quiet -p -n $sitename -o $dir/report -t 'Log Report'  $dir/raw/$log\n";
+        if ( $opts{'n'} ) {
+            print $cmd;
+            next;
+        }
+        else {
+            system($cmd);
+        }
+    }
+}
+1;
+exit(0);
+__END__
+

@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'dv', \%opts );
+
+    unless ( $opts{'d'} && $opts{'v'} && $ARGV[0] ) {
+        print "$FindBin::Script -d domain -v vhost alias\n";
+        print "\n";
+        exit;
+    }
+}
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+my $r = $ispman->add_alias( $opts{'d'}, $opts{'v'}, $ARGV[0] );
+
+#domain, vhost
+

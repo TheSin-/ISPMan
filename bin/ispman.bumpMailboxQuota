@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+# For emergencies when every one is getting overQuota due to some spam or virus
+# such as So F. Big
+
+# Bumps up the Cyrus mailbox quota for users who are over quota
+# As paramater, it can accept uid_filter
+# such as *_ispman_org : default: *
+# and number is bytes to bump up to : default: 1024
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'h', \%opts );
+    unless ( $opts{'h'} ) {
+        print "Usage: $FindBin::Script -h imap_server\n";
+        exit;
+    }
+}
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+
+require "mailbox_actions.lib";
+
+my $uid_filter = $ARGV[0] || '*';
+my $bytes      = $ARGV[1] || 1024;
+
+my $users = $ispman->getEntriesAsHashRef( $ispman->{'Config'}{'ldapBaseDN'},
+    "&(objectclass=ispmanDomainUser)(uid=$uid_filter)" );
+
+USER: for ( keys %$users ) {
+    @uids = $ispman->as_array( $users->{$_}{'uid'} );
+    $uid  = $uids[0];
+    @q    = get_quota( $opts{'h'}, $uid );
+    next unless $q[2];
+    if ( $q[1] >= $q[2] ) {
+        print
+          "$uid is over quota. Quota:  $q[2] , Used:  $q[1], Over @{[$q[1]-$q[2]]}.\n";
+        print "Bumping up $bytes bytes\n";
+        $newQuota = $q[2] + $bytes;
+        print "New Quota: $newQuota\n";
+        set_quota( $opts{'h'}, $uid, $newQuota );
+    }
+}
+

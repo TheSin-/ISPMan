@@ -1,0 +1,69 @@
+<perl>
+#SOARecord
+$ispman->make_ldif_sOARecord($domain, "3H", "30M", "1W","1D");
+</perl>
+
+
+<perl>
+#MX Records
+$ispman->make_ldif_mXRecord($domain, '@', 10, $ispman->staticHost($ispman->getConf("primaryMX")));
+</perl>
+
+<perl>
+$ispman->make_ldif_mXRecord($domain, '@', 20, $ispman->staticHost($ispman->getConf("secondaryMX")));
+</perl>
+
+<perl>
+#NS Records
+$ispman->make_ldif_nSRecord($domain, '@', $ispman->staticHost($ispman->getConf("primaryDNS")));
+</perl>
+<perl>
+$ispman->make_ldif_nSRecord($domain, '@', $ispman->staticHost($ispman->getConf("secondaryDNS")));
+</perl>
+
+<perl>
+#example for adding A Record
+#$ispman->make_ldif_aRecord($domain, 'localhost', '127.0.0.1');
+</perl>
+
+<perl>
+#example for adding CNAME Record
+#$ispman->make_ldif_cNAMERecord($domain, 'localhost','local');
+</perl>
+
+<perl>
+
+#If there is a site specific file load and evaluate it
+$templatesDir= join "/", ($ispman->getConf("installDir"), 'templates');
+unless (-d $templatesDir){
+	# For developers
+	$templatesDir= join "/", ($ispman->getConf("installDir"), 'install-data/templates');
+}
+
+
+$template=$ispman->getTemplate(join "/", ($templatesDir, "domain.dnszone.ldif.template.local"));
+   return $template->fill_in(PACKAGE => __PACKAGE__);
+
+</perl>
+
+
+<perl>
+#Example for domain.dnszone.ldif.template.local
+# Each entry should be between <perl> and </perl> tags
+
+# A Record
+# $ispman->make_ldif_aRecord($domain, 'somename', '10.4.21.1');
+
+# CNAME Record
+# $ispman->make_ldif_cNAMERecord($domain, 'hostRelativeToThisDomain', 'alias');
+# $ispman->make_ldif_cNAMERecord($domain, 'fullyQualified.static.hostnme.', 'alias');
+
+# NS Record
+# $ispman->make_ldif_nSRecord($domain, 'origin', 'fullyQualified.static.hostnme.');
+
+# MX Record
+# $ispman->make_ldif_mXRecord($domain, 'origin', preference, 'fullyQualified.static.hostnme.');
+
+""
+</perl>
+

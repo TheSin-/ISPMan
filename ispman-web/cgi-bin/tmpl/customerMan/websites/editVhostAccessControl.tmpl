@@ -1,0 +1,128 @@
+<tr>
+    <td valign=top>
+        <perl>$customer->getText("Website  Access control")</perl>  <br>
+        
+        </td>
+    <td>
+        <font  color=white><i>
+        </font>
+        </td>
+</tr>
+<tr>
+<td colspan=2>                        
+<table border=1>
+                <tr class=header>
+                        <td><perl>$customer->getText("Protected area")</perl></td>
+                        <td><perl>$customer->getText("Allowed users")</perl></td>
+                        <td colspan=2>&nbsp;</td>                               
+                </tr>
+            <perl>
+           
+           my $text="";
+           if ($ACLs){
+                $text.="<tr><td colspan=4 class=control>";
+                $text.=$customer->getText("The following rules are defined ");
+                $text.="</td></tr>";
+                
+                my $vhost=join '.', ($r->param("vhost"), $customer->{'domain'});
+                $text.=join '.', ($r->param("vhost"), $customer->{'domain'});
+                $text.="<br><br>";
+                
+                
+                for (sort {length($b) <=> length($a)} keys %$ACLs){ 
+                        $text.="<tr>";
+                        if ($r->param("ispmanVhostAclLocation") && $r->param("ispmanVhostAclLocation") eq $ACLs->{$_}{'ispmanVhostAclLocation'}){
+                                $text.=qq|<td valign=top><input type=text name=ispmanVhostAclLocation value='$ACLs->{$_}{'ispmanVhostAclLocation'}'></td>
+                                <td valign=top> <select name=ispmanVhostAclAllowUser multiple size=5>|;
+                                   my $allowedUsers={};
+                                   for my $allowedUser (@{$ACLs->{$_}{'ispmanVhostAclAllowUser'}}){
+                                        $allowedUsers->{$allowedUser}++;
+                                   }
+                                   
+                                   my $webusers=$customer->getWebUsers();
+                                    for $webuser(keys %$webusers){
+                                        $text.="<option value='$webusers->{$webuser}{'ispmanUserId'}'";
+                                        if ($allowedUsers->{$webusers->{$webuser}{'ispmanUserId'}}) {
+                                                $text.=" selected ";
+                                        }
+                                        $text.=">webuser: $webusers->{$webuser}{'ispmanUserId'}</option>\n";
+                                        
+                                    }
+                                    my $domainusers=$customer->getDomainUsers();
+                                    for $domainuser(keys %$domainusers){
+                                        $text.="<option value='$domainuser'";
+                                        if ($allowedUsers->{$domainuser}) {
+                                                $text.=" selected ";
+                                        }
+                                        $text.=">domainuser: $domainuser</option>\n";
+                                        
+                                    }
+                                   
+                                
+                                $text.=qq|
+                                </select>
+                                </td>
+                                <td><input type=button value='@{[$customer->getText("update")]}' onClick='updateAcl()'></td>
+                                <input type=hidden name=ispmanVhostAclLocation value="$ACLs->{$_}{'ispmanVhostAclLocation'}">
+                                <input type=hidden name=dn value="$_">
+                                <td><a href="@{[$r->url]}?mode=deleteWebsiteAcl&section=AccessControl&vhost=@{[$r->param("vhost")]}&ispmanVhostAclLocation=$ACLs->{$_}{'ispmanVhostAclLocation'}">@{[$customer->getText('Delete')]}</a></td>
+                                |;
+                        } else {
+                                $text.=qq|
+                                <td><font color=blue>$ACLs->{$_}{'ispmanVhostAclLocation'}</font></td>
+                                <td> <font color=green>|;
+                                if (ref $ACLs->{$_}{'ispmanVhostAclAllowUser'} eq "ARRAY") {
+                                        $text.= join ', ', @{$ACLs->{$_}{'ispmanVhostAclAllowUser'}};
+                                } else {
+                                        $text.=$ACLs->{$_}{'ispmanVhostAclAllowUser'};
+                                }
+                                
+                                $text.=qq|
+                                </font></td>
+                                <td><a href="@{[$r->url]}?mode=editVhost&section=AccessControl&vhost=@{[$r->param("vhost")]}&ispmanVhostAclLocation=$ACLs->{$_}{'ispmanVhostAclLocation'}">@{[$customer->getText('Edit')]}</a></td>
+                                <td><a href="@{[$r->url]}?mode=deleteWebsiteAcl&section=AccessControl&vhost=@{[$r->param("vhost")]}&ispmanVhostAclLocation=$ACLs->{$_}{'ispmanVhostAclLocation'}">@{[$customer->getText('Delete')]}</a></td>
+                                |;
+                        }
+                        
+                        $text.="<tr>";
+                }
+            } else {
+                $text.="<tr><td colspan=4 class=control>";
+                $text.=$customer->getText("No Website ACL defined ");
+                $text.="</td></tr>";
+            }                                        
+            $text
+            </perl>
+                
+                <tr class=control>
+                        <td valign=top class=control><input type=text name=newlocation value=""></td>
+                        <td valign=top class=control>
+                        <select MULTIPLE size=5 name=newallow>
+                        <perl>
+                           $webusers=$customer->getWebUsers();
+                            for $webuser(keys %$webusers){
+                                $text.="<option value='$webusers->{$webuser}{'ispmanUserId'}'>webuser: $webusers->{$webuser}{'ispmanUserId'}</option>";
+                            }
+                            $text
+                        </perl>
+                        
+                        <perl>
+                            $text="";
+                            my $users=$customer->getDomainUsers();
+                            for my $user(keys %$users) {
+                                $text.="<option value='$user'>domainuser: $user</option>\n";
+                            }
+                        $text
+                        </perl>
+                        </select>
+                        </td>
+                        <td colspan=2><input type=button value="<perl>$customer->getText('Add  new protected area')</perl>" onclick="addAcl(this.form)"></td>
+                        <input type=hidden name=mode value="addWebsiteAcl">
+                        
+                </tr>
+                                                        
+        </table>                
+</td>
+</tr>
+
+

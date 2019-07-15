@@ -1,0 +1,506 @@
+#!/usr/bin/perl
+
+use HTML::Entities;
+
+$apacheLogsDirectory = $ispman->getConf("apacheLogsDirectory");
+$apacheVhostsFile    = $ispman->getConf("apacheVhostsFile");
+$apacheVhostsHeader  = $ispman->getConf("apacheVhostsHeader");
+$apacheVhostsFooter  = $ispman->getConf("apacheVhostsFooter");
+
+if ( $ispman->getConf("apacheVhostsStyle") =~ /dir/m ) {
+    my $vhostConfFile = $apacheVhostsFile;
+    unless ( -d "$vhostConfFile"
+        && -d "$vhostConfFile/hash"
+        && -d "$vhostConfFile/conf" )
+    {
+        print
+          "Apache configuration file directories did not exist. Creating now.\n";
+        print "mkdir -p $vhostConfFile/conf\n";
+        system "mkdir -p $vhostConfFile/conf\n";
+        print "mkdir -p $vhostConfFile/hash\n";
+        system "mkdir -p $vhostConfFile/hash\n";
+    }
+}
+
+sub read_vhosts_hash {
+    my $vhostsFile = shift;
+    $VAR1 = {};
+    print "Reading hash file $vhostsFile\n";
+    do $vhostsFile;
+    return $VAR1;
+}
+
+sub write_vhosts_hash {
+    my ( $file, $hash ) = @_;
+
+    print "Writing hash file $file\n";
+    open "F", ">$file";
+    print F Dumper($hash);
+    print F "\n1;\n";
+    close("F");
+}
+
+sub add_vhost {
+    my ( $ispmanVhostName, $ispmanDomain ) = @_;
+    next unless $ispmanVhostName and $ispmanDomain;
+
+    my ( $vhost, $port ) = split ":", $ispmanVhostName;
+
+    print "\n\nWorking on $vhost.$ispmanDomain\n" . ( $port ? ":$port" : "" );
+
+    my $vhostInfo = $ispman->getVhostInfo( $ispmanVhostName, $ispmanDomain );
+
+    my $domainInfo     = $ispman->getDomainInfo($ispmanDomain);
+    my $domainReplicas = $ispman->getReplicasOfDomain($ispmanDomain);
+    my $vhostConfFile  = $apacheVhostsFile;
+    my $vhostHashFile  = "$apacheVhostsFile.hash";
+
+    if ( $ispman->getConf("apacheVhostsStyle") =~ /dir/m ) {
+        $vhostHashFile = "$vhostConfFile/hash/$ispmanDomain.hash";
+        $vhostConfFile .= "/conf/$ispmanDomain.conf";
+    }
+
+    # this is useful if there is no homedirectory defined
+    # can happen when moving from version <=0.5
+    $domainInfo->{'homedirectory'} ||= join "/",
+      ( $ispman->getConf("defaultHomeDirectoryPath"), $ispmanDomain );
+
+    # create list of vhost aliases
+    my @_ispmanVhostServerAliases = ();
+
+    $ispmanVhostServerAliases =
+      $ispman->getAliases( $ispmanDomain, $ispmanVhostName );
+    for ( keys %$ispmanVhostServerAliases ) {
+        my $alias = $ispmanVhostServerAliases->{$_}{'ispmanVhostServerAlias'};
+
+        # Add the domain suffix to the alias for unqualified names
+        if ( $alias !~ /\./ ) {
+            push @_ispmanVhostServerAliases, join '.',
+              ( $alias, $ispmanDomain );
+
+            # Add vhost aliases to all replica domains, too
+            for my $_replica ( keys %$domainReplicas ) {
+                push @_ispmanVhostServerAliases, join '.',
+                  (
+                    $ispmanVhostServerAliases->{$_}{'ispmanVhostServerAlias'},
+                    $_replica
+                  );
+            }
+        }
+        else {
+            push @_ispmanVhostServerAliases, $alias;
+        }
+    }
+
+    # finally add aliases for our vhost name to all replicas
+    for my $_replica ( keys %$domainReplicas ) {
+        push @_ispmanVhostServerAliases, "$vhost.$_replica";
+    }
+
+    # remove duplicate aliases
+    $_x = ();
+    for (@_ispmanVhostServerAliases) {
+        $_x->{$_}++;
+    }
+    @_ispmanVhostServerAliases = keys %$_x;
+
+    $vhostInfo->{'ispmanVhostServerAlias'} = \@_ispmanVhostServerAliases;
+
+    my $vhostHash = read_vhosts_hash("$vhostHashFile");
+    ### delete this vhost from hash if it already exists
+    delete $vhostHash->{$ispmanDomain}{$ispmanVhostName};
+
+    $vhostHash->{$ispmanDomain}{$ispmanVhostName} = {
+        servername             => "$vhost.$ispmanDomain",
+        vhost                  => $vhost,
+        port                   => $port,
+        uidNumber              => $vhostInfo->{'uidNumber'},
+        gidNumber              => $vhostInfo->{'gidNumber'},
+        homeDirectory          => $vhostInfo->{'homeDirectory'},
+        ispmanVhostServerAlias => $vhostInfo->{'ispmanVhostServerAlias'},
+        ispmanVhostIpAddress   => $vhostInfo->{'ispmanVhostIpAddress'},
+        ispmanVhostExtraConf =>
+          HTML::Entities::decode( $vhostInfo->{'ispmanVhostExtraConf'} ),
+        ispmanVhostFeature =>
+          $ispman->as_hashref( $vhostInfo->{'ispmanVhostFeature'} ),
+        ispmanVhostDocumentRootOption =>
+          $vhostInfo->{'ispmanVhostDocumentRootOption'},
+        ispmanVhostScriptDirOption =>
+          $vhostInfo->{'ispmanVhostScriptDirOption'},
+        ispmanVhostStats => $vhostInfo->{'ispmanVhostStats'},
+        ispmanStatus     => $vhostInfo->{'ispmanStatus'},
+        acls             => $ispman->getAcls( $ispmanDomain, $ispmanVhostName ),
+        urlredirect =>
+          $ispman->getRedirections( $ispmanDomain, $ispmanVhostName ),
+    };
+
+    # build ispmanVhostDocumentRoot
+    if ( $vhostInfo->{'ispmanVhostDocumentRoot'} !~ /^\// ) {
+        $vhostHash->{$ispmanDomain}{$ispmanVhostName}{'documentroot'} =
+          join "/",
+          (
+            $vhostInfo->{'homeDirectory'},
+            $vhostInfo->{'ispmanVhostDocumentRoot'}
+          );
+    }
+    else {
+        ### its a static/non-relative directory. It starts with a "/"
+        $vhostHash->{$ispmanDomain}{$ispmanVhostName}{'documentroot'} =
+          $vhostInfo->{'ispmanVhostDocumentRoot'};
+    }
+
+    # build ispmanVhostScriptDir
+    if ( $vhostInfo->{'ispmanVhostScriptDir'} !~ /^\// ) {
+        $vhostHash->{$ispmanDomain}{$ispmanVhostName}{'scriptdir'} = join "/",
+          (
+            $vhostInfo->{'homeDirectory'},
+            $vhostInfo->{'ispmanVhostScriptDir'}
+          );
+    }
+    else {
+        ### its a static/non-relative directory. It starts with a "/"
+        $vhostHash->{$ispmanDomain}{$ispmanVhostName}{'scriptdir'} =
+          $vhostInfo->{'ispmanVhostScriptDir'};
+    }
+
+    # build ispmanVhostLogdir
+    if ( $vhostInfo->{'ispmanVhostLogdir'} =~ /\S/ ) {
+        if ( $vhostInfo->{'ispmanVhostLogdir'} !~ /^\// ) {
+
+            # ispmanVhostLogdir is relative
+            $vhostHash->{$ispmanDomain}{$ispmanVhostName}{'logdir'} = join "/",
+              (
+                $vhostInfo->{'homeDirectory'},
+                $vhostInfo->{'ispmanVhostLogdir'}
+              );
+        }
+        else {
+
+            # its a static/non-relative directory. It starts with a "/"
+            $vhostHash->{$ispmanDomain}{$ispmanVhostName}{'logdir'} =
+              $vhostInfo->{'ispmanVhostLogdir'};
+        }
+    }
+    else {
+
+        # ARGH, ispmanVhostLogdir is not defined
+        print "FATAL: ispmanVhostLogdir is not defined for this vhost!\n";
+
+        # don't provide any default because it would cover the error
+    }
+    print
+      "Setting logdir to $vhostHash->{$ispmanDomain}{$ispmanVhostName}{'logdir'}\n";
+
+    # build ispmanVhostStatdir
+    if ( $vhostInfo->{'ispmanVhostStatdir'} =~ /\S/ ) {
+        if ( $vhostInfo->{'ispmanVhostStatdir'} !~ /^\// ) {
+
+            # ispmanStatdir is relative
+            $vhostHash->{$ispmanDomain}{$ispmanVhostName}{'statdir'} = join "/",
+              (
+                $vhostInfo->{'homeDirectory'},
+                $vhostInfo->{'ispmanVhostStatdir'}
+              );
+        }
+        else {
+
+            # its a static/non-relative directory. It starts with a "/"
+            $vhostHash->{$ispmanDomain}{$ispmanVhostName}{'statdir'} =
+              $vhostInfo->{'ispmanVhostStatdir'};
+        }
+    }
+    else {
+
+        # ARGH, ispmanVhostStatdir is not defined
+        print "FATAL: ispmanVhostStatdir is not defined for this vhost!\n";
+
+        # don't provide any default because it would cover the error
+    }
+    print
+      "Setting statdir to $vhostHash->{$ispmanDomain}{$ispmanVhostName}{'statdir'}\n";
+
+    ### Check for log and stat dir and make them if need be
+    unless ( -d $vhostHash->{$ispmanDomain}{$ispmanVhostName}{'logdir'} ) {
+        print
+          "Logdir $vhostHash->{$ispmanDomain}{$ispmanVhostName}{'logdir'} did not exist. Creating now.\n";
+        print
+          "mkdir -p $vhostHash->{$ispmanDomain}{$ispmanVhostName}{'logdir'} \n";
+        system
+          "mkdir -p $vhostHash->{$ispmanDomain}{$ispmanVhostName}{'logdir'} \n";
+    }
+
+    write_vhosts_hash( "$vhostHashFile", $vhostHash );
+}
+
+sub modify_vhost {
+    return add_vhost(@_);
+}
+
+sub delete_vhost {
+    my ( $vhost, $domain ) = @_;
+    my $vhostConfFile = $apacheVhostsFile;
+    my $vhostHashFile = "$apacheVhostsFile.hash";
+
+    if ( $ispman->getConf("apacheVhostsStyle") =~ /dir/m ) {
+        $vhostHashFile = "$vhostConfFile/hash/$domain.hash";
+        $vhostConfFile .= "/conf/$domain.conf";
+    }
+
+    my $vhostHash = read_vhosts_hash("$vhostHashFile");
+
+    delete $vhostHash->{$domain}{$vhost};
+    write_vhosts_hash( "$vhostHashFile", $vhostHash );
+
+    ## Not sure about what they do.
+    ## TheSin, please contact me about this.
+    # unlink("$vhostConfFile") if ( -x "$vhostConfFile");
+    # unlink("$vhostHashFile") if ( -x "$vhostHashFile");
+
+    return 1;
+}
+
+sub make_vhosts_conf {
+    my $domain        = shift;
+    my $vhostText     = "";
+    my $vhostConfFile = $apacheVhostsFile;
+    my $vhostHashFile = "$apacheVhostsFile.hash";
+    my $vhostTemplate =
+      $ispman->getTemplate("$FindBin::Bin/../templates/vhosts.conf.template");
+    my $vhostAclTemplate =
+      $ispman->getTemplate("$FindBin::Bin/../templates/vhosts.acl.template");
+
+    if ( $ispman->getConf("apacheVhostsStyle") =~ /dir/m ) {
+
+        $vhostHashFile = "$vhostConfFile/hash/$domain.hash";
+        $vhostConfFile .= "/conf/$domain.conf";
+    }
+
+    my $vhostHash = read_vhosts_hash("$vhostHashFile");
+
+    my $name;
+    do {
+        $name = tmpnam();
+    } until sysopen( VHOSTS, $name, O_RDWR | O_CREAT | O_EXCL );
+
+    print "Writing to tmpfile $name\n";
+
+    if ( $apacheVhostsHeader && -e $apacheVhostsHeader ) {
+        print VHOSTS cat($apacheVhostsHeader);
+    }
+
+    for my $domain ( keys %$vhostHash ) {
+        for my $vh ( keys %{ $vhostHash->{$domain} } ) {
+            next unless $vh =~ /\S/;
+
+            ### we don't pass an ARRAY ref to the poor template.
+            ### Lets keep the template simple and do complex stuff here
+
+            if (
+                ref $vhostHash->{$domain}{$vh}{'ispmanVhostServerAlias'} eq
+                "ARRAY" )
+            {
+                $vhostHash->{$domain}{$vh}{'ispmanVhostServerAlias'} = join " ",
+                  @{ $vhostHash->{$domain}{$vh}{'ispmanVhostServerAlias'} };
+            }
+
+            if (
+                ref $vhostHash->{$domain}{$vh}{'ispmanVhostDocumentRootOption'}
+                eq "ARRAY" )
+            {
+                $vhostHash->{$domain}{$vh}{'ispmanVhostDocumentRootOption'} =
+                  join " ",
+                  @{ $vhostHash->{$domain}{$vh}
+                      {'ispmanVhostDocumentRootOption'} };
+            }
+
+            if ( $vhostHash->{$domain}{$vh}{'ispmanVhostDocumentRootOption'} ) {
+                $vhostHash->{$domain}{$vh}{'ispmanVhostDocumentRootOption'} =
+                  join " ",
+                  (
+                    "Options",
+                    $vhostHash->{$domain}{$vh}{'ispmanVhostDocumentRootOption'}
+                  );
+            }
+            else {
+                $vhostHash->{$domain}{$vh}{'ispmanVhostDocumentRootOption'} =
+                  "";
+            }
+
+            if (
+                ref $vhostHash->{$domain}{$vh}{'ispmanVhostScriptDirOption'} eq
+                "ARRAY" )
+            {
+                $vhostHash->{$domain}{$vh}{'ispmanVhostScriptDirOption'} =
+                  join " ",
+                  @{ $vhostHash->{$domain}{$vh}{'ispmanVhostScriptDirOption'} };
+            }
+            if ( $vhostHash->{$domain}{$vh}{'ispmanVhostScriptDirOption'} ) {
+                $vhostHash->{$domain}{$vh}{'ispmanVhostScriptDirOption'} =
+                  join " ",
+                  (
+                    "Options",
+                    $vhostHash->{$domain}{$vh}{'ispmanVhostScriptDirOption'}
+                  );
+            }
+            else {
+                $vhostHash->{$domain}{$vh}{'ispmanVhostScriptDirOption'} = "";
+            }
+
+            ### ACLS
+            if ( $vhostHash->{$domain}{$vh}{'acls'} ) {
+                my $aclText = "";
+                for ( keys %{ $vhostHash->{$domain}{$vh}{'acls'} } ) {
+
+                    # build search filter
+                    my $filter = "(|";
+                    for $user (
+                        $ispman->as_array(
+                            $vhostHash->{$domain}{$vh}{'acls'}{$_}
+                              {'ispmanVhostAclAllowUser'}
+                        )
+                      )
+                    {
+                        $filter .= "(ispmanUserId=$user)";
+                    }
+                    $filter .= ")";
+
+                    # build vhost directives
+                    $aclText .= $vhostAclTemplate->fill_in(
+                        HASH => {
+                            location => $vhostHash->{$domain}{$vh}{'acls'}{$_}
+                              {'ispmanVhostAclLocation'},
+                            vhost        => $vh,
+                            ispmanDomain => $domain,
+                            ldapHost     => $ispman->{'Config'}{'ldapHost'},
+                            ldapBaseDN   => $ispman->{'Config'}{'ldapBaseDN'},
+                            filter       => $filter
+                        }
+                    );
+                }
+                $vhostHash->{$domain}{$vh}{'acltext'} = $aclText;
+            }
+
+            ### ReDirects
+            if ( $vhostHash->{$domain}{$vh}{'urlredirect'} ) {
+                my $urlredirectText = "";
+                for ( keys %{ $vhostHash->{$domain}{$vh}{'urlredirect'} } ) {
+                    ### if the location does not start with /, prepend it with a /
+                    unless ( $vhostHash->{$domain}{$vh}{'urlredirect'}{$_}
+                        {'ispmanVhostRedirectURL'} =~ m!^/! )
+                    {
+                        $vhostHash->{$domain}{$vh}{'urlredirect'}{$_}
+                          {'ispmanVhostRedirectURL'} = "/"
+                          . $vhostHash->{$domain}{$vh}{'urlredirect'}{$_}
+                          {'ispmanVhostRedirectURL'};
+                    }
+                    $urlredirectText .=
+                      "Redirect $vhostHash->{$domain}{$vh}{'urlredirect'}{$_}{'ispmanVhostRedirectURL'} $vhostHash->{$domain}{$vh}{'urlredirect'}{$_}{'ispmanVhostRedirectLocation'}\n";
+                }
+                $vhostHash->{$domain}{$vh}{'urlredirect'} = $urlredirectText;
+            }
+
+            $vhostHash->{$domain}{$vh}{'ispmanDomain'} = $domain;
+            $vhostHash->{$domain}{$vh}{'vhost'}        = $vh;
+            $vhostHash->{$domain}{$vh}{'ldapBaseDN'} =
+              $ispman->{'Config'}{'ldapBaseDN'};
+            $vhostHash->{$domain}{$vh}{'ldapHost'} =
+              $ispman->{'Config'}{'ldapHost'};
+            $vhostHash->{$domain}{$vh}{'apacheAuthLdapModule'} =
+              $ispman->getConf("apacheAuthLdapModule");
+
+            ### Suspended
+            if ( $vhostHash->{$domain}{$vh}{'ispmanStatus'} eq "suspended" ) {
+                print "Status of this vhost is ",
+                  $vhostHash->{$domain}{$vh}{'ispmanStatus'}, "\n";
+                ### redirect all requests to a URL that says that this site is suspended
+                $vhostHash->{$domain}{$vh}{'urlredirect'} =
+                  $ispman->getConf("apacheSuspendDirective");
+
+                ### unset any ACLs
+                $vhostHash->{$domain}{$vh}{'acltext'} = "";
+
+                ### unset ScriptDir Options
+                $vhostHash->{$domain}{$vh}{'ispmanVhostScriptDirOption'} =
+                  "Options None";
+                $vhostHash->{$domain}{$vh}{'ispmanVhostScriptDirOption'} =
+                  "Options None";
+
+                ### unset DocRoot Options
+                $vhostHash->{$domain}{$vh}{'ispmanVhostDocumentRootOption'} =
+                  "Options None";
+            }
+
+            # Fill template with data
+            $vhostText .=
+              $vhostTemplate->fill_in( HASH => $vhostHash->{$domain}{$vh} );
+        }
+    }
+    print VHOSTS "\n$vhostText\n";
+
+    if ( $apacheVhostsFooter && -e $apacheVhostsFooter ) {
+        print VHOSTS cat($apacheVhostsFooter);
+    }
+
+    close("VHOSTS");
+
+    # does the generated config contain any changes?
+    if ( system("diff $vhostConfFile $name > /dev/null 2>&1") ) {
+
+        # replace config
+        system("mv -f $vhostConfFile $vhostConfFile.previous");
+        system("mv -f $name $vhostConfFile");
+        print "File $name moved to $vhostConfFile\n";
+
+        # verify generated config file
+        my $apacheConfigTestCommand =
+          $ispman->getConf("apacheConfigTestCommand");
+        if ($apacheConfigTestCommand) {
+            print `$apacheConfigTestCommand`;
+            if ( $? > 0 ) {
+
+                # recover old config
+                system("mv -f $vhostConfFile $vhostConfFile.broken");
+                system("mv -f $vhostConfFile.previous $vhostConfFile");
+                return 0;
+            }
+        }
+    }
+    else {
+        unlink("$name");
+        print "No Changes. File $name removed\n";
+    }
+    return 1;
+}
+
+sub reloadServer {
+    my $apacheGracefulCommand = $ispman->getConf("apacheGracefulCommand");
+    my $apacheReloadCommand   = $ispman->getConf("apacheReloadCommand");
+    my $apacheStopCommand     = $ispman->getConf("apacheStopCommand");
+    my $apacheStartCommand    = $ispman->getConf("apacheStartCommand");
+    my $sleepSecondsBetweenRestart =
+      $ispman->getConf("sleepSecondsBetweenRestart");
+
+    if ($apacheGracefulCommand) {
+        print "Graceful restarting Apache\n";
+        print `$apacheGracefulCommand`;
+    }
+    elsif ($apacheReloadCommand) {
+        print "Reloading Apache\n";
+        print `$apacheReloadCommand`;
+    }
+    else {
+        print "Stopping Apache\n";
+        print `$apacheStopCommand`;
+        sleep $sleepSecondsBetweenRestart;
+        print "Starting Apache\n";
+        print `$apacheStartCommand`;
+    }
+
+    my $rc = $?;
+    print "rc=" . $rc . "\n";
+
+    return $rc > 0 ? 0 : 1;
+}
+
+1;
+

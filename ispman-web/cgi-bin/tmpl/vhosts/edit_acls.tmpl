@@ -1,0 +1,177 @@
+<script type="text/javascript" language="JavaScript">
+<!--
+    function checkACL(f){
+        if (f.newIspmanVhostAclLocation.value == ""){
+            alert("Location must not be empty!")
+            return false
+        }
+        if (f.newIspmanVhostAclAllowUser.value == ""){
+            alert("Users must not be empty!")
+            return false
+        }
+        return true
+    }
+
+    function editACL(f){
+        location=cgiurl+"?mode=editVhost&section=acls&"+cgidata+"&ispmanVhostAclLocation="+f.ispmanVhostAclLocation.value+"&form="+f.name;
+    }
+
+    function deleteACL(f){
+        location=cgiurl+"?mode=deleteVhostAcl&"+cgidata+"&ispmanVhostAclLocation="+f.ispmanVhostAclLocation.value;
+    }
+
+//-->
+</script>
+
+
+Add new ACI
+<table border=1>
+  <tr>
+    <th><perl>_("Protected area")</perl></th>
+    <th><perl>_("Allowed users")</perl></th>
+    <th>&nbsp;</th>
+  </tr>
+
+  <tr class=control>
+    <form name="NewVhostACLForm" onSubmit="return checkACL(this)">
+    <td valign=top class=control><input type=text name=newIspmanVhostAclLocation value=""></td>
+    <td valign=top class=control>
+    <select MULTIPLE size=5 name=newIspmanVhostAclAllowUser>
+
+<perl>
+# gather users for selection
+my $_wusers=$ispman->getWebusers($r->param('ispmanDomain'));
+@webusers=();
+for (keys %$_wusers){ push @webusers, $_wusers->{$_}{'ispmanUserId'} };
+    
+my $_dusers=$ispman->getUsers($r->param('ispmanDomain'),[ "ispmanUserId" ]);
+@domainusers=();
+for (keys %$_dusers){
+    push @domainusers, $_dusers->{$_}{"ispmanUserId"};
+    #my $exploded_dn=$ispman->explodeDN($_dusers->{$_});
+    #my $uid=$exploded_dn->{'uid'};
+    
+    # FIXME!!!
+    # Really dirty hack to fake the ispmanUserId which can not easily retrieved here.
+    # This will get fixed with new ISPMan Core Libs
+    #my $domain = $r->param("ispmanDomain");
+    #$domain =~ s/\./_/;
+    #$uid =~ s/_$domain//;
+    #push @domainusers, $uid;
+}
+
+$text='';
+foreach (@webusers){
+    $text.="<option value='$_'>webuser: $_</option>";
+}
+
+foreach (@domainusers){
+    $text.="<option value='$_'>domainuser: $_</option>\n";
+}
+$text
+</perl>
+
+    </select>
+  </td>
+  <input type=hidden name=mode value="addVhostAcl">
+  <input type=hidden name=ispmanVhostName value="<perl>$r->param("ispmanVhostName")</perl>">
+  <input type=hidden name=ispmanDomain value="<perl>$r->param("ispmanDomain")</perl>">
+  <td><input type=submit value="<perl>_('Add')</perl>"></td>
+  </form>
+</tr>
+</table>                
+
+<br>
+Current ACL
+<table border=1>
+  <tr>
+    <th><perl>_("Protected area")</perl></th>
+    <th><perl>_("Allowed users")</perl></th>
+    <th>&nbsp;</th>
+  </tr>
+	
+<perl>
+my $ACLs=$ispman->getAcls($r->param("ispmanDomain"), $r->param('ispmanVhostName'));
+my $text="";
+if ($ACLs){
+    my $i=0;    
+    for (sort {length($b) <=> length($a)} keys %$ACLs){ 
+        $text.="<tr>";
+        $i++;
+        $isedited=($r->param("form") && $r->param("form") eq "aci$i")?1:0;
+        
+        $text.=qq|
+<form name=aci$i>
+<td valign=top>
+  <input type=hidden name=ispmanVhostAclLocation value="$ACLs->{$_}{'ispmanVhostAclLocation'}">
+  $ACLs->{$_}{'ispmanVhostAclLocation'}
+</td>
+<td valign=top>|;
+        
+        if ($isedited){
+            # is edited
+            $text.="<select name=ispmanVhostAclAllowUser multiple size=5>";
+
+            my $allowedUsers={};
+            for my $allowedUser ($ispman->as_array($ACLs->{$_}{'ispmanVhostAclAllowUser'})){
+                $allowedUsers->{$allowedUser}++;
+            }
+                                   
+            foreach (@webusers){
+                $text.="<option value='$_'";
+                if ($allowedUsers->{$_}) {
+                    $text.=" selected ";
+                }
+                $text.=">webuser: $_</option>\n";
+            }
+
+            foreach (@domainusers){
+                $text.="<option value='$_'";
+                if ($allowedUsers->{$_}) {
+                    $text.=" selected ";
+                }
+                $text.=">domainuser: $_</option>\n";
+            }
+            $text.=qq|
+</select>
+</td>
+<input type=hidden name=ispmanDomain value="@{[$r->param('ispmanDomain')]}">
+<input type=hidden name=ispmanVhostName value="@{[$r->param('ispmanVhostName')]}">
+<input type=hidden name=mode value="updateVhostAcl">
+<td><a href="javascript: document.aci$i.submit()" alt="@{[_("Apply")]}" title="@{[_("Apply")]}">
+<img src="@{[$ispman->getConfig('ispmanUrlPrefix')]}/gfx/apply.gif" border="0"></a>
+|;
+        } else {
+            # not edited
+            if (ref $ACLs->{$_}{'ispmanVhostAclAllowUser'} eq "ARRAY") {
+                $text.= join ', ', @{$ACLs->{$_}{'ispmanVhostAclAllowUser'}};
+            } else {
+                $text.=$ACLs->{$_}{'ispmanVhostAclAllowUser'};
+            }
+            $text.=qq|
+</td>
+<td>
+<a href="javascript: editACL(document.aci$i)" alt="@{[_("Edit")]}" title="@{[_("Edit")]}">
+<img src="@{[$ispman->getConfig('ispmanUrlPrefix')]}/gfx/modify.gif" border="0"></a>
+|;
+        }
+
+        $text.=qq|
+<a href="javascript: deleteACL(document.aci$i)" alt="@{[_("Delete")]}" title="@{[_("Delete")]}">
+<img src="@{[$ispman->getConfig('ispmanUrlPrefix')]}/gfx/delete.gif" border="0"></a>
+</td>
+</form>
+</tr>
+|;
+    }
+} else {
+    $text.="<tr><td colspan=3 class=control>";
+    $text.=_("No Website ACL defined ");
+    $text.="</td></tr>";
+}                                        
+$text
+</perl>
+    
+</table>
+
+

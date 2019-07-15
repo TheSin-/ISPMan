@@ -1,0 +1,11 @@
+--- /etc/cyrus.conf.sav	2007-02-05 12:49:21.000000000 +0100
++++ /etc/cyrus.conf	2007-02-05 13:47:45.000000000 +0100
+@@ -38,7 +38,7 @@
+ 
+ 	# At least one form of LMTP is required for delivery
+ 	# (you must keep the Unix socket name in sync with imap.conf)
+-	#lmtp		cmd="lmtpd" listen="localhost:lmtp" prefork=0 maxchild=20
++	lmtp		cmd="lmtpd" listen="localhost:lmtp" prefork=0 maxchild=20
+ 	lmtpunix	cmd="lmtpd" listen="/var/run/cyrus/socket/lmtp" prefork=0 maxchild=20
+ 	# ----------------------------------------------
+ 

@@ -1,0 +1,178 @@
+# All mailbox actions necessary for Cyrus IMAP Server
+#
+# All methods take the primary mailbox address as arguments (mailLocalAddress)
+# Depending on ISPMan configuration the correct mailbox name for cyrus is
+# derived from that
+
+use IMAP::Admin;
+
+# some convienence defaults
+my $cyrusVirtDomainFeature =
+  lc( $ispman->getConf("cyrusVirtDomainFeature") ) eq 'yes' ? 1 : 0;
+my $cyrusPrefix = $ispman->getConf('imapMailboxPrefix');
+my $cyrusSep    = substr( $cyrusPrefix, -1 );
+
+# static imap connection handle
+my $imap_conn;
+
+# sanity checks
+die "Fatal: invalid cyrus hierarchy separator \"$cyrusSep\""
+  unless ( $cyrusSep eq '.' || $cyrusSep eq '/' );
+
+# Helper funtion that get's the correct mailbox name from the mail address
+sub mail2mailbox {
+    my $mail = shift;
+    my $box  = $mail;
+
+    $box =~ s/\.|@/_/g unless $cyrusVirtDomainFeature;
+
+    return $cyrusPrefix . $box;
+}
+
+sub _connect {
+    my $server = shift;
+
+    $imap_conn = IMAP::Admin->new(
+        'Server'   => $server,
+        'Port'     => $ispman->getConf("imapPort") || 143,
+        'Login'    => $ispman->getConf("imapAdminUsername"),
+        'Password' => $ispman->getConf("imapAdminPass")
+    );
+}
+
+sub create_mailbox {
+    my $server  = shift;
+    my $mail = shift;
+    my $mailbox = mail2mailbox($mail);
+
+    $imap_conn or _connect($server);
+
+    if ( $imap_conn->create($mailbox) ) {
+        print $imap_conn->error . "\n";
+        return 1;
+    }
+
+    # create any defaults folders
+    my @folders = split( ' ', $ispman->getConf('defaultMailboxFolders') );
+    for (@folders) {
+        create_folder( $server, $mail, $_ );
+    }
+
+    return 0;
+}
+
+sub delete_mailbox {
+    my $server  = shift;
+    my $mailbox = mail2mailbox(shift);
+
+    $imap_conn or _connect($server);
+    $imap_conn->set_acl( $mailbox, $ispman->getConf("imapAdminUsername"),
+        "lrswipcda" );
+    if ( $imap_conn->delete($mailbox) ) {
+        print $imap_conn->error . "\n";
+        return 1;
+    }
+    return 0;
+}
+
+sub create_folder {
+    my $server  = shift;
+    my $mailbox = mail2mailbox(shift);
+    my $folder  = shift;
+
+    $imap_conn or _connect($server);
+
+    if ( $imap_conn->list($mailbox) ) {
+
+        # mailbox exists. Lets continue
+        if ($cyrusVirtDomainFeature) {
+            ( $upath, $domain ) = split( '@', $mailbox );
+            my $tmpbox = $upath . $cyrusSep . $folder . '@' . $domain;
+            if ( $imap_conn->list($tmpbox) ) {
+
+                # Already Exists
+                print "$folder on $mailbox already exists. Skipping\n";
+                return 2;
+            }
+            else {
+                if (
+                    $imap_conn->set_acl(
+                        $mailbox, $ispman->getConf("imapAdminUsername"),
+                        "lrswipdca"
+                    )
+                  )
+                {
+                    print $imap_conn->error . "\n";
+                    return 1;
+                }
+                print "Creating $folder on $mailbox\n";
+                if ( $imap_conn->create($tmpbox) ) {
+                    print $imap_conn->error . "\n";
+                    return 1;
+                }
+            }
+        }
+        else {
+            if ( $imap_conn->list( $mailbox . $cyrusSep . $folder ) ) {
+
+                # Already Exists
+                print "$folder on $mailbox already exists. Skipping\n";
+                return 2;
+            }
+            else {
+                if (
+                    $imap_conn->set_acl(
+                        $mailbox, $ispman->getConf("imapAdminUsername"),
+                        "lrswipdca"
+                    )
+                  )
+                {
+                    print $imap_conn->error . "\n";
+                    return 1;
+                }
+                print "Creating $folder on $mailbox\n";
+                if ( $imap_conn->create( $mailbox . $cyrusSep . $folder ) ) {
+                    print $imap_conn->error . "\n";
+                    return 1;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+sub get_quota {
+    my $server  = shift;
+    my $mailbox = mail2mailbox(shift);
+
+    $imap_conn or _connect($server);
+    return $imap_conn->get_quota($mailbox);
+}
+
+sub set_quota {
+    my $server  = shift;
+    my $mailbox = mail2mailbox(shift);
+    my $quota   = shift;
+
+    $imap_conn or _connect($server);
+    if ( $imap_conn->set_quota( $mailbox, $quota ) ) {
+        print $imap_conn->error . "\n";
+        return 1;
+    }
+    return 0;
+}
+
+sub list_mailboxes {
+    my $server = shift;
+    my $filter = shift;
+
+    $imap_conn or _connect($server);
+    return $imap_conn->list($filter);
+}
+
+END {
+    $imap_conn->close();
+}
+
+1;
+

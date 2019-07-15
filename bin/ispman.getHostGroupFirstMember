@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+use ISPMan;
+my $ispman = ISPMan->new();
+if ( my $member = $ispman->getHostGroupFirstMember( $ARGV[0] ) ) {
+    print "$member\n";
+}
+else {
+    print "No members in HostGroup: $ARGV[0] found\n";
+}
+

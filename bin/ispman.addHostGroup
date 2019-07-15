@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    unless ( $ARGV[0] ) {
+        print "$FindBin::Script  hostgroupname [Description]\n";
+        exit;
+    }
+}
+use ISPMan;
+use vars qw($ispman);
+$hosgroupname        = shift @ARGV;
+$hosgroupdescription = join " ", @ARGV;
+
+$ispman = ISPMan->new();
+$ispman->add_host_group( $hosgroupname, $hosgroupdescription );
+

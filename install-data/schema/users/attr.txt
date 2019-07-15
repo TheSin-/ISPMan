@@ -1,0 +1,36 @@
+###################################
+# ISPMan user attributes
+###################################
+
+# attributeType 1.3.6.1.4.1.8833.2.1.1301 'ispmanUserId'
+# attributeType 1.3.6.1.4.1.8833.2.1.1303 'mailAlias'
+# attributeType 1.3.6.1.4.1.8833.2.1.1304 'mailForwardingAddress'
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1301 NAME 'ispmanUserId'
+	DESC 'userid without the domain stuff'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} 
+	SINGLE-VALUE )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1303 NAME 'mailAlias'  SUP  mailLocalAddress )
+        DESC 'mail aliases'
+        EQUALITY caseIgnoreIA5Match
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1304 NAME 'mailForwardingAddress' SUP mailRoutingAddress )
+        DESC 'alternate mail routing addresses'
+        EQUALITY caseIgnoreIA5Match
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1305 NAME 'mailQuota'
+	DESC 'Bytes of mail quota'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE)
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1306 NAME 'fileHost'
+        DESC 'fileserver host for the user'
+        EQUALITY caseIgnoreIA5Match
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256}
+        SINGLE-VALUE )
+
+

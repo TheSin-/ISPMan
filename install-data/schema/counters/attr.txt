@@ -1,0 +1,74 @@
+# attributeType 1.3.6.1.4.1.8833.2.1.1007 'ispmanCurrUid'
+# attributeType 1.3.6.1.4.1.8833.2.1.1008 'ispmanMinUid'
+# attributeType 1.3.6.1.4.1.8833.2.1.1009 'ispmanMaxUid'
+# attributeType 1.3.6.1.4.1.8833.2.1.1010 'ispmanResUid'
+# attributeType 1.3.6.1.4.1.8833.2.1.1011 'ispmanCurrGid'
+# attributeType 1.3.6.1.4.1.8833.2.1.1012 'ispmanMinGid'
+# attributeType 1.3.6.1.4.1.8833.2.1.1013 'ispmanMaxGid'
+# attributeType 1.3.6.1.4.1.8833.2.1.1014 'ispmanResGid'
+# attributeType 1.3.6.1.4.1.8833.2.1.1016 'ispmanCurrPid'
+# attributeType 1.3.6.1.4.1.8833.2.1.1022 'ispmanCurrAclId'
+# attributeType 1.3.6.1.4.1.8833.2.1.1023 'currid'
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1007 NAME 'ispmanCurrUid'
+	DESC 'An integer containing the current uid'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE)
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1008 NAME 'ispmanMinUid'
+	DESC 'An integer determining the lowest uid ISPman may use'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE)
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1009 NAME 'ispmanMaxUid'
+	DESC 'An integer determining the max uid ISPman may use'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE)
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1010 NAME 'ispmanResUid'
+	DESC 'An integer indicating a reserved uid'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE)
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1011 NAME 'ispmanCurrGid'
+	DESC 'An integer keeping track of the current gid'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE)
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1012 NAME 'ispmanMinGid'
+	DESC 'An integer determining the lowest gid ISPMan may use'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1013 NAME 'ispmanMaxGid'
+	DESC 'An integer determining the max gid ISPMan may use'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE)
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1014 NAME 'ispmanResGid'
+	DESC 'An integer indicating a reserved gid'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27{256} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1016 NAME 'ispmanCurrPid'
+	DESC 'An integer keeping score of the current pid'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1022 NAME 'ispmanCurrAclId'
+	DESC 'An integer keeping score of the current ACL id'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1023 NAME 'currid'
+	DESC 'general purpose counter attribute'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+

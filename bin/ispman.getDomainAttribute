@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    unless ( $ARGV[1] ) {
+        print "$FindBin::Script  domain attributename\n";
+        exit;
+    }
+}
+
+use ISPMan;
+
+my $ispman = ISPMan->new();
+print $ispman->getDomainAttribute(@ARGV);
+print "\n";
+

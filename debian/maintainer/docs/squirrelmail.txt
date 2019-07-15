@@ -1,0 +1,54 @@
+SOME HINTS FOR CONFIGURING SQUIRRELMAIL WITH ISPMAN
+
+1.) apt-get install squirrelmail.*
+
+2.) Run /usr/sbin/squirrelmail-configure
+2.1) In menuitem "2.  Server Settings"-> "A. IMAP Settings" change the delimiter:
+
+SquirrelMail Configuration : Read: config.php (1.4.0)
+---------------------------------------------------------
+Server Settings
+
+General
+-------
+1.  Domain                 : trim(implode('', file('/etc/'.(file_exists('/etc/mailname')?'mail':'host').'name')))
+2.  Invert Time            : false
+3.  Sendmail or SMTP       : SMTP
+
+IMAP Settings
+--------------
+4.  IMAP Server            : localhost
+5.  IMAP Port              : 143
+6.  Authentication type    : login
+7.  Secure IMAP (TLS)      : false
+8.  Server software        : cyrus
+9.  Delimiter              : /        <------
+
+B.  Update SMTP Settings   : localhost:25
+H.  Hide IMAP Server Settings
+
+2.2) In menuitem "3.  Folder Defaults" change 3.,4. and 5.:
+
+Folder Defaults
+1.  Default Folder Prefix         :
+2.  Show Folder Prefix Option     : false
+3.  Trash Folder                  : INBOX/Trash    <------
+4.  Sent Folder                   : INBOX/Sent     <------
+5.  Drafts Folder                 : INBOX/Drafts   <------ 
+6.  By default, move to trash     : true 
+7.  By default, move to sent      : true
+8.  By default, save as draft     : true
+9.  List Special Folders First    : true
+10. Show Special Folders Color    : true
+11. Auto Expunge                  : true
+12. Default Sub. of INBOX         : true
+13. Show 'Contain Sub.' Option    : false
+14. Default Unseen Notify         : 2
+15. Default Unseen Type           : 1
+16. Auto Create Special Folders   : true
+17. Folder Delete Bypasses Trash  : false
+18. Enable /NoSelect folder fix   : false
+
+
+
+

@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    unless ( $ARGV[1] ) {
+        print "usage: $FindBin::Script  domain service\n";
+        exit;
+    }
+}
+
+use lib qw("$FindBin::Bin/../lib");
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+$ispman->addDomainService2Domain(@ARGV);
+

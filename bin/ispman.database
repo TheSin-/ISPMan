@@ -1,0 +1,134 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+use ISPMan;
+use Getopt::Std;
+use Data::Dumper;
+
+sub usage {
+        print "Syntax:\n";
+        print "$FindBin::Script list -d <domain> [-x]\n";
+        print "$FindBin::Script get -d <domain> -n <dbname> [-x]\n";
+        print "$FindBin::Script add -d <domain> -o <dbtype,dbname,dbuser,dbpass,dbfilter,dbpriv|dbpriv,dbhost> [-x]\n";
+        print "$FindBin::Script modify -d <domain> -n <dbname> -o <dbtype,dbname,dbuser,dbpass,dbfilter,dbpriv|dbpriv,dbhost> [-x]\n";
+        print "$FindBin::Script delete -d <domain> -n <dbname> [-x]\n";
+        print "\n";
+        exit 1;
+}
+
+
+my $action = shift @ARGV;
+if ( ! $action || $action =~ /-{0,2}h(elp)?/ ) { usage(); }
+
+my $ispman = ISPMan->new();
+
+my @fields = qw|ispmanDBType ispmanDBName ispmanDBUser ispmanDBPass ispmanDBAccessFilter ispmanDBPrivilege ispmanDBHost|;
+
+###################################################
+# list
+if ($action eq "list") {
+  getopts( 'd:x', \%opts );
+
+  usage() unless $opts{'d'};
+
+  # get databases
+  my $dbs = $ispman->getDatabases($opts{'d'});
+
+  if ($opts{'x'}) {
+    print Dumper([keys %$dbs]);
+  } else {
+    foreach (keys %$dbs) { print "$_\n"; }
+  }
+  (scalar(keys %$dbs) == 0)?exit 1:exit 0;
+}
+
+###################################################
+# get
+if ($action eq "get") {
+  getopts( 'n:x', \%opts );
+
+  usage() unless $opts{'n'};
+
+  # get database details
+  my $db = $ispman->getDatabaseInfo($opts{'n'});
+
+  if ($opts{'x'}) {
+    print Dumper($db);
+  } else {
+    print join(",",@fields)."\n";
+    print join(",",map { (ref $db->{$_} eq "ARRAY")?join("\|",@{$db->{$_}}):$db->{$_} } @fields)."\n";
+  }
+
+  ($db)?exit 0:exit 1;
+}
+
+###################################################
+# delete
+if ($action eq "delete") {
+  getopts( 'd:n:x', \%opts );
+
+  usage() unless $opts{'n'} && $opts{'d'};
+
+  ($ispman->delete_database($opts{'n'},$opts{'d'}))?exit 0:exit 1;
+}
+
+###################################################
+# add
+if ($action eq "add") {
+  getopts( 'd:o:x', \%opts );
+
+  usage() unless $opts{'d'} && $opts{'o'};;
+
+  # split db data and ensure we have correct arguments
+  my @dbdata = split(",",$opts{'o'});
+  usage() unless scalar(@dbdata) == 7;
+
+  # convert dbdata to hash
+  my $dbhash;
+  foreach (reverse @fields) {
+    $dbhash->{$_}=pop @dbdata;
+  }
+
+  # add database
+  ($ispman->add_database($opts{'d'},$dbhash))?exit 0:exit 1;
+}
+
+###################################################
+# modify
+if ($action eq "modify") {
+  getopts( 'd:n:o:x', \%opts );
+
+  usage() unless $opts{'n'} && $opts{'d'} && $opts{'o'};
+
+  # get orig db info
+  my $dbInfo = $ispman->getDatabaseInfo($opts{'n'});
+
+  # get changeable fields
+  my %dbAllow;
+  foreach ( split(",",$ispman->getConf("dbModifiableAttributes")) ) { $dbAllow{$_}=1; }
+
+  # split db data and ensure we have correct arguments
+  my @dbdata = split(",",$opts{'o'});
+  usage() unless scalar(@dbdata) == 7;
+
+  # convert dbdata to hash
+  my $dbhash;
+  foreach (reverse @fields) {
+    $dbhash->{$_}=pop @dbdata;
+
+    if (($dbInfo->{$_} ne $dbhash->{$_}) && !defined($dbAllow{$_})) {
+       print "Change aborted! Field \"$_\" has changed but is not in confVar \"dbModifiableAttributes\".\n";
+       exit 1;
+    }
+  }
+
+  ($ispman->modify_database($opts{'d'},$opts{'n'},$dbhash))?exit 0:exit 1;
+}
+
+usage();
+
+1;

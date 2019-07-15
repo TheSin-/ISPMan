@@ -1,0 +1,6 @@
+docs/*
+install-data/extras
+debian/maintainer/config-services
+debian/maintainer/docs/*
+
+

@@ -1,0 +1,1235 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 20-liblocations.dpatch by  <root@localhost>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: liblocations.diff
+
+@DPATCH@
+diff -urNad head~/bin/ispman-agent head/bin/ispman-agent
+--- head~/bin/ispman-agent	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman-agent	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # the prefered way to run this tool is via daemon tools
+ # see http://cr.yp.to/daemontools.html
+ 
+diff -urNad head~/bin/ispman.addAdmin head/bin/ispman.addAdmin
+--- head~/bin/ispman.addAdmin	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addAdmin	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.addClient head/bin/ispman.addClient
+--- head~/bin/ispman.addClient	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addClient	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.addDomain head/bin/ispman.addDomain
+--- head~/bin/ispman.addDomain	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addDomain	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.addDomainService head/bin/ispman.addDomainService
+--- head~/bin/ispman.addDomainService	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addDomainService	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.addDomainService2Domain head/bin/ispman.addDomainService2Domain
+--- head~/bin/ispman.addDomainService2Domain	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addDomainService2Domain	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.addHost head/bin/ispman.addHost
+--- head~/bin/ispman.addHost	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addHost	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.addHost2HostGroup head/bin/ispman.addHost2HostGroup
+--- head~/bin/ispman.addHost2HostGroup	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addHost2HostGroup	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.addHostGroup head/bin/ispman.addHostGroup
+--- head~/bin/ispman.addHostGroup	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addHostGroup	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.addMailAliasForUser head/bin/ispman.addMailAliasForUser
+--- head~/bin/ispman.addMailAliasForUser	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addMailAliasForUser	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.addMailForwardForUser head/bin/ispman.addMailForwardForUser
+--- head~/bin/ispman.addMailForwardForUser	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addMailForwardForUser	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.addMailGroup head/bin/ispman.addMailGroup
+--- head~/bin/ispman.addMailGroup	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addMailGroup	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.addMailGroupAttributeValues head/bin/ispman.addMailGroupAttributeValues
+--- head~/bin/ispman.addMailGroupAttributeValues	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addMailGroupAttributeValues	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ #USAGE: ScriptName domain mailGroup Attribute
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.addProcess head/bin/ispman.addProcess
+--- head~/bin/ispman.addProcess	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addProcess	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.addReseller head/bin/ispman.addReseller
+--- head~/bin/ispman.addReseller	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addReseller	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.addSlaveDomain head/bin/ispman.addSlaveDomain
+--- head~/bin/ispman.addSlaveDomain	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addSlaveDomain	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.addUser head/bin/ispman.addUser
+--- head~/bin/ispman.addUser	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addUser	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.addUserAttributeValues head/bin/ispman.addUserAttributeValues
+--- head~/bin/ispman.addUserAttributeValues	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addUserAttributeValues	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.add_canonical_map_entry head/bin/ispman.add_canonical_map_entry
+--- head~/bin/ispman.add_canonical_map_entry	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.add_canonical_map_entry	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ package ISPMan;
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.add_destination_domain_entry head/bin/ispman.add_destination_domain_entry
+--- head~/bin/ispman.add_destination_domain_entry	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.add_destination_domain_entry	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ package ISPMan;
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.add_relay_domain_entry head/bin/ispman.add_relay_domain_entry
+--- head~/bin/ispman.add_relay_domain_entry	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.add_relay_domain_entry	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ package ISPMan;
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.addvhost head/bin/ispman.addvhost
+--- head~/bin/ispman.addvhost	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.addvhost	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # Changes:
+ # 01-08-2003: Atif: Making -w webhost mandatory otherwise no corresponding A record will be created
+ 
+diff -urNad head~/bin/ispman.alias.mailgroup head/bin/ispman.alias.mailgroup
+--- head~/bin/ispman.alias.mailgroup	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.alias.mailgroup	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.bumpMailboxQuota head/bin/ispman.bumpMailboxQuota
+--- head~/bin/ispman.bumpMailboxQuota	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.bumpMailboxQuota	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # For emergencies when every one is getting overQuota due to some spam or virus
+ # such as So F. Big
+ 
+diff -urNad head~/bin/ispman.commitSession head/bin/ispman.commitSession
+--- head~/bin/ispman.commitSession	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.commitSession	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.createMailbox head/bin/ispman.createMailbox
+--- head~/bin/ispman.createMailbox	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.createMailbox	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.createSubMailbox head/bin/ispman.createSubMailbox
+--- head~/bin/ispman.createSubMailbox	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.createSubMailbox	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # Creat sub mailbox for user such as INBOX.Junk, INBOX.SPam etc
+ 
+ # As paramater, it can accept uid_filter
+diff -urNad head~/bin/ispman.deleteAdmin head/bin/ispman.deleteAdmin
+--- head~/bin/ispman.deleteAdmin	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.deleteAdmin	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.deleteClient head/bin/ispman.deleteClient
+--- head~/bin/ispman.deleteClient	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.deleteClient	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.deleteDomain head/bin/ispman.deleteDomain
+--- head~/bin/ispman.deleteDomain	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.deleteDomain	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.deleteDomainService head/bin/ispman.deleteDomainService
+--- head~/bin/ispman.deleteDomainService	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.deleteDomainService	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.deleteHost head/bin/ispman.deleteHost
+--- head~/bin/ispman.deleteHost	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.deleteHost	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.deleteHostGroup head/bin/ispman.deleteHostGroup
+--- head~/bin/ispman.deleteHostGroup	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.deleteHostGroup	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.deleteMailbox head/bin/ispman.deleteMailbox
+--- head~/bin/ispman.deleteMailbox	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.deleteMailbox	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.deleteProcess head/bin/ispman.deleteProcess
+--- head~/bin/ispman.deleteProcess	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.deleteProcess	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.deleteSession head/bin/ispman.deleteSession
+--- head~/bin/ispman.deleteSession	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.deleteSession	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.deleteUser head/bin/ispman.deleteUser
+--- head~/bin/ispman.deleteUser	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.deleteUser	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.deleteVhostAlias head/bin/ispman.deleteVhostAlias
+--- head~/bin/ispman.deleteVhostAlias	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.deleteVhostAlias	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.deletevhost head/bin/ispman.deletevhost
+--- head~/bin/ispman.deletevhost	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.deletevhost	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.deltree head/bin/ispman.deltree
+--- head~/bin/ispman.deltree	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.deltree	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     print
+ "ispman.deltree: Example of the deltree function.\nGive it a node and it will recursively delete it.\nFor example: ispman.deltree ou=admins,o=ispman\n";
+diff -urNad head~/bin/ispman.denyFTP head/bin/ispman.denyFTP
+--- head~/bin/ispman.denyFTP	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.denyFTP	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.dnsdump head/bin/ispman.dnsdump
+--- head~/bin/ispman.dnsdump	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.dnsdump	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.dnsload head/bin/ispman.dnsload
+--- head~/bin/ispman.dnsload	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.dnsload	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.dnsset head/bin/ispman.dnsset
+--- head~/bin/ispman.dnsset	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.dnsset	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.dnsshow head/bin/ispman.dnsshow
+--- head~/bin/ispman.dnsshow	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.dnsshow	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.dnsunset head/bin/ispman.dnsunset
+--- head~/bin/ispman.dnsunset	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.dnsunset	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.domainHasService head/bin/ispman.domainHasService
+--- head~/bin/ispman.domainHasService	2007-07-31 12:36:01.000000000 +0200
++++ head/bin/ispman.domainHasService	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # exaple script.
+ # shows users in domain
+ 
+diff -urNad head~/bin/ispman.domainInfo head/bin/ispman.domainInfo
+--- head~/bin/ispman.domainInfo	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.domainInfo	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.domainmail head/bin/ispman.domainmail
+--- head~/bin/ispman.domainmail	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.domainmail	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ package ISPMan;
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.dumpAllUsers head/bin/ispman.dumpAllUsers
+--- head~/bin/ispman.dumpAllUsers	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.dumpAllUsers	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # Small script that dumps domain user
+ # useful to be used with shell scripting etc
+ 
+diff -urNad head~/bin/ispman.dumpConf head/bin/ispman.dumpConf
+--- head~/bin/ispman.dumpConf	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.dumpConf	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.executeTask head/bin/ispman.executeTask
+--- head~/bin/ispman.executeTask	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.executeTask	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+diff -urNad head~/bin/ispman.fixUsers head/bin/ispman.fixUsers
+--- head~/bin/ispman.fixUsers	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.fixUsers	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # This script will add
+ # users email address also as the uid of the user
+ # example for user aghaffar_ispman_org
+diff -urNad head~/bin/ispman.getClientsCount head/bin/ispman.getClientsCount
+--- head~/bin/ispman.getClientsCount	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.getClientsCount	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.getConf head/bin/ispman.getConf
+--- head~/bin/ispman.getConf	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.getConf	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ package ISPMan;
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.getDomainAttribute head/bin/ispman.getDomainAttribute
+--- head~/bin/ispman.getDomainAttribute	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.getDomainAttribute	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.getHostGroupFirstMember head/bin/ispman.getHostGroupFirstMember
+--- head~/bin/ispman.getHostGroupFirstMember	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.getHostGroupFirstMember	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.getMailAliasesForUser head/bin/ispman.getMailAliasesForUser
+--- head~/bin/ispman.getMailAliasesForUser	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.getMailAliasesForUser	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.getMailForwardsForUser head/bin/ispman.getMailForwardsForUser
+--- head~/bin/ispman.getMailForwardsForUser	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.getMailForwardsForUser	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.getMailGroupAttributeValues head/bin/ispman.getMailGroupAttributeValues
+--- head~/bin/ispman.getMailGroupAttributeValues	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.getMailGroupAttributeValues	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ #USAGE: ScriptName domain mailGroup Attribute
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.getMailboxQuota head/bin/ispman.getMailboxQuota
+--- head~/bin/ispman.getMailboxQuota	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.getMailboxQuota	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ use Data::Dumper;
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.getProcessInfo head/bin/ispman.getProcessInfo
+--- head~/bin/ispman.getProcessInfo	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.getProcessInfo	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.getTemplate head/bin/ispman.getTemplate
+--- head~/bin/ispman.getTemplate	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.getTemplate	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.getUserAttributeValues head/bin/ispman.getUserAttributeValues
+--- head~/bin/ispman.getUserAttributeValues	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.getUserAttributeValues	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.getUserCount head/bin/ispman.getUserCount
+--- head~/bin/ispman.getUserCount	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.getUserCount	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.getUsersCount head/bin/ispman.getUsersCount
+--- head~/bin/ispman.getUsersCount	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.getUsersCount	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.getVhostAttribute head/bin/ispman.getVhostAttribute
+--- head~/bin/ispman.getVhostAttribute	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.getVhostAttribute	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # For expert use only
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.getWebUsers head/bin/ispman.getWebUsers
+--- head~/bin/ispman.getWebUsers	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.getWebUsers	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # exaple script.
+ # shows web users in domain
+ 
+diff -urNad head~/bin/ispman.imapAuthTest head/bin/ispman.imapAuthTest
+--- head~/bin/ispman.imapAuthTest	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.imapAuthTest	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.l10n head/bin/ispman.l10n
+--- head~/bin/ispman.l10n	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.l10n	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.ldap2apache head/bin/ispman.ldap2apache
+--- head~/bin/ispman.ldap2apache	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.ldap2apache	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ package ISPMan;
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.ldap2named head/bin/ispman.ldap2named
+--- head~/bin/ispman.ldap2named	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.ldap2named	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ package ISPMan;
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.ldifdump head/bin/ispman.ldifdump
+--- head~/bin/ispman.ldifdump	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.ldifdump	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ package ISPMan;
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.ldifload head/bin/ispman.ldifload
+--- head~/bin/ispman.ldifload	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.ldifload	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ package ISPMan;
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.ldifupdate head/bin/ispman.ldifupdate
+--- head~/bin/ispman.ldifupdate	2007-07-31 12:36:04.000000000 +0200
++++ head/bin/ispman.ldifupdate	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ package ISPMan;
+ 
+ # Script to update LDIF data
+diff -urNad head~/bin/ispman.listAdmins head/bin/ispman.listAdmins
+--- head~/bin/ispman.listAdmins	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listAdmins	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.listClients head/bin/ispman.listClients
+--- head~/bin/ispman.listClients	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listClients	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.listHostGroupMembers head/bin/ispman.listHostGroupMembers
+--- head~/bin/ispman.listHostGroupMembers	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listHostGroupMembers	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.listHostGroups head/bin/ispman.listHostGroups
+--- head~/bin/ispman.listHostGroups	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listHostGroups	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.listHosts head/bin/ispman.listHosts
+--- head~/bin/ispman.listHosts	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listHosts	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.listMailGroups head/bin/ispman.listMailGroups
+--- head~/bin/ispman.listMailGroups	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listMailGroups	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.listMailboxes head/bin/ispman.listMailboxes
+--- head~/bin/ispman.listMailboxes	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listMailboxes	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.listModules head/bin/ispman.listModules
+--- head~/bin/ispman.listModules	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listModules	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.listOverQuotaMailboxes head/bin/ispman.listOverQuotaMailboxes
+--- head~/bin/ispman.listOverQuotaMailboxes	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listOverQuotaMailboxes	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # List mailboxes who are over quota
+ # As paramater, it can accept uid_filter
+ # such as *_ispman_org
+diff -urNad head~/bin/ispman.listRadiusProfiles head/bin/ispman.listRadiusProfiles
+--- head~/bin/ispman.listRadiusProfiles	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listRadiusProfiles	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.listResellers head/bin/ispman.listResellers
+--- head~/bin/ispman.listResellers	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listResellers	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.listSessionProcesses head/bin/ispman.listSessionProcesses
+--- head~/bin/ispman.listSessionProcesses	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listSessionProcesses	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.listSessions head/bin/ispman.listSessions
+--- head~/bin/ispman.listSessions	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listSessions	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.listUserQuotas head/bin/ispman.listUserQuotas
+--- head~/bin/ispman.listUserQuotas	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listUserQuotas	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # exaple script.
+ # shows users in domain
+ 
+diff -urNad head~/bin/ispman.listUsers head/bin/ispman.listUsers
+--- head~/bin/ispman.listUsers	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listUsers	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # exaple script.
+ # shows users in domain
+ 
+diff -urNad head~/bin/ispman.listVars head/bin/ispman.listVars
+--- head~/bin/ispman.listVars	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listVars	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.listVhostAliases head/bin/ispman.listVhostAliases
+--- head~/bin/ispman.listVhostAliases	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listVhostAliases	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.listvhosts head/bin/ispman.listvhosts
+--- head~/bin/ispman.listvhosts	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.listvhosts	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.loganalyzer head/bin/ispman.loganalyzer
+--- head~/bin/ispman.loganalyzer	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.loganalyzer	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.makeDomainDirectories head/bin/ispman.makeDomainDirectories
+--- head~/bin/ispman.makeDomainDirectories	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.makeDomainDirectories	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+-#!/usr/bin/perl          
++#!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);          
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.makeHash head/bin/ispman.makeHash
+--- head~/bin/ispman.makeHash	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.makeHash	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.make_named_conf head/bin/ispman.make_named_conf
+--- head~/bin/ispman.make_named_conf	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.make_named_conf	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ package ISPMan;
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.makelogs head/bin/ispman.makelogs
+--- head~/bin/ispman.makelogs	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.makelogs	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.myhostname head/bin/ispman.myhostname
+--- head~/bin/ispman.myhostname	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.myhostname	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ use Sys::Hostname;
+ print hostname(), "\n";
+ __END__
+diff -urNad head~/bin/ispman.notifyUsers head/bin/ispman.notifyUsers
+--- head~/bin/ispman.notifyUsers	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.notifyUsers	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # usage: ispman.notifyUsers <domain> <messagefile>
+ # Andreas John ("derjohn") 2006-07-06
+ 
+diff -urNad head~/bin/ispman.passwd.client head/bin/ispman.passwd.client
+--- head~/bin/ispman.passwd.client	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.passwd.client	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.passwd.domain head/bin/ispman.passwd.domain
+--- head~/bin/ispman.passwd.domain	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.passwd.domain	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.passwd.reseller head/bin/ispman.passwd.reseller
+--- head~/bin/ispman.passwd.reseller	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.passwd.reseller	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.passwd.user head/bin/ispman.passwd.user
+--- head~/bin/ispman.passwd.user	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.passwd.user	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.passwd.vhost head/bin/ispman.passwd.vhost
+--- head~/bin/ispman.passwd.vhost	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.passwd.vhost	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.postfix.makemaps head/bin/ispman.postfix.makemaps
+--- head~/bin/ispman.postfix.makemaps	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.postfix.makemaps	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.prepareBranchForDN head/bin/ispman.prepareBranchForDN
+--- head~/bin/ispman.prepareBranchForDN	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.prepareBranchForDN	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.processdump head/bin/ispman.processdump
+--- head~/bin/ispman.processdump	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.processdump	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ #ispman.processdump
+ #utility to debug processes
+ 
+diff -urNad head~/bin/ispman.processes head/bin/ispman.processes
+--- head~/bin/ispman.processes	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.processes	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.removeEmptySessions head/bin/ispman.removeEmptySessions
+--- head~/bin/ispman.removeEmptySessions	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.removeEmptySessions	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.remove_canonical_map_entry head/bin/ispman.remove_canonical_map_entry
+--- head~/bin/ispman.remove_canonical_map_entry	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.remove_canonical_map_entry	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ package ISPMan;
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.remove_destination_domain_entry head/bin/ispman.remove_destination_domain_entry
+--- head~/bin/ispman.remove_destination_domain_entry	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.remove_destination_domain_entry	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ package ISPMan;
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.remove_relay_domain_entry head/bin/ispman.remove_relay_domain_entry
+--- head~/bin/ispman.remove_relay_domain_entry	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.remove_relay_domain_entry	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ package ISPMan;
+ 
+ BEGIN {
+diff -urNad head~/bin/ispman.replaceMailAliasForUser head/bin/ispman.replaceMailAliasForUser
+--- head~/bin/ispman.replaceMailAliasForUser	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.replaceMailAliasForUser	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.replaceMailForwardForUser head/bin/ispman.replaceMailForwardForUser
+--- head~/bin/ispman.replaceMailForwardForUser	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.replaceMailForwardForUser	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.replaceUserAttributeValues head/bin/ispman.replaceUserAttributeValues
+--- head~/bin/ispman.replaceUserAttributeValues	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.replaceUserAttributeValues	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.setDomainAttribute head/bin/ispman.setDomainAttribute
+--- head~/bin/ispman.setDomainAttribute	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.setDomainAttribute	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.setDomainClient head/bin/ispman.setDomainClient
+--- head~/bin/ispman.setDomainClient	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.setDomainClient	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.setDomainReseller head/bin/ispman.setDomainReseller
+--- head~/bin/ispman.setDomainReseller	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.setDomainReseller	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.setMailboxQuota head/bin/ispman.setMailboxQuota
+--- head~/bin/ispman.setMailboxQuota	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.setMailboxQuota	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.setVar head/bin/ispman.setVar
+--- head~/bin/ispman.setVar	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.setVar	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.setVhostAlias head/bin/ispman.setVhostAlias
+--- head~/bin/ispman.setVhostAlias	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.setVhostAlias	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.setVhostAttribute head/bin/ispman.setVhostAttribute
+--- head~/bin/ispman.setVhostAttribute	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.setVhostAttribute	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # For expert use only
+ BEGIN {
+     use FindBin;
+diff -urNad head~/bin/ispman.setmailtransport head/bin/ispman.setmailtransport
+--- head~/bin/ispman.setmailtransport	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.setmailtransport	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.showdomains head/bin/ispman.showdomains
+--- head~/bin/ispman.showdomains	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.showdomains	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.showmailtransport head/bin/ispman.showmailtransport
+--- head~/bin/ispman.showmailtransport	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.showmailtransport	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.smtpAuthTest head/bin/ispman.smtpAuthTest
+--- head~/bin/ispman.smtpAuthTest	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.smtpAuthTest	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.soap.server head/bin/ispman.soap.server
+--- head~/bin/ispman.soap.server	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.soap.server	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN{
+    use FindBin; unshift @INC, ($FindBin::Bin , "$FindBin::Bin/../lib");
+    use Getopt::Std;
+diff -urNad head~/bin/ispman.soap.test.client head/bin/ispman.soap.test.client
+--- head~/bin/ispman.soap.test.client	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.soap.test.client	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN{
+    use FindBin; unshift @INC, ($FindBin::Bin , "$FindBin::Bin/../lib");
+ }
+diff -urNad head~/bin/ispman.substConf head/bin/ispman.substConf
+--- head~/bin/ispman.substConf	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.substConf	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ 
+ use FindBin;
+ use lib ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+diff -urNad head~/bin/ispman.userInfo head/bin/ispman.userInfo
+--- head~/bin/ispman.userInfo	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.userInfo	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.vlogger head/bin/ispman.vlogger
+--- head~/bin/ispman.vlogger	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.vlogger	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # ispman.vlogger
+ # (may be used in conjunction with ispman.makeawstats
+ #  at the time of writing ispman.makelogs will not work without
+diff -urNad head~/bin/ispman.warnNearQuotaMailboxes head/bin/ispman.warnNearQuotaMailboxes
+--- head~/bin/ispman.warnNearQuotaMailboxes	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.warnNearQuotaMailboxes	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ # Warn mailboxes who are near their quota, default is 60%
+ # Usage: ispman.warnNearQuotaMailboxes -h mailhost.example.com
+ 
+diff -urNad head~/bin/ispman.zoneparse head/bin/ispman.zoneparse
+--- head~/bin/ispman.zoneparse	2007-07-31 12:36:05.000000000 +0200
++++ head/bin/ispman.zoneparse	2007-07-31 12:37:24.000000000 +0200
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/bin/ispman.zoneparse head/bin/ispman.zoneparse
+--- head~/bin/ispman.database	2007-08-29 12:36:05.000000000 +0100
++++ head/bin/ispman.database	2007-08-29 12:37:24.000000000 +0100
+@@ -1,4 +1,5 @@
+ #!/usr/bin/perl
++use lib qw(/usr/share/ispman/lib /usr/share/ispman/ /etc/ispman);
+ BEGIN {
+     use FindBin;
+     unshift @INC,
+diff -urNad head~/ispman-web/htdocs/admin/index.cgi head/ispman-web/htdocs/admin/index.cgi
+--- head~/ispman-web/htdocs/admin/index.cgi	2007-07-31 12:20:36.000000000 +0200
++++ head/ispman-web/htdocs/admin/index.cgi	2007-07-31 12:38:11.000000000 +0200
+@@ -4,7 +4,7 @@
+ package ISPMan;
+ 
+ use FindBin;
+-use lib "$FindBin::Bin/../../lib";
++use lib "/usr/share/ispman/lib";
+ 
+ use CGI;
+ use CGI::Session qw(-ip-match);

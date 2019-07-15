@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+my $PATH=$ENV{PWD};
+#print "PATH: $PATH\n";
+
+$head="HEAD";
+$rel="1.0";
+$old="0.9.7";
+
+if ($PATH=~/1.0/){
+	$this=$rel;
+} elsif ($PATH=~/HEAD/){
+	$this=$head;
+} elsif ($PATH=~/0.9.7/){
+	$this=$old;
+}
+
+$PATH=~s/$this/${$ARGV[0]}/;
+
+
+#print "PATH: $PATH\n";
+
+system "diff -w -B -x CVS -u $ARGV[2]  $ARGV[1] $PATH/$ARGV[1]";
+
+
+

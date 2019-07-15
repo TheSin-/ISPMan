@@ -1,0 +1,89 @@
+
+<HTML>
+<HEAD>
+<TITLE>ISPMan summary</TITLE>
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+
+
+</HEAD>
+
+<BODY>
+<form>
+<input type=hidden name=mode value=searchUsers>
+<input type=hidden name="ispmanDomain" value="<perl>$r->param('ispmanDomain')</perl>">
+
+
+
+<FONT FACE="Helvetica, Arial" size=2>
+
+<div align=left>
+Search where 
+<select class=selectlist name=attr>
+<option value="givenname">First name</option>
+<option value="sn">Last name</option>
+<option value="uid">User Id</option>
+<option value="mailAlias">Mail Alias</option>
+</select> contains <input class="inputfield" type=text name=usersearchfilter>
+<input type=image src=../../icon.png>
+</div>
+ 
+
+
+
+
+<perl>
+
+my $filter="";
+my $text="";
+
+if ($r->param('usersearchfilter') && $r->param('attr')){
+        $filter="(@{[$r->param('attr')]}=*@{[$r->param('usersearchfilter')]}*)";
+
+        $text=qq|
+        <table border=0 cellpadding=0 cellspacing=2 class=table>
+        <tr class=menuheader>
+        <th class=menuheader>UID</th>
+        <th class=menuheader>First name</th>
+        <th class=menuheader>Last name</th>
+        <th class=menuheader>Email</th>
+        </tr>
+        
+        
+        |;
+        
+
+} else {
+        return "";
+        $filter="";
+}
+
+$filter="&(objectclass=ispmanDomainUser)$filter";
+$users=$ispman->getEntriesAsHashRef($ispman->getDomainDN($r->param("ispmanDomain")),  $filter);
+
+
+
+for $user(sort keys %$users){
+        $text.="<tr>\n";
+        $text.="<td>";
+
+        # handle either sigle or multiple uid
+        my @uidList = $ispman->as_array($users->{$user}->{"uid"});
+        $text .= join "<br>", @uidList;
+        $text.="</td>";
+
+        $text.=join "\n", map {"<td> @{[$users->{$user}{$_}||'&nbsp;']}</td>"} qw (givenName sn mailLocalAddress);
+
+        $text.="<td><a href=".$ENV{'SCRIPT_NAME'}."?mode=editUser&ispmanDomain=@{[$r->param('ispmanDomain')]}&uid=@{[$uidList[0]]}>Edit</a></td>";
+        $text.="</tr>";
+
+}
+
+$text.="</table>";
+
+
+$text
+
+</perl>
+
+</form>
+

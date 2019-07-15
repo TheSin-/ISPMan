@@ -1,0 +1,6 @@
+dn: ispmanVhostRedirectURL=<perl>$r->param("ispmanVhostRedirectURL")</perl>,ou=urlRedirections,ispmanVhostName=<perl>$r->param("ispmanVhostName")</perl>,ou=httpdata,ispmanDomain=<perl>$r->param("ispmanDomain")</perl>,<perl>$ispman->getConf("ldapBaseDN")</perl>
+ispmanVhostRedirectURL: <perl>$r->param("ispmanVhostRedirectURL")</perl>
+ispmanVhostRedirectLocation: <perl>$r->param("ispmanVhostRedirectLocation")</perl>
+ispmanVhostName: <perl>$r->param("ispmanVhostName")</perl>
+ispmanDomain: <perl>$r->param("ispmanDomain")</perl>
+objectclass: ispmanVirtualHostRedirection

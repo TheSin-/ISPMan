@@ -1,0 +1,10 @@
+--- /etc/ispman/ispman.conf.novirtdomain	2006-11-16 12:26:45.000000000 +0100
++++ /etc/ispman/ispman.conf	2006-11-16 12:28:35.000000000 +0100
+@@ -98,6 +98,6 @@
+ $Config->{'ispmanVarSort'}{'dns_vars'}=['namedDir','namedIspmanSubDir','namedPriDir','namedSecDir','namedRevDir','namedConfFile','namedUser','primaryDNS','primaryDNSIP','secondaryDNS','secondaryDNSIP','primaryMX','primaryMXIP','secondaryMX','secondaryMXIP','namedStartCommand','namedStopCommand','namedReloadCommand','dnsMasterEmail','namedConfHeaderFile','namedConfFooterFile','namedBackend','catchAllCNAME','dnsSerialFormat'];
+ $Config->{'ispmanVarSort'}{'ftp_vars'}=[];
+ $Config->{'ispmanVarSort'}{'ldap_vars'}=['ldapHost','ldapBaseDN'];
+-$Config->{'ispmanVarSort'}{'mail_vars'}=['smtpServerReloadCommand','makeMapCommand','smtpServerConfDir','imapMailboxPrefix','imapServerBackend'];
++$Config->{'ispmanVarSort'}{'mail_vars'}=['smtpServerReloadCommand','makeMapCommand','smtpServerConfDir','imapMailboxPrefix','imapServerBackend','cyrusVirtDomainFeature','defaultMailboxFolders'];
+ $Config->{'ispmanVarSort'}{'sys_vars'}=['agentFrequency','userPassHashMethod','sleepSecondsBetweenRestart','installDir','rootEmail'];
+ 1;

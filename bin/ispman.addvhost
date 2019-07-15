@@ -1,0 +1,64 @@
+#!/usr/bin/perl
+# Changes:
+# 01-08-2003: Atif: Making -w webhost mandatory otherwise no corresponding A record will be created
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'dawp', \%opts );
+    unless ( $opts{'d'} && $opts{'d'} && $ARGV[0] ) {
+        print
+"$FindBin::Script  -d domain [-w webhost1, ... ,webhostn] [-a alias] [-p password] vhost\n";
+        exit;
+    }
+}
+
+use ISPMan;
+use CGI;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+$vhost  = shift @ARGV;
+
+my $r = new CGI();
+
+# check if domain exists
+if ( $ispman->getDomainInfo( $opts{"d"} ) ) {
+    $r->param( "ispmanDomain", $opts{"d"} );
+}
+else {
+    print "Domain \"" . $opts{"d"} . "\" does not exist!\n";
+    exit;
+}
+
+$r->param( "ispmanVhostName",        $vhost );
+$r->param( "ispmanVhostServerAlias", $opts{'a'} ) if $opts{'a'};
+$r->param( "userPassword",           $opts{'p'} ) if $opts{'p'};
+
+if ( $opts{'w'} ) {
+    $r->param( "webHost", split( ",", $opts{'w'} ) );
+}
+elsif (
+    @_webhost = $ispman->as_array(
+        $ispman->getDomainAttribute( $opts{'d'}, "ispmanDomainDefaultWebHost" )
+    )
+  )
+{
+    $r->param( "webHost", @_webhost );
+}
+elsif ( $_webhost = $ispman->getHostGroupFirstMember('httpgroup') ) {
+    $r->param( "webHost", $_webhost );
+}
+else {
+    print qq[
+No host found in webserver group!
+You cannot add vhosts until you define some hosts in the httpgroup
+];
+    exit;
+}
+
+# adding vhost
+$ispman->addVhost($r);
+
+1;

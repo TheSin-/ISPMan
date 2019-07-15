@@ -1,0 +1,60 @@
+
+<HTML>
+<HEAD>
+<TITLE>ISPMan summary</TITLE>
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+
+
+</HEAD>
+
+<BODY>
+
+<perl>_("Welcome to ISPMan")</perl><br><br>
+
+
+        
+<br><br>
+<perl>_("Login type")</perl>: <perl>$ispman->{'session'}->param("logintype")</perl>
+<br>
+
+<perl>
+$text="";
+if ($ispman->{'session'}->param("logintype") eq "reseller") {
+        $text=join " ", (_("ResllerID:"),  $ispman->{'session'}->param("ispmanResellerId"));
+        $text.="<br>";
+        $text.=join " ", (_("ResellerName:"), $ispman->getResellerNameById($ispman->{'session'}->param("ispmanResellerId")));
+        
+        
+}
+if ($ispman->{'session'}->param("logintype") eq "admin") {
+        $text=join " ", (_("AdminID:"),  $ispman->{'session'}->param("uid"));
+        $text.="<br>";
+
+        $text.=sprintf (qq|
+@{[_("ISP summary")]}.
+<br>
+
+<table width=400>
+        <tr><td>@{[_("Number of Domains hosted")]}</td><td align=right>%s</td></tr>
+        <tr><td>@{[_("Number of Websites")]}</td><td align=right>%s</td></tr>
+        <tr><td>@{[_("Number of User accounts")]}</td><td align=right>%s</td></tr>
+	<tr><td>@{[_("Number of Databases")]}</td><td align=right>%s</td></tr>
+</table>
+| , $ispman->getDomainsCount(), $ispman->getVhostsCount(), $ispman->getUsersCount(), $ispman->getAllDatabaseCount());
+        
+        
+}
+if ($ispman->{'session'}->param("logintype") eq "client") {
+        $text=join " ", (_("ClientID:"),  $ispman->{'session'}->param("ispmanClientId"));
+        $text.="<br>";
+        $text.=join " ", (_("ResellerID:"),  $ispman->{'session'}->param("ispmanResellerId"));
+        $text.="<br>";
+        $text.=join " ", (_("ClientUID:"), $ispman->getClientNameById($ispman->{'session'}->param("ispmanClientId")));
+        $text.=join " ", (_("ClientName:"), $ispman->getClientAttributeById($ispman->{'session'}->param("ispmanClientId"), "ispmanClientName"));
+        
+        
+}
+
+$text
+</perl>
+        

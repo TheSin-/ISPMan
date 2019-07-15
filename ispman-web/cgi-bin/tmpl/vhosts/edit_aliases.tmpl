@@ -1,0 +1,150 @@
+<script type="text/javascript" language="JavaScript">
+<!--
+    function checkAlias(f){
+        if (f.ispmanVhostServerAlias.value == ""){
+            alert("Alias must not be empty!")
+            return false
+        } else {
+            return true
+        }
+    }
+
+    function modifyAlias(f){
+        if (checkAlias(f)){
+            f.submit();
+        }
+    }
+
+    function deleteAlias(f){
+        location=cgiurl+"?mode=deleteAlias&"+cgidata+"&ispmanVhostServerAlias="+f.ispmanVhostServerAlias.value
+    }
+
+//-->
+</script>
+
+
+<!-- vhost alias add dialog -->
+<form name="alias_add" onSubmit="return checkAlias(this)">
+<table border="1">
+<tr><th colspan="2"><perl>_("Add Alias")</perl></th></tr>
+<tr>
+<input type=hidden name="mode" value="addAlias">
+<input type=hidden name="ispmanDomain" value="<perl>$r->param("ispmanDomain")</perl>">
+<input type=hidden name="ispmanVhostName" value="<perl>$r->param("ispmanVhostName")</perl>">
+<td nowrap ><input type=text name="ispmanVhostServerAlias"></td>
+<td><input type=submit value="<perl>_("Add")</perl>"></td>
+</tr>
+</table>
+</form>
+
+<!-- vhost alias list -->
+<table>
+<tr>
+
+<perl>
+    $domain=$r->param("ispmanDomain");
+    $aliases=$ispman->getAliases($domain,$r->param("ispmanVhostName"));
+    @lines=();
+
+    @aliases_local=();
+    @aliases_other=();
+    
+    # get all aliases, sort them and divide by local/others
+    for ( sort { $aliases->{$a} cmp $aliases->{$b} } keys %$aliases) {
+        $alias=$aliases->{$_}{'ispmanVhostServerAlias'};
+        if ($alias =~ /\./){
+            push @aliases_other, $alias;
+        } else {
+            push @aliases_local, $alias;
+        }
+    }
+
+    if (@aliases_local){
+        push @lines, qq[
+<td valign="top">
+<table border="1">
+<tr><th colspan="2">Aliases (*.$domain)</th></tr>
+];
+        # loop through local aliases
+        $i=0;
+        foreach (@aliases_local){
+            $i++;
+            push @lines, qq[
+<tr>
+<form name="local$i" onSubmit="return checkAlias(this)">
+<input type=hidden name="mode" value="updateAlias">
+<input type=hidden name="ispmanDomain" value="@{[$r->param('ispmanDomain')]}">
+<input type=hidden name="ispmanVhostName" value="@{[$r->param('ispmanVhostName')]}">
+<input type=hidden name="modifyAlias" value="$_">
+<td nowrap>
+  <input type=text name="ispmanVhostServerAlias" value=\"$_\">
+</td>
+        
+<td>
+<a href="javascript: modifyAlias(document.local$i)" alt="@{[_("Apply")]}" title="@{[_("Apply")]}">
+<img src="@{[$ispman->getConfig('ispmanUrlPrefix')]}/gfx/apply.gif" border="0"></a>
+<a href="javascript: deleteAlias(document.local$i)" alt="@{[_("Delete")]}" title="@{[_("Delete")]}">
+<img src="@{[$ispman->getConfig('ispmanUrlPrefix')]}/gfx/delete.gif" border="0"></a>
+</td>
+</form>
+</tr>
+];
+        };
+
+        push @lines, qq[
+</table>
+</td>
+];
+    }
+
+    if (@aliases_other){
+        push @lines, qq[
+<td valign="top">
+<table border="1">
+<tr><th colspan="2">Aliases (other domains)</th></tr>
+];
+        # loop through other aliases
+        $i=0;
+        foreach (@aliases_other){
+            $i++;
+            push @lines, qq[
+<tr>
+<form name="other$i" onSubmit="return checkAlias(this)">
+<input type=hidden name="mode" value="updateAlias">
+<input type=hidden name="ispmanDomain" value="@{[$r->param('ispmanDomain')]}">
+<input type=hidden name="ispmanVhostName" value="@{[$r->param('ispmanVhostName')]}">
+<input type=hidden name="modifyAlias" value="$_">
+<td nowrap>
+  <input type=text name="ispmanVhostServerAlias" value=\"$_\">
+</td>
+        
+<td>
+<a href="javascript: modifyAlias(document.other$i)" alt="@{[_("Apply")]}" title="@{[_("Apply")]}">
+<img src="@{[$ispman->getConfig('ispmanUrlPrefix')]}/gfx/apply.gif" border="0"></a>
+<a href="javascript: deleteAlias(document.other$i)" alt="@{[_("Delete")]}" title="@{[_("Delete")]}">
+<img src="@{[$ispman->getConfig('ispmanUrlPrefix')]}/gfx/delete.gif" border="0"></a>
+</td>
+</form>
+</tr>
+];
+        };
+
+        push @lines, qq[
+</table>
+</td>
+];
+    }
+
+    join "\n", @lines;
+</perl>
+
+</tr>
+</table>
+
+<hr>
+Note: Aliases without "." are considered local and will be automatically...<br>
+<ul>
+<li>prepended to this and all replica domains on vhost.conf generation
+<li>added to DNS as A-record
+</ul>
+

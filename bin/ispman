@@ -1,0 +1,17 @@
+#!/bin/sh
+
+BASE=`dirname $0`
+
+if [ "$1" = "help" ] && [ -n "$2" ]; then
+perldoc $BASE/$2
+exit 0
+fi
+
+if [ -z "$@" ] || [ "help" = "$1" ]; then
+echo The following commands exists:
+ls -1 $BASE | egrep -o "[^\.]*$"
+exit 0
+fi
+
+$BASE/ispman.$@
+

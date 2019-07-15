@@ -1,0 +1,61 @@
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+
+   
+
+ <FORM>
+ <P>
+<table class="table" cellspacing=5 border=0>
+<tr>
+    <td class=menuheader colspan=2>    Please Select a module to configure</td>
+    </tr>
+    <tr>
+
+    <td class=info colspan=2><P>
+        You have to correctly fill out all these variable to have ISPMan do the job.<br>
+    </td>
+</tr>    
+            
+            <TR><Th valign=top align=left><a href="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=admins">Administrator accounts</a></th>
+                <td class=line0><P><FONT COLOR='BLACK'><I>  Here you can configure admin accounts. These accounts will have access to ISPMan interface.</i></font></p></td>
+            </tr>
+        
+        <perl>
+        my $text="";
+        my $modules=$ispman->getConfModules();
+        my $c=3;
+        for (keys %$modules){
+             $class="line". $c%2;
+            $buttonText=$modules->{$_}{'ispmanModuleAlias'} || $modules->{$_}{'ispmanModule'};
+            #$buttonText.="&nbsp; "x(50-length($buttonText));
+            $buttonLink="$ENV{'SCRIPT_NAME'}?mode=editModule&module=$modules->{$_}{'ispmanModule'}";
+            
+            
+            #$text.="<TR><TD><input class=button type=BUTTON  VALUE='$buttonText'  onClick='self.location=\"$buttonLink\"'></td></tr>\n";
+            $text.="<TR><Th valign=top align=left><a href=\"$buttonLink\">$buttonText</a></th>\n";
+            $text.="<TD class=$class><P><FONT COLOR='BLACK'><I>  $modules->{$_}{'description'} </i></font></p></td></tr>";
+            $c++;
+        }
+       
+        
+        $text
+        
+        </perl>
+
+
+            <TR><Th valign=top align=left><a href="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=manageHosts">Hosts</a></th>
+            <TD><P><FONT COLOR='BLACK'><I>  Manage hosts that take part in your ISP </i></font></p></td></tr>
+
+            <TR><Th valign=top align=left><a href="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=manageHostGroups">HostGroups</th>
+            <TD><P><FONT COLOR='BLACK'><I>Define groups of hosts by tasks such as mailGroup, httpGroup etc </i></font></p></td></tr>
+
+
+            <!-- bad idea. More problems created than solved.
+            Nuking it for a while
+            <TR><Th valign=top align=left><a href="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=manageGlobalDNSVars">Global DNS entries</td>
+            <TD><P><FONT COLOR='BLACK'><I>Define entries that should be added to each zone. example cname: <code>mail IN CNAME mx1.ispman.org</code> </i></font></p></td></tr>
+            -->
+            
+</table>
+ 
+ </form>
+ 

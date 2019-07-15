@@ -1,0 +1,10 @@
+<tr>
+<td><perl>$customer->getText("Domain signature is text that will be appended to all outgoing webmails of your domains.")</perl></td>
+</tr>
+<form>
+<tr><td><textarea name="ispmanDomainSignature" cols=70 rows=3><perl>$customer->getDomainSignature()</perl></textarea></td></tr>
+<input type=hidden name="mode" value="changeDomainSignature">
+<tr><td><input type=submit value="<perl>$customer->getText("change signature")</perl>"></td></tr>
+</form>
+
+

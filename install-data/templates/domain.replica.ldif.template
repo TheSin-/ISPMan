@@ -1,0 +1,6 @@
+objectClass: ispmanBranch
+ispmanReplicaMaster: <perl>$r->param("ispmanReplicaMaster")</perl>
+mailLocalAddress: @<perl>$domain</perl>
+mailForwardingAddress: @<perl>$r->param("ispmanReplicaMaster")</perl>
+
+

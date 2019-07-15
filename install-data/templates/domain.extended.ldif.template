@@ -1,0 +1,18 @@
+objectclass: PureFTPdUser
+cn: <perl>$domain</perl>
+uid: <perl>$domain</perl>
+uidNumber: <perl>$r->param("uidnumber")</perl>
+gidNumber: <perl>$r->param("gidnumber")</perl>
+homeDirectory: <perl>$r->param("homeDirectory")</perl>
+userPassword: <perl>$ispman->encryptPassWithMethod($r->param("userPassword"),$ispman->getConf('userPassHashMethod'))</perl>
+loginShell: <perl>$r->param("loginShell") || $ispman->getConf("domainShell");</perl>
+ispmanMaxAccounts: <perl>$r->param("ispmanMaxAccounts")||"-1"</perl>
+ispmanMaxVhosts: <perl>$r->param("ispmanMaxVhosts")||"-1"</perl>
+ispmanMaxDatabases: <perl>$r->param("ispmanMaxDatabases")||"-1"</perl>
+<perl>join "\n", map{"ispmanDomainService: $_"} split(",", $r->param("ispmanDomainServices"))</perl>
+<perl>$mailHost=$r->param("ispmanDomainDefaultMailDropHost"); if($mailHost){$text="ispmanDomainDefaultMailDropHost: $mailHost\n";} else {$text=""}; $text</perl>
+<perl>$fileHost=$r->param("ispmanDomainDefaultFileServer"); if($fileHost){$text="ispmanDomainDefaultFileServer: $fileHost\nDestinationAddress: $fileHost\n";} else {$text=""}; $text</perl>
+<perl>@webHosts=$ispman->as_array($r->param("ispmanDomainDefaultWebHost")); $text=""; for (@webHosts){ $text.="ispmanDomainDefaultWebHost: $_\n";}; $text</perl>
+FTPStatus: <perl>$r->param("FTPStatus") || "active"</perl>
+FTPQuotaMBytes: <perl>$r->param("FTPQuotaMBytes")||1</perl>
+

@@ -1,0 +1,50 @@
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+   
+
+   
+Readonly access granted.
+<br>This domain is locked and editable by  <perl>$ispman->{'domain'}{'ispmanDomainLockedBy'}</perl><br>
+
+        
+ <P>
+<table border=0>
+<tr>
+    <td class=line0>Primary</td>
+    <td class=line0>
+    <perl>$ispman->{'domain'}{'dns'}{'primary'}</perl>
+    </td>
+</tr>
+<tr>
+    <td class=line0>rootmail</td>
+    <td class=line0>
+    <perl>$ispman->{'domain'}{'dns'}{'rootmail'}</perl>
+    </td>
+</tr>
+<tr>
+    <td class=line0>Expire</td>
+    <td class=line0>
+    <perl>$ispman->{'domain'}{'dns'}{'expire'}</perl>
+    </td>
+</tr>
+<tr>
+    <td class=line0>Retry</td>
+    <td class=line0>
+    <perl>$ispman->{'domain'}{'dns'}{'retry'}</perl>
+    </td>
+</tr>
+<tr>
+    <td class=line0>Refresh</td>
+    <td class=line0>
+    <perl>$ispman->{'domain'}{'dns'}{'refresh'}</perl>
+    </td>
+</tr>
+<tr>
+    <td class=line0>Minimum</td>
+    <td class=line0>
+    <perl>$ispman->{'domain'}{'dns'}{'minimum'}</perl>
+    </td>
+</tr>
+</table>
+ 
+ 
+

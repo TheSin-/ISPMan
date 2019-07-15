@@ -1,0 +1,6 @@
+objectClass ( 1.3.6.1.4.1.8833.2.2.1299  NAME 'ispmanMailGroup'
+	SUP top STRUCTURAL
+	DESC 'MailGroup'
+	MAY (  ispmanDomain $ mailAlias $  mailLocalAddress $ mailForwardingAddress $ cn ))
+
+

@@ -1,0 +1,33 @@
+<html>
+<head>
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+</head>
+<body>
+<perl>$message</perl>
+
+
+
+
+<form action="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/admin/index.cgi" method="POST">
+<center>
+<table border=0 bgcolor="#d4eaf9">
+<tr>
+<td>
+        <table border=0>
+        <tr><th><perl>_("uid")</perl></th><td><input type=text size=30 name="uid" value="<perl>$ispman->{'admin'}{'uid'}</perl>"></tr>
+        <tr><th><perl>_("Fullname")</perl></th><td><input size=30 type=text name="cn" value="<perl>$ispman->{'admin'}{'cn'}</perl>"></tr>
+        <tr><th><perl>_("password")</perl></th><td><input size=30 type=text name="userPassword" value="<perl>$ispman->{'admin'}{'userPassword'}</perl>"></tr>
+        <tr><th><perl>_("E-mail")</perl></th><td><input size=30 type=text name="ispmanSysadminMail" value="<perl>$ispman->{'admin'}{'ispmanSysadminMail'}</perl>"></tr>
+        <tr><th><perl>_("Level")</perl></th><td><input size=30 type=text name="ispmanSysadminLevel" value="<perl>$ispman->{'admin'}{'ispmanSysadminLevel'}</perl>"></tr>
+        </table>
+</td>
+</tr>
+<tr>
+<td colspan=2 align=right>
+        <input type=hidden name="mode" value="updateAdmin">
+         <input type=submit class="button" value="<perl>_("Update")</perl>">
+</td>
+</tr>
+</table>
+</center>
+ </form>

@@ -1,0 +1,66 @@
+<FONT FACE="Helvetica, Arial" size=2>
+
+<font class=pageTitle><perl>_("Summary of Resellers")</perl></font>
+<br>
+<a href="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=formAddReseller"><perl>_("Add a new Reseller")</perl></a>
+
+
+<br>
+<table>
+<tr>
+<th><perl>_("UID (login id)")</perl></th>
+<th><perl>_("ispmanResellerId")</perl></th>
+<th><perl>_("ispmanResellerName")</perl></th>
+<th><perl>_("Display name")</perl></th>
+<th><perl>_("# Clients")</perl></th>
+<th>&nbsp;</th>
+</tr>
+
+<perl>
+my $resellers=$ispman->getResellers();
+
+for (keys %$resellers){
+
+   my $id = $resellers->{$_}{'ispmanResellerId'};
+   my $nclients = $ispman->getClientsCount("ispmanResellerId=$id");
+
+   $OUT.= qq|
+<tr>
+  <td>
+    <a href="$ENV{'SCRIPT_NAME'}?mode=editReseller&ispmanResellerId=$id">
+     @{[$resellers->{$_}{'uid'}]}
+    </a>
+  </td>
+  <td>$id</td>
+  <td>@{[$resellers->{$_}{'ispmanResellerName'}]}</td>
+  <td>@{[$resellers->{$_}{'cn'}]}</td>
+  <td align=right>$nclients</td>
+|;
+
+   if($nclients==0)
+   {
+     $OUT.= qq|
+  <td>
+     <a href="$ENV{'SCRIPT_NAME'}?mode=ispmanDeleteResellers&ispmanResellerId=$id">
+     <img src="@{[$ispman->getConfig('ispmanUrlPrefix')]}/gfx/delete.gif" border="0"></a>
+  </td>
+|;
+   }
+   else
+   {
+     $OUT.= qq|
+  <td>
+    <img src="@{[$ispman->getConfig('ispmanUrlPrefix')]}/gfx/deleteGray.gif" border="0">
+  </td>
+|;
+   }
+
+   $OUT.="</tr>";
+}
+</perl>
+
+</table>
+
+<hr>
+<perl>_("Note: Only resellers without clients can be deleted.")</perl>
+ 

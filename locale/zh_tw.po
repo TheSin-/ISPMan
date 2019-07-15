@@ -1,0 +1,264 @@
+# translation of zh_tw.po to 
+# ISPMan Localization file.
+# This file is distributed under the same license as the PACKAGE package.
+# Quintus Leung <quintus@roothome.com>, 2003
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: zh_tw\n"
+"POT-Creation-Date: 2003-02-28 17:27+0800\n"
+"PO-Revision-Date: 2003-03-06 17:01+0800\n"
+"Last-Translator: Quintus Leung <quintus@roothome.com>\n"
+"Language-Team:  <zh@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.0\n"
+
+#: menu.tmpl:223
+msgid "A Records"
+msgstr "A 記錄"
+
+#: topmenu.tmpl:42
+msgid "Add domain"
+msgstr "新增網域"
+
+#: menu.tmpl:262
+msgid "Add mailgroup"
+msgstr "新增郵寄名單"
+
+#: menu.tmpl:239
+msgid "Add user"
+msgstr "新增用戶"
+
+#: menu.tmpl:284
+msgid "Add virtualhost"
+msgstr "新增虛擬主機"
+
+#: overview.tmpl:30
+msgid "AdminID:"
+msgstr "管理員識別號"
+
+#: login.tmpl:24
+msgid "Administrator"
+msgstr "管理員"
+
+#: menu.tmpl:226
+msgid "CNAME Records"
+msgstr "CNAME 記錄"
+
+#: menu.tmpl:145
+msgid "Choose domain to manage"
+msgstr "請選擇要管理的網域"
+
+#: login.tmpl:26
+msgid "Client"
+msgstr "客戶"
+
+#: overview.tmpl:47
+msgid "ClientID:"
+msgstr "客戶識別號"
+
+#: overview.tmpl:52
+msgid "ClientName:"
+msgstr "客戶名稱"
+
+#: overview.tmpl:51
+msgid "ClientUID:"
+msgstr "客戶 UID"
+
+#: topmenu.tmpl:37
+msgid "Clients"
+msgstr "客戶"
+
+#: status.tmpl:44
+msgid "Commit session"
+msgstr "提交現時工作"
+
+#: topmenu.tmpl:46
+msgid "Configure"
+msgstr "配置"
+
+#: login.tmpl:27
+msgid "Domain Admin"
+msgstr "網域管理員"
+
+#: topmenu.tmpl:41
+msgid "Domains"
+msgstr "網域"
+
+#: status.tmpl:39
+msgid "Don't refresh"
+msgstr "不重新整理"
+
+#: login.tmpl:33
+msgid "English"
+msgstr "英文"
+
+#: topmenu.tmpl:53
+msgid "File a BUG"
+msgstr "匯報錯誤"
+
+#: login.tmpl:34
+msgid "French"
+msgstr "法文"
+
+#: login.tmpl:35
+msgid "German"
+msgstr "德文"
+
+#: topmenu.tmpl:67
+msgid "Help"
+msgstr "說明"
+
+#: overview.tmpl:34
+msgid "ISP summary"
+msgstr "ISP 摘要"
+
+#: login.tmpl:31
+msgid "Language"
+msgstr "語言"
+
+#: login.tmpl:39
+msgid "Login"
+msgstr "登入"
+
+#: login.tmpl:22
+msgid "Login as"
+msgstr "登入為"
+
+#: overview.tmpl:17
+msgid "Login type"
+msgstr "登入類別"
+
+#: topmenu.tmpl:66
+msgid "Logout"
+msgstr "登出"
+
+#: menu.tmpl:217
+msgid "MX Records"
+msgstr "MX 記錄"
+
+#: menu.tmpl:211
+msgid "Manage DNS"
+msgstr "管理網域 (DNS)"
+
+#: menu.tmpl:260
+msgid "Manage mailgroups"
+msgstr "管理郵寄名單"
+
+#: menu.tmpl:235
+msgid "Manage users"
+msgstr "管理用戶"
+
+#: menu.tmpl:282
+msgid "Manage virtualhosts"
+msgstr "管理虛擬主機"
+
+#: menu.tmpl:220
+msgid "NS Records"
+msgstr "NS 記錄"
+
+#: overview.tmpl:38
+msgid "Number of Domains hosted"
+msgstr "處理的網域數目"
+
+#: overview.tmpl:40
+msgid "Number of User accounts"
+msgstr "用戶帳戶數目"
+
+#: overview.tmpl:39
+msgid "Number of Websites"
+msgstr "網站數目"
+
+#: topmenu.tmpl:29
+msgid "Overview"
+msgstr "概略"
+
+#: login.tmpl:21
+msgid "Password"
+msgstr "密碼"
+
+#: topmenu.tmpl:49
+msgid "Processes"
+msgstr "處理程序"
+
+#. ($ispman->countProcessesInSession($ispman->{"sessID"})
+#: status.tmpl:31
+msgid "Processes in queue: %1"
+msgstr "序列中的處理程序: %1"
+
+#: status.tmpl:42
+msgid "Refresh"
+msgstr "重新整理"
+
+#. (10)
+#. (30)
+#. (60)
+#: status.tmpl:36
+#: status.tmpl:37
+#: status.tmpl:38
+msgid "Refresh every %1 seconds"
+msgstr "每 %1 秒更新"
+
+#: login.tmpl:25
+msgid "Reseller"
+msgstr "轉售人"
+
+#: overview.tmpl:49
+msgid "ResellerID:"
+msgstr "轉售人識別號"
+
+#: overview.tmpl:25
+msgid "ResellerName:"
+msgstr "轉售人名稱"
+
+#: topmenu.tmpl:32
+msgid "Resellers"
+msgstr "轉售人"
+
+#: overview.tmpl:23
+msgid "ResllerID:"
+msgstr "轉售人識別號"
+
+#: status.tmpl:29
+msgid "Running Session"
+msgstr "進行中的時段工作"
+
+#: menu.tmpl:214
+msgid "SOA Records"
+msgstr "SOA 記錄"
+
+#: menu.tmpl:237
+msgid "Search users"
+msgstr "尋找用戶"
+
+#: menu.tmpl:268
+msgid "Select mailgroup"
+msgstr "選擇郵寄名單"
+
+#: menu.tmpl:245
+msgid "Select user"
+msgstr "選擇用戶"
+
+#: menu.tmpl:289
+msgid "Select virtualhost"
+msgstr "選擇虛擬主機"
+
+#: ro.tmpl:2
+msgid "Sorry you don't have write access to this domain."
+msgstr "對不起，你沒有此網域的權限。"
+
+#: login.tmpl:13
+#: login.tmpl:3
+msgid "Unauthorized Access prohibited"
+msgstr "未經准許，不可登入。"
+
+#: login.tmpl:20
+msgid "Username"
+msgstr "用戶名稱"
+
+#: overview.tmpl:12
+msgid "Welcome to ISPMan"
+msgstr "歡迎使用 ISPMan"
+

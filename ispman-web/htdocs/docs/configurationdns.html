@@ -1,0 +1,39 @@
+<HTML>
+<TITLE>ISPMan help</TITLE>
+<link HREF="/ispman.css" REL="stylesheet" TYPE="text/css">
+<BODY>
+<table class="table" cellspacing=5 border=0>
+<tr><td class=menuheader>DNS Settings</td>
+<tr><td>Here are the settings I used for Bind8 on Debian
+<pre>
+DNS Config:
+ Named Start Command - /etc/init.d/bind start
+ Primary DNS (name) - ns1.domain.com
+ ISPMan's DNS data directory -  ispman/
+ Primary Mail Server (name) - mail.domain.com
+ Named data directory - /var/named  
+ Secondary Mail Server (IP) - xxx.xxx.xxx
+ DNS Backend - bind8
+ Secondary DNS (IP) - xxx.xxx.xxx.xxx
+ Reverse Zone directory - rev/
+ Header file for named.conf - /opt/ispman/templates/named.conf.header 
+ Named Reload Command - /etc/init.d/bind reload 
+ Footer file for named.conf -/opt/ispman/templates/named.conf.footer 
+ Named Stop Command - /etc/init.d/bind stop 
+ Secondary Zone directory - sec/ 
+ Named Config File  -/etc/named.ispman.conf
+ Primary DNS (IP) - xxx.xxx.xxx.xxx
+ Secondary Mail Server (name) - mail2.domain.com
+ Secondary DNS (name) - ns2.domain.com
+ Primary Mail Server (IP) - xxx.xxx.xxx.xxx
+ Catch all CNAME  - none
+ Primary Zone directory - pri/
+ Hostmaster's email address - hostmaster.domain.com
+ Named User - root 
+</pre>
+<p>
+<tr><td><A HREF="configuration.html">Return to Configuring ISPMan</A>
+</BODY>
+</HTML>
+
+

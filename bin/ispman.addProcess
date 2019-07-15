@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'dpghx', \%opts );
+    unless ( $opts{'d'} && $opts{'p'} && ( $opts{'g'} || $opts{'h'} ) ) {
+        print
+          "Usage: ispman.addProcess -d domain -p process (-g hostgroup |-h hostname) [-x params]\n";
+        print
+          "Example: ispman.addProcess -d example.com -p ModifyVirtualHost -g httpgroup -x ispmanVhostName=www\n";
+        exit;
+    }
+}
+
+use ISPMan;
+my $ispman = ISPMan->new();
+
+my $domain  = $opts{'d'};
+my $process = $opts{'p'};
+my $params  = $opts{'x'};
+
+if ( $opts{'g'} ) {
+    $ispman->addProcessToGroup( $domain, $opts{'g'}, $process, $params );
+}
+
+if ( $opts{'h'} ) {
+    $ispman->addProcessToHost( $domain, $opts{'h'}, $process, $params );
+}
+
+__END__
+
+

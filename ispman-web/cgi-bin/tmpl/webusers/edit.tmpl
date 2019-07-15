@@ -1,0 +1,41 @@
+   <script>
+         function Delete(){
+         if (confirm("Are you sure you want to permanently delete this webuser?")) 
+            self.location="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=deleteWebUser&ispmanDomain=<perl>$r->param("ispmanDomain")</perl>&ispmanUserId=<perl>$r->param("ispmanUserId")</perl>";
+      }
+   </script>
+<LINK HREF="../ispman.css" REL="stylesheet" TYPE="text/css">
+   
+
+   
+<table border=0>
+<form action="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/admin/index.cgi" method="POST">
+<tr><td colspan=2>
+    <b>Webuser: </b> 
+    <perl>$r->param('ispmanUserId') </perl>
+    (<perl>$r->param('ispmanDomain')</perl>)
+
+<tr>
+    <td>Password </td>
+    <td> 
+    <input  size=35 type=text name=userPassword value="<perl> $ispman->{'webuser'}->{"userPassword"}</perl>">
+    </td>
+</tr>
+
+
+
+<input type=hidden name="mode" value="updateWebUser">
+<input type=hidden name="ispmanDomain" value="<perl>$r->param("ispmanDomain")</perl>">
+<input type=hidden name="ispmanUserId" value="<perl>$r->param("ispmanUserId")</perl>">
+   
+   
+   <tr><td align=right colspan=2>  
+         <input type=button class="button" onClick="document.forms[0].reset()" value="Reset">
+         <input type=button class="button" onClick="Delete()" value="Delete webuser">
+         <input type=button class="button" onClick="document.forms[0].submit()" value="Update webuser">
+         
+      </td></tr>
+   </form></table>
+ 
+ 
+

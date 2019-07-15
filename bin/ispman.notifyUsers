@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+# usage: ispman.notifyUsers <domain> <messagefile>
+# Andreas John ("derjohn") 2006-07-06
+
+package ISPMan;
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+
+    use Getopt::Std;
+    getopt( 'd', \%opts );
+
+    unless ( $opts{'d'} && $ARGV[0] ) {
+        print "usage:\n";
+        print "$FindBin::Script -d <domain> </path/to/messagefile>\n";
+        print "\n";
+        exit;
+    }
+}
+
+use ISPMan;
+$ispman = ISPMan->new();
+require "$FindBin::Bin/../lib/send_email_to_domain.lib";
+
+&sendEmailToDomain( $ispman, $opts{'d'}, @ARGV[0] );
+
+__END__
+
+

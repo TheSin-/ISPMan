@@ -1,0 +1,144 @@
+<perl>
+   use String::MkPasswd qw(mkpasswd);
+
+   $ispmanDBName=$r->param("ispmanDomain")."_".$r->param("ispmanDBName");
+   $ispmanDBName =~ s/\./_/g;
+   "";
+</perl>
+
+<script type="text/javascript">
+<!--
+
+function verifyFormAndSubmit (form) {
+  if (form.ispmanDBName.value == "") {
+    alert("Database Name is undefined!");
+    form.ispmanDBName.focus();
+    return false;
+  }
+  if (form.ispmanDBUser.value == "") {
+    alert("Database User is undefined!");
+    form.ispmanDBUser.focus();
+    return false;
+  }
+  var user = form.ispmanDBUser.value;
+  if (user.length > 16) {
+    form.ispmanDBUser.value=user.substr(0,16);
+  }
+  if (form.ispmanDBPass.value == "") {
+    alert("Database Password is undefined!");
+    form.ispmanDBPass.focus();
+    return false;
+  }
+  if (form.ispmanDBAccessFilter.value == "") {
+    alert("Database Access Filter is undefined!");
+    form.ispmanDBAccessFilter.focus();
+    return false;
+  }
+  form.submit();
+}
+
+//-->
+</script>
+
+<h1>Add new database</h1>
+<hr>
+<table border="0" cellspacing="0" cellpadding="3">
+<form id="edit_database" action="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/admin/index.cgi" method="POST">
+  <tr>
+    <td id="title">Database Type:</td>
+    <td id="field">
+      <select name="ispmanDBType" id="ispmanDBType">
+      <perl>
+         join "\n", map { "<option value=\"$_\">$_</option>" } split(/\s*,\s*/,$ispman->getConf("dbTypes"));
+      </perl>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <td id="title">Database Name:</td>
+    <td id="field"><input type="text" name="ispmanDBName" id="ispmanDBName" value="<perl>$ispmanDBName</perl>"></td>
+  </tr>
+  <tr>
+    <td id="title">Username:</td>
+    <td id="field">
+      <input type="text" maxlength="16" name="ispmanDBUser" id="ispmanDBUser" value="<perl>$ispmanDBName</perl>"><br/>
+      <div id="note">(user name to connect to database)</div>
+    </td>
+  </tr>
+  <tr>
+    <td id="title">Password:</td>
+    <td id="field">
+      <input type="text" name="ispmanDBPass" id="ispmanDBPass" value="<perl>mkpasswd();</perl>"><br/>
+      <div id="note">(password to connect to database)</div>
+    </td>
+  </tr>
+  <tr>
+    <td id="title">Allowed Hosts:</td>
+    <td id="field">
+      <input type="text" name="ispmanDBAccessFilter" value="<perl>$ispman->getConf("dbAccessHostFilter")</perl>"><br/>
+      <div id="note">(allowed hosts to connect to database)</div>
+    </td>
+  </tr>
+  <tr>
+    <td id="title">Privileges:</td>
+    <td id="field">
+      <table id="ispmanDBPrivileges" width="100%" border="0" cellpadding="2" cellspacing="1">
+      <perl>
+        my $out="";
+        my %acl;
+        my $maxrows=0;
+
+        for (split ",",$ispman->getConf("dbAccessPermissions")) {
+          if ($_ =~ /(.*)\((.*)\)/) {
+            push @sections,$1;
+            $acl{$1} = [ split '\|',$2 ];
+            $maxrows = ($maxrows < @{$acl{$1}})?@{$acl{$1}}:$maxrows;
+          }
+        }
+
+        $out .= "<tr>".join("",map { "<td>$_</td>" } @sections)."</tr>\n";
+
+        for (my $row=0; $row < $maxrows; $row++) {
+          $out .= "<tr>\n";
+
+          foreach (@sections) {
+            my $grant=$acl{$_}[$row];
+            my $default=($grant =~ s/\*$//)?'checked="checked"':'';
+            $out .= "<td>";
+            $out .= qq|<input type="checkbox" name="ispmanDBPrivilege" id="ispmanDBPrivilege" value="$grant" $default>$grant| unless !defined($grant);
+            $out .= "</td>\n";
+          }
+          $out .= "</tr>\n";
+        }
+        $out;
+      </perl>
+      </table>
+    </td>
+  </tr>
+
+  <tr>
+    <td id="title">Server:</td>
+    <td id="field">
+      <select name="ispmanDBHost" id="ispmanDBHost">
+      <perl>
+        my @dbhosts=$ispman->getGroupMembers("databasegroup");
+        my $defaulthost = $ispman->getDomainInfo($r->param("ispmanDomain"))->{'ispmanDomainDefaultDBHost'};
+        join "\n", map { "<option VALUE=\"$_\"".(($_ eq $defaulthost)?"selected":"").">$_</option>" } @dbhosts;
+      </perl>
+      </select>
+    </td>
+  </tr>
+
+  <tr>
+    <td></td>
+    <td id="buttons" colspan=2>
+         <input type=button class="button" onClick="document.forms[0].reset()" value="Reset">
+         <input type=button class="button" onClick="return verifyFormAndSubmit(this.form);" value="Add">
+    </td>
+  </tr>
+
+<input type=hidden name="mode" value="add_database_cgi">
+<input type=hidden name="ispmanDomain" value="<perl>$r->param("ispmanDomain")</perl>">
+
+</form>
+</table>

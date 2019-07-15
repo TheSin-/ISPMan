@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    unless ( $ARGV[2] ) {
+        print "$FindBin::Script  hostname username password\n";
+        exit;
+    }
+}
+use Net::IMAP::Simple;
+$server = new Net::IMAP::Simple( $ARGV[0] );
+
+if ( $server->login( $ARGV[1], $ARGV[2] ) ) {
+    print "OK\n";
+}
+else {
+    print "Not OK\n";
+}
+

@@ -1,0 +1,25 @@
+dn: ispmanResellerId=<perl>$r->param("ispmanResellerId")</perl>, ou=ispman, <perl>$ispman->getConf("ldapBaseDN")</perl>
+objectclass: ispmanReseller
+ispmanCreateTimestamp: <perl>time()</perl>
+ispmanStatus: active
+ispmanResellerId: <perl>$r->param("ispmanResellerId")</perl>
+ispmanResellerName: <perl>$r->param("ispmanResellerName")</perl>
+ispmanResellerMaxClients: <perl> $r->param("ispmanResellerMaxClients") || 5 </perl>
+sn: <perl>$r->param("sn")</perl>
+cn: <perl>$r->param("cn")</perl>
+uid: <perl>$r->param("uid")</perl>
+userPassword: <perl>$r->param("userPassword")</perl>
+givenName: <perl>$r->param("givenName")</perl>
+<perl>($r->param("postalCode"))?join " ", ("postalCode:", $r->param("postalCode")):""</perl>
+<perl>($r->param("street"))?join " ", ("street:", $r->param("street")):""</perl>
+<perl>($r->param("l"))?join " ", ("l:", $r->param("l")):""</perl>
+<perl>($r->param("c"))?join " ", ("c:", $r->param("c")):""</perl>
+<perl>($r->param("facsimileTelephoneNumber"))?join " ", ("facsimileTelephoneNumber:", $r->param("facsimileTelephoneNumber")):""</perl>
+<perl>($r->param("telephoneNumber"))?join " ", ("telephoneNumber:", $r->param("telephoneNumber")):""</perl>
+<perl> 
+for ($r->param("ispmanResellerHost")){
+        $text.="ispmanResellerHost: $_\n";
+        }
+$text
+</perl>
+        

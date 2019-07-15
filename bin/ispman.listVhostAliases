@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'dv', \%opts );
+
+    unless ( $opts{'d'} && $opts{'v'} ) {
+        print "$FindBin::Script -d domain -v vhost\n";
+        print "\n";
+        exit;
+    }
+}
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+my $r = $ispman->getAliases( $opts{'d'}, $opts{'v'} );
+
+#domain, vhost
+
+print $ispman->dumper($r);

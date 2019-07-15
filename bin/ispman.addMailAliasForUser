@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'du', \%opts );
+    unless ( $opts{'d'} && $opts{'u'} && $ARGV[0] ) {
+        print
+          "Usage: $FindBin::Script -d domain -u username alias alias alias\n";
+        exit;
+    }
+}
+
+use ISPMan;
+
+my $ispman = ISPMan->new();
+$ispman->addMailAliasForUser( $opts{'u'}, $opts{'d'}, \@ARGV );
+
+print "OK\n";
+

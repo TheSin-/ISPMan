@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+package ISPMan;
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+use ISPMan;
+my $ispman = ISPMan->new();
+print $ispman->getConf( $ARGV[0] ), "\n";
+
+__END__
+
+
+

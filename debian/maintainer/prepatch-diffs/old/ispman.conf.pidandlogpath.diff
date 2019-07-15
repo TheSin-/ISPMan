@@ -1,0 +1,15 @@
+--- ispman.20061125/install-data/ispman.config.orig	2006-11-28 01:57:55.000000000 +0100
++++ ispman.20061125/install-data/ispman.config	2006-11-28 02:02:15.000000000 +0100
+@@ -66,6 +66,12 @@
+ # For alternative path of locale directory
+ # $Config->{'localeDir'} = "/usr/local/ispman/locale";
+ 
++# Debian wants to PID file here
++$Config->{'pid_file'} = "/var/run/ispman-agent.pid";
++
++# A log where a log belongs to
++$Config->{'log_file'} = "/var/log/ispman-agent.log";
++
+ # Should encoding be done from native to UTF-8?
+ # This is done when storing and reading data from LDAP
+ # Useful if you want to store non-ascii characters in LDAP

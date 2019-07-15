@@ -1,0 +1,7 @@
+LogFile         <perl>$logfile</perl>
+OutputDir       <perl>$dir</perl>/report
+HistoryName     <perl>$dir</perl>webalizer.hist
+Incremental     yes
+IncrementalName <perl>$dir</perl>webalizer.current
+ReportTitle     Usage statistics for <perl>$servername</perl>
+

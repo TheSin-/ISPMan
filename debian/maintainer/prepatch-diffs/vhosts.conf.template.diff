@@ -1,0 +1,22 @@
+--- dummy/install-data/templates/vhosts.conf.template.sav	2007-01-20 17:46:24.000000000 +0100
++++ dummy/install-data/templates/vhosts.conf.template	2007-01-20 17:49:13.000000000 +0100
+@@ -1,5 +1,9 @@
+ <VirtualHost <perl>$ispmanVhostIpAddress</perl><perl>$port?":$port":""</perl>>
+ 	ServerName      <perl>$servername</perl>
++	<IfModule mod_suexec.c>
++	ServerName      <perl>$servername</perl>
++	SuexecUserGroup  "#<perl>$uidNumber</perl>" "#<perl>$gidNumber</perl>"
++	</IfModule>
+ 	<perl>if ($ispmanVhostServerAlias){
+ 			if (ref $ispmanVhostServerAlias eq "ARRAY"){
+ 				$ServerAliases=join " ", @$ispmanVhostServerAlias;
+@@ -12,7 +16,8 @@
+ 		$ServerAliases </perl>
+ 	<perl>$urlredirect</perl>
+ 	DocumentRoot    <perl>$documentroot</perl>
+-	CustomLog       <perl>"$logdir/$servername.access"</perl> combined
++	## commented out in favor of ispman.vlogger
++	## CustomLog       <perl>"$logdir/$servername.access"</perl> combined
+ 	ErrorLog        <perl>"$logdir/$servername.errors"</perl>
+ 	<Directory <perl>$documentroot</perl>>
+ 		<perl>$ispmanVhostDocumentRootOption</perl>

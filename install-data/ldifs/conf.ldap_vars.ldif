@@ -1,0 +1,22 @@
+dn: ispmanModule=ldap_vars, ou=conf, %%ldapBaseDN%%
+ispmanModule: ldap_vars
+ispmanModuleAlias: LDAP configuration
+objectclass: ispmanConfModule
+description: LDAP data
+
+dn: ispmanVar=ldapHost, ispmanModule=ldap_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: ldapHost
+ispmanVarAlias: LDAP server (name)
+ispmanModule: ldap_vars
+objectclass: ispmanConfVar
+ispmanVal: %%ldapHost%%
+ispmanQuestion: Host name of LDAP server.<br>If you are replicating LDAP then please put the name of the master LDAP server
+
+dn: ispmanVar=ldapBaseDN, ispmanModule=ldap_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: ldapBaseDN
+ispmanVarAlias: LDAP Base DN
+ispmanModule: ldap_vars
+objectclass: ispmanConfVar
+ispmanVal: %%ldapBaseDN%%
+ispmanQuestion: LDAP base DN.Please do not change this.
+

@@ -1,0 +1,8 @@
+# ldap search for transport_maps
+version = 3
+server_host = ldap.example.com
+server_port = 389
+search_base = o=ispman
+query_filter = (mailLocalAddress=%s)
+result_attribute = mailHost
+result_format = lmtp:[%s]

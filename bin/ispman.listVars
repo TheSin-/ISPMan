@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+use ISPMan;
+my $ispman = ISPMan->new();
+
+my $modules;
+my $module;
+my ( $var, $val );
+
+if ( $ARGV[0] ) {
+    push @$modules, $ARGV[0];
+}
+else {
+    my $all_modules = $ispman->getConfModules();
+    for ( keys %$all_modules ) {
+        push @$modules, $all_modules->{$_}{'ispmanModule'};
+    }
+}
+
+my $ispmanVars;
+
+for $module (@$modules) {
+    print "Module: $module\n\n";
+    my $vars = $ispman->getConfVars($module);
+    for ( keys %$vars ) {
+        $ispmanVars->{ $vars->{$_}{'ispmanVar'} }{'ispmanQuestion'} =
+          $vars->{$_}{'ispmanQuestion'};
+        $ispmanVars->{ $vars->{$_}{'ispmanVar'} }{'ispmanVal'} =
+          $vars->{$_}{'ispmanVal'};
+    }
+
+    my @ispmanVars;
+    my $varDN;
+
+    if ( $ispman->{'Config'}{'ispmanVarSort'}{$module} ) {
+        my $varSort = $ispman->{'Config'}{'ispmanVarSort'}{$module};
+        for (@$varSort) {
+            $var = $_;
+            $val = $ispmanVars->{$var}{'ispmanVal'};
+            write();
+        }
+    }
+}
+
+format STDOUT =
+@>>>>>>>>>>>>>>>>>>>>>>>>>> |=| @*
+$var,$val
+.
+__END__
+
+=head1 NAME 
+
+ispman.listVars - ispman command to view various configuration variables
+
+=head1 SYNOPSIS
+  
+B<ispman.listVars [module_name]>
+
+
+=head1 DESCRIPTION
+
+ispman.listVars allows you see  various settings which are stored in ldap
+
+
+
+
+=head1 Author
+
+Atif Ghaffar
+
+=head1 Homepage
+
+http://ispman.sourceforge.org
+
+=head1 MailingLists
+
+ispman-developers@lists.sourceforge.org  - For developers
+
+ispman-users@lists.sourceforge.org  - For users
+
+=head1 Bug reporting / Support / Patches / Feature requests
+
+http://sourceforge.net/tracker/?group_id=8390
+
+=cut
+

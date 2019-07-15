@@ -1,0 +1,238 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'dt', \%opts );
+    getopt( 'f:', \%opts );
+
+    unless ( $opts{'d'} && $opts{'t'} ) {
+        print "$FindBin::Script -d domain -t type more parameters\n";
+        print "  Examples:\n";
+        print "  $FindBin::Script  [-v] [-f] -d example.com -t A hostname [ipaddress]\n";
+	print "  $FindBin::Script  [-v] [-f] -d example.com -t AAAA hostname [ipaddress]\n";
+        print "  $FindBin::Script  [-v] [-f] -d example.com -t NS origin nameserver\n";
+        print "  $FindBin::Script  [-v] [-f] -d example.com -t MX origin weight mailserver\n";
+        print "  $FindBin::Script  [-v] [-f] -d example.com -t TXT host text\n";
+        print "  $FindBin::Script  [-v] [-f] -d example.com -t CNAME alias host\n";
+        print
+"  $FindBin::Script  [-v] [-f] -d example.com -t SOA primary rootmail refresh retry expire minimum\n";
+        print "\n";
+        exit;
+    }
+}
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+
+$opts{'t'} = lc( $opts{'t'} );
+
+if ( lc( $opts{'d'} ) eq "all" || lc( $opts{'d'} ) eq "any" ) {
+    my $domains =
+      $ispman->makeDomainHash(
+        $ispman->getDomains("ispmanDomainType=primary") );
+    for ( keys %$domains ) {
+        $opts{'d'} = $_;
+        &{"unset_$opts{'t'}"}($_);
+
+        $ispman->modifyDnsProcess($_);
+    }
+
+}
+else {
+
+    unless ( $ispman->branchExists( $ispman->getDNSDN( $opts{'d'} ) ) ) {
+        print "Note: This domain branch did not exist.\n";
+        print
+"You may still add domains to DNS. but it will not be managed by ispman\n";
+    }
+
+    &{"unset_$opts{'t'}"};
+    $ispman->modifyDnsProcess( $opts{'d'} );
+}
+
+sub unset_ns {
+    my $domain = $opts{'d'};
+    my ( $origin, $host ) = @ARGV;
+    my $dn = $ispman->getnSRecordDn( $domain, $origin, $host );
+
+    if ( $ispman->entryExists($dn) ) {
+        print "$domain: deleting NS record $origin $host\n"
+          if defined $opts{'v'};
+        $ispman->deleteEntry($dn);
+    }
+
+    #print "Lets see if the branch exists\n";
+    my $b = $ispman->getnSRecordBranchDn( $domain, $host );
+    if ( $ispman->entryExists($b) == 1 ) {
+
+        #print "Entry exists\n";
+        $ispman->deleteEntry($b);
+    }
+}
+
+sub unset_mx {
+    my $domain = $opts{'d'};
+    my ( $origin, $pref, $host ) = @ARGV;
+    my $dn = $ispman->getmXRecordDn( $domain, $origin, $pref, $host );
+
+    if ( $ispman->entryExists($dn) ) {
+        print "$domain: deleting MX record $origin $pref $host\n"
+          if defined $opts{'v'};
+        $ispman->deleteEntry($dn);
+    }
+
+    #print "Lets see if the branch exists\n";
+    my $b = $ispman->getmXRecordBranchDn( $domain, $pref, $host );
+    if ( $ispman->entryExists($b) == 1 ) {
+
+        #print "Entry exists\n";
+        $ispman->deleteEntry($b);
+    }
+}
+
+sub unset_a {
+    my $domain = $opts{'d'};
+    my ( $host, $ip ) = @ARGV;
+    my $dn;
+
+    my $arecords;
+    if ($ip) {
+        $arecords->[0] = {
+            'host' => $host,
+            'ip'   => $ip
+        };
+    }
+    else {
+        unless ( $opts{'f'} ) {
+            print "Sorry Cannot delete all records for this host\n";
+            exit;
+        }
+
+        #get  all A records for this host
+        $arecords = $ispman->getDNSaRecords( $domain, $host );
+    }
+
+    for (@$arecords) {
+        $dn = $ispman->getARecordDn( $domain, $host, $_->{'ip'} );
+        if ( $ispman->entryExists($dn) ) {
+            print "$domain: deleting A record $host $ip\n"
+              if defined $opts{'v'};
+            $ispman->deleteEntry($dn);
+        }
+
+        #print "Lets see if the branch exists\n";
+        my $b = $ispman->getARecordBranchDn( $domain, $ip );
+        if ( $ispman->entryExists($b) == 1 ) {
+
+            #print "Entry exists\n";
+            $ispman->deleteEntry($b);
+        }
+    }
+}
+
+sub unset_aaaa {
+    my $domain = $opts{'d'};
+    my ( $host, $ip ) = @ARGV;
+    my $dn;
+
+    my $arecords;
+    if ($ip) {
+        $arecords->[0] = {
+            'host' => $host,
+            'ip'   => $ip
+        };
+    }
+    else {
+        unless ( $opts{'f'} ) {
+            print "Sorry Cannot delete all records for this host\n";
+            exit;
+        }
+
+        #get all AAAA records for this host
+        $arecords = $ispman->getDNSaAAARecords( $domain, $host );
+    }
+
+    for (@$arecords) {
+        $dn = $ispman->getaAAARecordDn( $domain, $host, $_->{'ip'} );
+        if ( $ispman->entryExists($dn) ) {
+            print "$domain: deleting AAAA record $host $ip\n"
+              if defined $opts{'v'};
+            $ispman->deleteEntry($dn);
+        }
+
+        #print "Lets see if the branch exists\n";
+        my $b = $ispman->getaAAARecordBranchDn( $domain, $ip );
+        if ( $ispman->entryExists($b) == 1 ) {
+
+            #print "Entry exists\n";
+            $ispman->deleteEntry($b);
+        }
+    }
+}
+
+
+sub unset_cname {
+    my $domain = $opts{'d'};
+    my ( $alias, $host ) = @ARGV;
+
+    my $dn;
+
+    my $cnames;
+    if ($host) {
+        $cnames->[0] = {
+            'host'  => $host,
+            'alias' => $alias
+        };
+    }
+    else {
+        unless ( $opts{'f'} ) {
+            print "Sorry Cannot delete all records for this cname\n";
+            exit;
+        }
+
+        #get  all A records for this host
+        $cnames = $ispman->getDNScNAMERecords($domain);
+    }
+
+    for (@$cnames) {
+        $dn = $ispman->getcNAMERecordDn( $domain, $_->{'host'}, $_->{'alias'} );
+
+        if ( $ispman->entryExists($dn) ) {
+            print
+              "$domain: deleting CNAME record $_->{'alias'} -> $_->{'host'}\n"
+              if defined $opts{'v'};
+            $ispman->deleteEntry($dn);
+        }
+
+        #print "Lets see if the branch exists\n";
+        my $b = $ispman->getcNAMERecordBranchDn( $domain, $host );
+        if ( $ispman->entryExists($b) == 1 ) {
+
+            #print "Entry exists\n";
+            $ispman->deleteEntry($b);
+        }
+    }
+
+}
+
+sub unset_txt {
+    my $domain = $opts{'d'};
+    my ( $host , $txt ) = @ARGV;
+    my $dn = $ispman->gettXTRecordDn( $domain, $host, $txt );
+
+    if ( $ispman->entryExists($dn) ) {
+        print "$domain: deleting TXT record $host $txt\n"
+          if defined $opts{'v'};
+        $ispman->deleteEntry($dn);
+    }
+}
+
+sub unset_soa {
+    print "Sorry deleting of SOA is not supported\n";
+}
+
+1;
+

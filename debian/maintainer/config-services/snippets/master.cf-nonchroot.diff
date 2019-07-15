@@ -1,0 +1,29 @@
+--- master.cf.orig	2006-11-19 20:51:58.927997048 +0100
++++ master.cf	2006-11-19 20:55:20.935287272 +0100
+@@ -6,7 +6,7 @@
+ # service type  private unpriv  chroot  wakeup  maxproc command + args
+ #               (yes)   (yes)   (yes)   (never) (100)
+ # ==========================================================================
+-smtp      inet  n       -       -       -       -       smtpd
++smtp      inet  n       -       n       -       -       smtpd
+ #submission inet n       -       -       -       -       smtpd
+ #  -o smtpd_enforce_tls=yes
+ #  -o smtpd_sasl_auth_enable=yes
+@@ -28,7 +28,7 @@
+ verify    unix  -       -       -       -       1       verify
+ flush     unix  n       -       -       1000?   0       flush
+ proxymap  unix  -       -       n       -       -       proxymap
+-smtp      unix  -       -       -       -       -       smtp
++smtp      unix  -       -       n       -       -       smtp
+ # When relaying mail as backup MX, disable fallback_relay to avoid MX loops
+ relay     unix  -       -       -       -       -       smtp
+ 	-o fallback_relay=
+@@ -38,7 +38,7 @@
+ discard   unix  -       -       -       -       -       discard
+ local     unix  -       n       n       -       -       local
+ virtual   unix  -       n       n       -       -       virtual
+-lmtp      unix  -       -       -       -       -       lmtp
++lmtp      unix  -       -       n       -       -       lmtp
+ anvil     unix  -       -       -       -       1       anvil
+ scache	  unix	-	-	-	-	1	scache
+ #

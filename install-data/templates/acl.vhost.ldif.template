@@ -1,0 +1,13 @@
+dn: ispmanVhostAclLocation=<perl>$r->param("ispmanVhostAclLocation")</perl>,ou=httpAcls,ispmanVhostName=<perl>$r->param("ispmanVhostName")</perl>,ou=httpdata,ispmanDomain=<perl>$r->param("ispmanDomain")</perl>,<perl>$ispman->getConf("ldapBaseDN")</perl>
+ispmanVhostAclLocation: <perl>$r->param("ispmanVhostAclLocation")</perl>
+ispmanVhostName: <perl>$r->param("ispmanVhostName")</perl>
+ispmanDomain: <perl>$r->param("ispmanDomain")</perl>
+objectclass: ispmanVirtualHostAcl
+<perl>
+$allow="";
+@allowedusers=$r->param("ispmanVhostAclAllowUser");
+         for(@allowedusers){
+                $allow.="ispmanVhostAclAllowUser: $_\n";
+        }
+$allow
+</perl>

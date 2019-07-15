@@ -1,0 +1,10 @@
+<tr>
+    <td><perl>_("Home Directory")</perl></td>
+    <td>
+        <input size=35 type=hidden name=homeDirectory value="<perl>$ispman->{'domain'}{'homeDirectory'}</perl>">
+        <perl>$ispman->{'domain'}{$ispman->getSchemaAttr('homeDirectory')}</perl>
+        
+    </td>
+</tr>
+
+

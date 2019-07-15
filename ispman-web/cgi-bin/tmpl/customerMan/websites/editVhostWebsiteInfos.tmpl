@@ -1,0 +1,47 @@
+<tr>
+        <td><perl>$customer->getText("Allow directory listing")</perl> </td>
+        <td>
+                <input type=checkbox name='documentrootoption.Indexes' value='Indexes'
+                <perl>($DocumentRootOptions->{'Indexes'})?"checked>":">"</perl>
+        </td>
+</tr>
+
+<tr>
+        <td><perl>$customer->getText("Allow MultiLanguage selection")</perl></td>
+        <td>
+                <input type=checkbox name='documentrootoption.MultiViews' value='MultiViews'
+                <perl>($DocumentRootOptions->{'MultiViews'})?"checked>":">"</perl>
+        </td>
+</tr>
+
+<tr>
+        <td><perl>$customer->getText("Allow SSI Includes")</perl></td>
+        <td>
+                <input type=checkbox name='documentrootoption.Includes' value='Includes'
+                 <perl>($DocumentRootOptions->{'Includes'})?"checked>":">"</perl>
+        </td>
+</tr>
+
+<tr>
+        <td><perl>$customer->getText("Allow cgi execution in document root")</perl></td>
+        <td>
+                <input type=checkbox name='documentrootoption.ExecCGI' value='ExecCGI'
+                <perl>($DocumentRootOptions->{'ExecCGI'})?"checked>":">"</perl>
+        </td>
+</tr>
+
+<tr>
+        <td><perl>$customer->getText("Allow cgi execution in cgi-bin directory")</perl></td>
+        <td>
+                <input type=checkbox name='scriptdiroption.ExecCGI' value='ExecCGI'
+                <perl>($ScriptDirOptions->{'ExecCGI'})?"checked>":">"</perl>
+        </td>
+</tr>
+
+   <tr><td align=left colspan=2>  
+         <a href="javascript:void(document.vhostForm.reset())"><img name="resetForm" border=0 alt="Discard Changes" src="@{[$ispman->getConfig('ispmanUrlPrefix')]}/gfx/but/but_discard_chg_0.gif"></a>
+         <a href="javascript:void(document.vhostForm.submit())"><img name="applyChanges" border=0 alt="Apply Changes" src="@{[$ispman->getConfig('ispmanUrlPrefix')]}/gfx/but/but_apply_chg_0.gif"></a>
+      </td></tr>
+
+<input type=hidden name="mode" value="changeWebsiteInfos">
+

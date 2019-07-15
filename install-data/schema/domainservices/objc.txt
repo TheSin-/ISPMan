@@ -1,0 +1,10 @@
+# objectClass  1.3.6.1.4.1.8833.2.2.1102 'ispmanDomainService'
+objectClass ( 1.3.6.1.4.1.8833.2.2.1102 NAME 'ispmanDomainService'
+	SUP top STRUCTURAL 
+	DESC 'Class describing DomainServices'
+	MUST ispmanDomainServiceName 
+	MAY (ispmanDomainServiceInfo $ ispmanDomainServiceDefault $ ispmanDomainServiceAlias))
+
+
+
+

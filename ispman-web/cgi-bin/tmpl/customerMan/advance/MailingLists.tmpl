@@ -1,0 +1,111 @@
+<tr>
+    <td valign=top colspan=2>
+        <font class=info>
+        <perl>$customer->getText("Mailing Lists allows you to create a closed list with multiple recipients from your domain. example")</perl> "sales.list@<perl>$customer->{'domain'}</perl>", "management@<perl>$customer->{'domain'}</perl> <perl>$customer->getText("etc")</perl>.
+        <br><perl>$customer->getText("You can add/delete users when you want. The change take place immediately.")</perl>
+        </font>
+        </td>
+
+</tr>
+<tr>
+<td colspan=2>                        
+            
+            <perl>
+           
+           my $text="";
+           my $lists=$customer->getMailingLists();
+           
+                if ($lists){
+                       $text.=qq|
+                        <table border=0 cellpadding=5 cellspacing=0>
+                                <tr class=header>
+                                        <td>@{[$customer->getText('List name')]}</td>
+                                        <td>@{[$customer->getText('List members')]}</td>
+                                        <td>&nbsp;</td>                               
+                                        <td>&nbsp;</td>                               
+                                </tr>
+                        |;
+                                               
+                        
+                        
+                        $text.= $customer->getText("The following lists are defined");
+                        $text.="<br><br>";
+                
+                        my $c=0;
+                        for (sort keys %$lists){
+                                $c++;
+                                $dn=$_;
+                                $dn=~ s/\s//g;
+                                
+                                
+                                $text.="<tr valign=top ";
+                                if ($c%2){
+                                $text.="class=item";
+                                } else {
+                                $text.="class=item1";
+                                }
+                                                                
+                                $text.=">\n";
+                                $text.="<td>$lists->{$_}->{'mailLocalAddress'}</td>\n";
+                                my $listMembers={};
+                                if (ref $lists->{$_}->{'mailForwardingAddress'} eq "ARRAY"){
+                                        for my $listMember (@{$lists->{$_}->{'mailForwardingAddress'}}){
+                                                $listMembers->{$listMember}++;
+                                        }
+                                } else {
+                                        $listMembers->{$lists->{$_}->{'mailForwardingAddress'}}++;
+                                }
+                                
+                                
+                                
+                                
+                                if ($r->param("cn") && $r->param("cn") eq $lists->{$_}{'cn'}){
+                                        $text.="<td>";
+                                        $text.="<select MULTIPLE size=10 name=mailForwardingAddress>\n";
+                                        my $users=$customer->getDomainUsers();
+                                        for my $user(sort keys %$users) {
+                                                $text.="<option value='$user\@$customer->{'domain'}'";
+                                                $text.=" selected " if $listMembers->{"$user\@$customer->{'domain'}"};
+                                                $text.=">$user\@$customer->{'domain'}</option>\n";
+                                        }
+                                        join "<br> ", sort keys %$listMembers;
+                                        $text.="</select></td>\n";
+                                        $text.="<td colspan=2><input type=button value='@{[$customer->getText('update')]}' onClick='updateListMembers()'></td>";
+                                        $text.="<input type=hidden name=dn value='$dn'>";
+                                        
+                                } else {
+                                        $text.="<td>";
+                                        $text.=join "<br> ", sort keys %$listMembers;
+                                        $text.="</td>\n";
+                                        $text.=qq|
+                                        <td><a href="@{[$r->url]}?mode=advanceItems&section=MailingLists&cn=$lists->{$_}{'cn'}">@{[$customer->getText('Edit')]}</a></td>
+                                        <td><a href="@{[$r->url]}?mode=deleteMailingList&section=MailingLists&dn=$dn">@{[$customer->getText('Delete')]}</a></td>
+                                        |;
+                                        
+                                }
+
+                                
+
+
+                                
+                                $text.="</tr>\n";
+                        }
+                        
+                        $text.="</table>";
+                } else {
+                        $text.=$customer->getText("You have currently no  lists defined");
+                
+                }
+                
+                
+                
+            $text
+            </perl>
+        
+        </td>
+</tr>
+
+
+
+<input type=hidden name=mode value="addMailingList">
+

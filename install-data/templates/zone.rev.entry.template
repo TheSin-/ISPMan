@@ -1,0 +1,12 @@
+# Rev zone entry
+zone "<perl>$zone</perl>" IN {
+        type master;
+        file "<perl>$file</perl>";
+        allow-query { any; };
+        allow-update { none; };
+
+};
+# End
+
+
+

@@ -1,0 +1,217 @@
+#!/bin/bash
+
+# Copyright (c) 2005-2005  Wendelmaques R. Pereira.  
+# Terms and conditions based on the BSD copyright.
+# /root/doc/rc.ldap-backup - general opendlap backup.
+
+# ref: http://www.tldp.org/LDP/abs/html
+# ref: http://www.tldp.org/HOWTO/Bash-Prog-Intro-HOWTO-6.html
+
+# (as root): crontab -e
+# 0 * * * * /root/doc/ldap/openldap_backup backup 
+
+# ATTENTION: ALL ALERT IS SENT TO SYSLOG!
+# tip: to monitor test's (open a new terminal): 
+#      on FreeBSD: tail -f /var/log/messages
+#      on GNU/Linux Debian: tail -f /var/log/syslog
+
+# base dir to store backups
+# protect this directory! (tip: chmod 700 $basedir).
+basedir=/root/doc/ldap;
+
+# the ldap server
+server="192.168.200.253";
+
+# base suffix if you have multiple database
+suffix="o=dotpix";
+
+# start a live backup, don't stop database.
+# set to "no" to to stop database and start
+# backup. See init_script above if "no".
+live_backup="no"
+
+# detect OS and try to configure the script
+# we try to auto configure script for
+# FreeBSD and Debian GNU/Linux. If you have
+# diferent file locations you need to 
+# reconfigure manualy.
+OS=`uname`;
+
+# If you have OS BSD Like change OS_BSD.
+OS_BSD='FreeBSD'; # for *BSD's World
+OS_LNX='Linux';   # for Linux World
+
+# direcoty format
+# date command must return 2005/05/22 (YYYY/MM/DD)
+date=`date "+%Y/%m/%d"`; # work on Debian/FreeBSD
+ldif=${date//\//.}; # set file to: YYYY.MM.DD
+
+# if no live backup, we need to know the
+# init script to start and stop the slapd.
+# the init script must accept start and stop
+# operations. ex: slapd.sh stop
+if [ "$OS" == "$OS_BSD" ]; then
+ init_script=/usr/local/etc/rc.d/slapd.sh;
+elif [ "$OS" = "$OS_LNX" ]; then
+ init_script=/etc/init.d/slapd;
+fi
+  
+
+# slpacat used to backup.
+if [ "$OS" == "$OS_BSD" ]; then 
+ slapcat=/usr/local/sbin/slapcat
+elif [ "$OS" = "$OS_LNX" ]; then 
+ slapcat=/usr/sbin/slapcat
+fi
+
+# slapadd used to recovery data.
+if [ "$OS" == "$OS_BSD" ]; then 
+ slapadd=/usr/local/sbin/slapadd
+elif  [ "$OS" = "$OS_LNX" ]; then 
+ slapadd=/usr/sbin/slapadd
+fi
+
+# slapindex used to regenerate 
+# initial database index's.
+if [ "$OS" == "$OS_BSD" ]; then
+ slapindex=/usr/local/sbin/slapindex
+elif  [ "$OS" = "$OS_LNX" ]; then
+ slapindex=/usr/sbin/slapindex
+fi
+
+# ldapdelete used to drop database
+if [ "$OS" == "$OS_BSD" ]; then
+ ldapdelete=/usr/local/bin/ldapdelete
+elif  [ "$OS" = "$OS_LNX" ]; then
+ ldapdelete=/usr/bin/ldapdelete
+fi
+
+# openldap configuration file.
+if [ "$OS" == "$OS_BSD" ]; then 
+ conf=/usr/local/etc/openldap/slapd.conf
+elif  [ "$OS" = "$OS_LNX" ]; then 
+ conf=/etc/ldap/slapd.conf
+fi
+
+# if we need to restart slapd we need
+# check if init script is executable.
+if [ "$live_backup" == "no" ]; then
+    if [ ! -x $init_script ]; then
+        logger "$0: start/stop executable not found";
+        logger "$0: tip: we need to know how to stop/start slapd";
+        exit;
+    fi
+fi
+
+# check executables and configuration file:
+if [ ! -d $basedir ]; then
+    logger "$0: basedir $basedir not found, creating.";
+    mkdir -p $basedir;
+    chmod 700 $basedir;
+fi
+
+if [ ! -x $slapcat ]; then
+    logger "$0: slapcat executable not found";
+    logger "$0: tip: whereis slapcat";
+    exit;
+fi
+
+if [ ! -x $slapadd ]; then
+    logger "$0: slapadd executable not found";
+    logger "$0: tip: whereis slapadd";
+    exit;
+fi
+
+if [ ! -x $slapindex ]; then
+    logger "$0: slapindex executable not found";
+    logger "$0: tip: whereis slapindex";
+    exit;
+fi
+
+if [ ! -r $conf ]; then
+    logger "$0: slapd.conf not found";
+    logger "$0: tip: provide all path for the slapd.conf";
+    exit;
+fi
+
+function cmd_backup(){
+    # protect files, to avoid unauth access.
+    mkdir -p "$basedir/$date";
+    chmod 700 $basedir;
+    chmod 700 $basedir/$date;
+    file="$basedir/$date/$ldif.ldif";
+    mkdir -p "$basedir/$date";
+    # do backup!!!
+    cmd="$slapcat -f $conf -b $suffix -l $file";
+    logger "$cmd";
+    if [ "$live_backup" == "no" ]; then
+        $init_script stop &> /dev/null
+        $cmd;
+        $init_script start &> /dev/null
+    else
+        $cmd;
+    fi;
+}
+
+# function use to drop database
+function cmd_drop(){
+    echo "We need to cleanup the database to reload backup!";
+    echo "This script will DROP all data in $suffix! Continue?";
+    printf "Choose n here and we try to add data without droping.\n\ny/[n]:";
+    read y_n;
+    if [ "$y_n" = "y" ]; then
+        echo "Use default ISPMan Administrator (cn=Directory Administrator,$suffix) ? y/[n]";
+        read default;
+        if [ "$default" = "y" ]; then
+            DN="cn=Directory Administrator,$suffix";
+        else
+            printf "Please, type Administrator DN (with suffix) to drop the database $suffix:\n";
+            read dn;
+        DN="$dn";
+        fi;
+        cmd_drop="$ldapdelete -x -D $DN -W -h $server -r $suffix";
+        printf "\n\nExecute the following command? y/[n]\n";
+        printf "\n$cmd_drop\n";
+        logger "$cmd_drop";
+        read exe;
+        if [ "$exe" = "y" ]; then
+            printf "\nYou need to type password of DN ($DN) to continue:\n\n";
+            logger "$cmd_drop";
+            $cmd_drop; # try to drop all data in database.
+        fi;
+    fi;
+}
+# function to do the backup recover.
+function cmd_recover(){
+    ldif=${1//\//.}; # set file to: YYYY.MM.DD
+    file="$basedir/$1/$ldif.ldif";
+    cmd="$slapadd -f $conf -b $suffix -c -l $file";
+    logger $cmd;
+    if [ "$live_backup" == "no" ]; then
+        $init_script stop &> /dev/null 
+        $cmd; # reload database with backup.
+        $slapindex -f $conf -b $suffix; # rebuild index.
+        $init_script start &> /dev/null 
+    else
+        $cmd; # work only on cleanup databases.
+        $slapindex -f $conf -b $suffix;
+    fi;
+
+}
+
+
+case "$1" in
+ backup)
+  cmd_backup $2; 
+ ;;
+ recover)
+  cmd_drop $2;
+  cmd_recover $2; 
+ ;;
+ *)
+  echo "{ backup|recover $date }" >&2
+ ;;
+esac
+
+# function to do the backup.
+

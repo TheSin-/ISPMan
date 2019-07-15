@@ -1,0 +1,398 @@
+#######################################################
+#
+# Interface Library for BIND8
+#
+
+sub make_named_conf {
+    my $zone  = shift;
+    my $dirty = 0;
+    my $msg;
+
+    checkDirectories();
+    $domains = $ispman->makeDomainHash( $ispman->getDomains($filter) );
+
+    open "CONF", ">$namedConfFile" || die "$!";
+    print CONF cat($namedConfHeaderFile);
+
+    for $domain ( sort { $domains->{$a} cmp $domains->{$b} } keys %$domains ) {
+        logsay("Configuring named for $domain");
+        my $domainInfo = $ispman->getDomainInfo($domain);
+        my $domaintype = $domainInfo->{'ispmanDomainType'};
+
+        $msg = "  domain: $domain, type: $domaintype";
+        $msg .= ", filter: $filter" if ($filter);
+        logsay($msg);
+
+        if ( $domaintype eq "slave" ) {
+            my $entry =
+              SecondaryEntry( $domain, "$namedSecDir/$domain",
+                $domainInfo->{'ispmanDnsMasters'} );
+            print CONF $entry;
+        }
+
+        if ( $domaintype eq "replica" ) {
+            my $primaryName = $domainInfo->{'ispmanReplicaMaster'};
+            my $primaryInfo = $ispman->getDomainInfo($primaryName);
+            my $primaryType = $primaryInfo->{'ispmanDomainType'};
+            logsay(" parent check: $primaryName/$primaryType");
+            if ( $primaryType eq "nodns" ) {
+                logsay(
+                    " skipping over $domain because it's primary($primaryName) is nodns"
+                );
+                next;
+            }
+            my $entry;
+            if ( $primaryType eq "primary" ) {
+                $entry =
+                  PrimaryEntry( $domain,
+                    join( "/", ( $namedPriDir, $primaryName ) ) );
+            }
+            if ( $primaryType eq "slave" ) {
+                $entry = SecondaryEntry(
+                    $domain,
+                    join( "/", ( $namedSecDir, $primaryName ) ),
+                    $primaryInfo->{'ispmanDnsMasters'}
+                );
+            }
+            print CONF $entry;
+        }
+
+        if ( $domaintype eq "primary" ) {
+            my $entry = PrimaryEntry( $domain, "$namedPriDir/$domain" );
+            print CONF $entry;
+            if ( $domain eq $zone || $zone eq "ALL" ) {
+                writeZoneFile($domain);
+                $dirty = 1;
+            }
+        }
+    }
+    writeRevFile();
+    for ( keys %$ADDR ) {
+        $_ =~ s/\.$//;
+        my $entry = RevEntry( $_, "$namedRevDir/$_" );
+        print CONF $entry;
+    }
+    undef %$ADDR;
+
+    # finalize named conf and reload nameserver
+    print CONF cat($namedConfFooterFile);
+    close("CONF");
+    reload_named();
+
+    # if zonefile exists but wasn't written here, we delete it
+    # because the domain must have been deleted
+    if ( $zone ne "ALL" && $dirty == 0 && -e "$namedPriDir/$zone" ) {
+        logsay("Deleting zone file for $zone");
+        unlink "$namedPriDir/$zone";
+    }
+}
+
+sub checkDirectories {
+    for ( $namedDir, $namedPriDir, $namedSecDir, $namedRevDir ) {
+        $namedUser = $ispman->getConf("namedUser") || "named";
+        my ( $login, $pass, $uid, $gid ) = getpwnam($namedUser)
+          or die "$user not in passwd file";
+
+        unless ( -d $_ ) {
+            logsay("Directory $_ did not existed. I am creating it now");
+            mkpath($_);
+            chown $uid, $gid, $_;
+        }
+    }
+}
+
+sub reload_named {
+    if ( $ispman->getConf('namedReloadCommand') ) {
+        system( join " ", ( $ispman->getConf('namedReloadCommand'), "" ) );
+    }
+    else {
+        system( $ispman->getConf('namedStopCommand') );
+        sleep $ispman->getConf('sleepSecondsBetweenRestart');
+        system( $ispman->getConf('namedStartCommand') );
+    }
+}
+
+sub writeRevFile {
+
+    #calculate rev ips here and not depend on writeZoneFile for them,
+    # cause they disappear if ispman-agent makes a change to a domain
+    my $rev = $ispman->getRevIPs();
+
+    # look if there is a local file where reverse DNS entries are defined.
+    # If yes, then read the file and add the entries to the $rev hashref
+    # this will override entries already defined in the $rev.
+    my $extraRevFile = join '/',
+      ( $ispman->getConf("installDir"), "var/dns/rev.local" );
+    if ( -e $extraRevFile ) {
+        my @lines = split "\n", cat($extraRevFile);
+        my ( $addr, $host );
+        for (@lines) {
+            next unless /\S/;
+            next if /^\s*#/;
+            ( $addr, $host ) = split( /\s+/, $_ );
+            $rev->{$addr} = $host;
+        }
+    }
+
+    for ( keys %$rev ) {
+        my @ip = split( '\.', $_ );
+        my $origin = join '.', ( $ip[2], $ip[1], $ip[0], "in-addr", "arpa" );
+        my $ip = $ip[3];
+        $ADDR->{$origin}{$ip} =
+          join( "\t", ( $ip, "1D", "IN", "PTR", $rev->{$_}, "\n" ) );
+    }
+    my $headers = "";
+    for $origin ( keys %$ADDR ) {
+        $header =
+          qq|\@   1D      IN SOA @{[$ispman->staticHost($ispman->getConf('primaryDNS'))]}  @{[$ispman->getConf('dnsMasterEmail')]}. (
+        @{[time()]}     ; Serial#
+        3H              ; refresh
+        15M             ; retry
+        1W              ; expiry
+        1D )            ; minimum
+
+        ; HEY YOU WITH THE EDITOR
+        ; This file is generated automatically.
+        ; All manual changes will be wiped out without a notice
+        
+        @       1D      IN      NS      @{[$ispman->staticHost($ispman->getConf('primaryDNS'))]}
+        @       1D      IN      NS      @{[$ispman->staticHost($ispman->getConf('secondaryDNS'))]}
+        |;
+
+        $header =~ s/\n[\t ]*/\n/g;
+
+        open "REV", ">$namedRevDir/$origin" or die $!;
+        print REV $header;
+
+        for $ip (
+            sort { $ADDR->{$a} <=> $ADDR->{$b} }
+            keys %{ $ADDR->{$origin} }
+          )
+        {
+            print REV $ADDR->{$origin}{$ip};
+        }
+
+        close(REV);
+    }
+    undef $rev;
+}
+
+sub writeZoneFile {
+    my $domain = shift;
+    open "ZONE", ">$namedPriDir/$domain" || die "$!";
+    logsay("Writing zone file for $domain");
+    my $soa        = $ispman->getSOA($domain);
+    my $ttldefault = $soa->{'minimum'};
+    my $ttl        = $soa->{'ttl'};
+
+    if ($soa) {
+        print ZONE ($ttl) ? "\$TTL $ttl\n"   : "\$TTL $ttldefault\n";
+        print ZONE ($ttl) ? "@ $ttl IN SOA " : "@ IN SOA ";
+        print ZONE join " ",
+          (
+            $ispman->staticHost( $soa->{'primary'} ),
+            $ispman->staticHost( $soa->{'rootmail'} )
+          );
+        print ZONE " (\n";
+        for (qw(serial refresh retry expire minimum)) {
+            print ZONE "\t $soa->{$_} ; $_\n";
+        }
+        print ZONE ")\n\n";
+
+        # print a warning to not edit this fille.
+        print ZONE
+          "; HEY YOU WITH THE EDITOR\n; This file is generated automatically.\n; All manual changes will be wiped out without a notice.\n\n";
+
+        # print NS RECORDS
+        my $nsrecords = $ispman->getDNSnSRecords($domain);
+        print ZONE "\n; NS RECORDS\n";
+        for (@$nsrecords) {
+            print ZONE join(
+                "\t",
+                (
+                    $_->{'origion'}, ( $_->{'ttl'} ) ? $_->{'ttl'} : "\t",
+                    "IN", "NS", $ispman->staticHost( $_->{'host'} )
+                )
+              ),
+              "\n";
+        }
+
+        # print MX RECORDS
+        print ZONE "\n; MX RECORDS\n";
+        my $mxrecords = $ispman->getDNSmXRecords($domain);
+        for (@$mxrecords) {
+            print ZONE join(
+                "\t",
+                (
+                    $_->{'origion'}, ( $_->{'ttl'} ) ? $_->{'ttl'} : "\t",
+                    "IN",         "MX",
+                    $_->{'pref'}, $ispman->staticHost( $_->{'host'} )
+                )
+              ),
+              "\n";
+        }
+
+        # print A RECORDS
+        print ZONE "\n; A RECORDS\n";
+        my $arecords = $ispman->getDNSaRecords($domain);
+        for (@$arecords) {
+            print ZONE join(
+                "\t",
+                (
+                    $_->{'host'}, ( $_->{'ttl'} ) ? $_->{'ttl'} : "\t",
+                    "IN", "A", $_->{'ip'}
+                )
+              ),
+              "\n";
+        }
+
+        # print AAAA RECORDS
+        print ZONE "\n; AAAA RECORDS\n";
+        my $arecords = $ispman->getDNSaAAARecords($domain);
+        for (@$arecords) {
+            print ZONE join(
+                "\t",
+                (
+                    $_->{'host'}, ( $_->{'ttl'} ) ? $_->{'ttl'} : "\t",
+                    "IN", "AAAA", $_->{'ip'}
+                )
+              ),
+              "\n";
+        }
+
+        # print CNAMES
+        print ZONE "\n; RR RECORDS\n";
+        my $cnames = $ispman->getDNScNAMERecords($domain);
+        for (@$cnames) {
+            print ZONE join(
+                "\t",
+                (
+                    $_->{'alias'}, ( $_->{'ttl'} ) ? $_->{'ttl'} : "\t",
+                    "IN", "CNAME", $_->{'host'}
+                )
+              ),
+              "\n";
+        }
+
+        # print TXT RECORDS
+        print ZONE "\n; TXT RECORDS\n";
+        my $txtrecords = $ispman->getDNStXTRecords($domain);
+        for (@$txtrecords) {
+            print ZONE join(
+                "\t",
+                (
+                    $_->{'host'}, ( $_->{'ttl'} ) ? $_->{'ttl'} : "\t",
+                    "IN", "TXT", "\"" . $_->{'txt'} . "\""
+                )
+              ),
+              "\n";
+        }
+
+        # print CatchALL CNAME
+        if (   $ispman->getConf('catchAllCNAME')
+            && $ispman->getConf('catchAllCNAME') ne "none" )
+        {
+
+            # check if CNAME is pointing to an A record
+            my $arec = $ispman->getConf('catchAllCNAME');
+            if ( !$ispman->isArecord( $arec, $domain ) ) {
+                logsay(
+                    "WARNING! CatchAllCNAME \"$arec\" has no matching A-record!"
+                );
+                print ZONE
+                  "; WARNING!!! Deactivated catchAllCNAME, because A-record doesn't exist!\n; ";
+            }
+            print ZONE join( "\t",
+                ( "*", "\t", "IN", "CNAME", $ispman->getConf('catchAllCNAME') )
+              ),
+              "\n";
+        }
+
+# look if there is a local file where more entries for this zone are  defined.
+# If yes, then read the file and append the entries to the zone file.
+# The admin is responsible to make sure that the entries don't disturb other entries coming from LDAP
+
+        my $local = join '/',
+          ( $ispman->getConf("installDir"), "var/dns/$domain.local" );
+        if ( -e $local ) {
+            print ZONE "\n\n";
+            print ZONE "; ATTENTION\n";
+            print ZONE "; The following is coming from a localfile\n";
+            print ZONE "; $local\n";
+            print ZONE "; so don't blame ISPMan if that breaks your DNS\n\n";
+            print ZONE cat($local);
+        }
+    }
+
+    close "ZONE";
+}
+
+sub PrimaryEntry {
+    my $hash = {};
+    ( $hash->{'domain'}, $hash->{'file'} ) = @_;
+    $hash->{'file'} =~ s!//!/!g;
+
+    my $primaryTemplate = join '/',
+      (
+        $ispman->getConf("installDir"),
+        "templates/zone.primary.entry.template"
+      );
+    if ( -e $primaryTemplate ) {
+        my $template = $ispman->getTemplate($primaryTemplate);
+        return $template->fill_in( HASH => $hash );
+    }
+    else {
+
+        #only if this version does not have the custom files.
+        return
+          qq|\nzone "$hash->{'domain'}" IN {\n\ttype master;\n\tfile "$hash->{'file'}";\n};\n|;
+    }
+}
+
+sub SecondaryEntry {
+    my $hash = {};
+    ( $hash->{'domain'}, $hash->{'file'}, $hash->{'masters'} ) = @_;
+    my @masters = split( /\s\s*/, $hash->{'masters'} );
+    $hash->{'file'} =~ s!//!/!g;
+
+    $hash->{'masters'} = join "\n", map { "\t\t$_;" } @masters;
+    unless (@masters) {
+        return
+          qq|\n#zone $hash->{'domain'} not being added\n#no masters were defined for this slave entry\n#Correct this in LDAP and re-run ispman.ldap2named to fixme\n#Don't forget to reload your dns server software after\n\n|;
+    }
+
+    my $slaveTemplate = join '/',
+      ( $ispman->getConf("installDir"), "templates/zone.slave.entry.template" );
+    if ( -e $slaveTemplate ) {
+        my $template = $ispman->getTemplate($slaveTemplate);
+        return $template->fill_in( HASH => $hash );
+    }
+    else {
+        return
+          qq|\nzone "$hash->{'domain'}" IN {\n\ttype slave;\n\tfile "$hash->{'file'}";\n\tmasters {\n$hash->{'masters'}\n\t};\n};\n|;
+    }
+}
+
+sub RevEntry {
+    my $hash = {};
+    ( $hash->{'zone'}, $hash->{'file'} ) = @_;
+    $hash->{'file'} =~ s!//!/!g;
+
+#print CONF "\nzone \"$_\" IN  {\n\ttype master;\n\tfile \"" . $namedRevDir . $_ .".\";\n};\n";
+
+    my $revTemplate = join '/',
+      ( $ispman->getConf("installDir"), "templates/zone.rev.entry.template" );
+    if ( -e $revTemplate ) {
+        my $template = $ispman->getTemplate($revTemplate);
+        return $template->fill_in( HASH => $hash );
+    }
+    else {
+
+        #only if this version does not have the custom files.
+        return
+          qq|\nzone "$hash->{'zone'}" IN  {\n\ttype master;\n\tfile "$hash->{'file'}";\n};\n|;
+    }
+}
+
+1;
+

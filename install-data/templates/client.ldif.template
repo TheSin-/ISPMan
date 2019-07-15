@@ -1,0 +1,54 @@
+dn: ispmanClientId=<perl>$r->param("ispmanClientId")</perl>,ispmanResellerId=<perl>$r->param("ispmanResellerId")</perl>, ou=ispman, <perl>$ispman->getConf("ldapBaseDN")</perl>
+objectclass: ispmanClient
+ispmanCreateTimestamp: <perl>time()</perl>
+ispmanStatus: active
+ispmanResellerId: <perl>$r->param("ispmanResellerId")</perl>
+ispmanResellerName: <perl>$r->param("ispmanResellerName")</perl>
+ispmanClientId: <perl>$r->param("ispmanClientId")</perl>
+ispmanClientName: <perl>$r->param("ispmanClientName")</perl>
+ispmanClientMaxDomains: <perl>$r->param("ispmanClientMaxDomains") || 5 </perl>
+sn: <perl>$r->param("sn")</perl>
+cn: <perl>$r->param("cn")</perl>
+uid: <perl>$r->param("uid")</perl>
+userPassword: <perl>$r->param("userPassword")</perl>
+givenName: <perl>$r->param("givenName")</perl>
+<perl>($r->param("postalCode"))?join " ", ("postalCode:", $r->param("postalCode")):""</perl>
+<perl>($r->param("street"))?join " ", ("street:", $r->param("street")):""</perl>
+<perl>($r->param("l"))?join " ", ("l:", $r->param("l")):""</perl>
+<perl>($r->param("c"))?join " ", ("c:", $r->param("c")):""</perl>
+<perl>($r->param("facsimileTelephoneNumber"))?join " ", ("facsimileTelephoneNumber:", $r->param("facsimileTelephoneNumber")):""</perl>
+<perl>($r->param("telephoneNumber"))?join " ", ("telephoneNumber:", $r->param("telephoneNumber")):""</perl>
+ispmanDomainDefaultMailDropHost: <perl>$r->param("ispmanDomainDefaultMailDropHost")</perl>
+ispmanDomainDefaultFileServer: <perl>$r->param("ispmanDomainDefaultFileServer")</perl>
+<perl>
+   $text="";
+   if ($r->param("ispmanDomainDefaultWebHost")){
+        @webHosts=$ispman->as_array($r->param("webHost"));
+        for (@webHosts){
+                $text.="ispmanDomainDefaultWebHost: $_\n";
+        }
+   }
+   $text
+</perl>
+<perl>
+   $text="";
+   if ($r->param("dnsHost")){
+        @dnsHosts=$ispman->as_array($r->param("dnsHost"));
+        for (@dnsHosts){
+                $text.="dnsHost: $_\n";
+        }
+   }
+   $text
+</perl>
+<perl>
+   $text="";
+   if ($r->param("smtpHost")){
+        @smtpHosts=$ispman->as_array($r->param("smtpHost"));
+        for (@smtpHosts){
+                $text.="smtpHost: $_\n";
+        }
+   }
+   $text
+</perl>
+
+

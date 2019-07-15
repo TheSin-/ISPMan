@@ -1,0 +1,384 @@
+#!/usr/bin/perl
+# the prefered way to run this tool is via daemon tools
+# see http://cr.yp.to/daemontools.html
+
+# when running with daemon tools
+# ispman-agent should be started with the argument nodetach
+# example /opt/ispman/bin/ispman-agent nodetach
+
+package ISPMan;
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+$|++;
+
+#use strict;
+use vars qw(
+  $VERSION $VERBOSE @ISA @EXPORT @EXPORT_OK $TEST
+  $name $hostname $hostnames $ispman  $domains
+);
+
+require Exporter;
+
+@ISA     = qw(Exporter AutoLoader);
+@EXPORT  = qw();
+$VERSION = '0.01';
+$VERBOSE = 1;
+
+use Data::Dumper;
+use File::Path;
+use Fcntl;
+use POSIX qw(tmpnam setsid);
+use Sys::Hostname;
+use Log::Agent;
+
+require "ispman.conf";
+
+$name        = "ispman-agent";
+$install_dir = $Config->{'installDir'};
+$TEST        = $Config->{'TEST'};
+
+$hostname = hostname();    # find hostname using Sys::Hostname. -End-Of-Story-
+
+#If you don't have Sys::Hostname, you probably cant run ispman anyway,
+
+######## Additional hostnames by which this agent will    ################
+######## recognize processes for this host.               ################
+##########################################################################
+# If you want this host to be known by multiple names, define them in ispman.conf on this host.
+# This can happen after a machine upgrade etc or merger etc.
+# for example if the hostname is zhisp01 but your mailhost is/was set to mailhost1
+# and your webhost is/was set to webhost 1
+# you may define mailhost1 and webhost1 as additional hostnames for this machine
+# Example: $Config->{'hostnames'}="mailhost1 webhost1";
+# this scenario should never arise on a clean system
+#
+# Note that the primary hostname of this node will always be whay Sys::Hostname
+# will find
+# Use the script ispman.myhostname to see how ispman-agent will see the hostname
+
+my $pid_file =
+  ( $Config->{"pid_file"} =~ /\S/ ) ? $Config->{"pid_file"} : join "/",
+  ( $Config->{"installDir"}, "var/$hostname.ispman-agent.pid" );
+my $log_file =
+  ( $Config->{"log_file"} =~ /\S/ ) ? $Config->{"log_file"} : join "/",
+  ( $Config->{"installDir"}, "var/$hostname.ispman-agent.log" );
+
+my ( $pid, $job );
+
+if ( $ARGV[0] =~ /stop|restart|forcerestart/i ) {
+    unless ( -e $pid_file ) {
+        print "pid file $pid_file not found\n";
+        print "No ispman-agent processes running?\n";
+        print "Instead use $FindBin::Script start\n";
+        exit(0);
+    }
+
+    my $pid = `cat $pid_file`;
+    chomp $pid;
+    print "Shutting down $name\n";
+    kill 15, $pid;
+    print "killed process $pid\n";
+    print "Shutdown complete\n";
+    unlink $pid_file && exit(0) if $ARGV[0] =~ /stop/i;
+    unlink $pid_file if $ARGV[0] =~ /forcerestart/i;
+    sleep(1)         if $ARGV[0] =~ /restart/i;
+}
+
+if ( $ARGV[0] && ( $ARGV[0] =~ /stop|restart|forcerestart/i ) ) {
+    unless ( -e $pid_file ) {
+        print "pid file $pid_file not found\n";
+        print "No ispman-agent processes running?\n";
+        print "Instead use $FindBin::Script start\n";
+        exit(1);
+    }
+    $pid = `cat $pid_file`;
+    chomp($pid);
+    print "Shutting down $name\n";
+    kill 15, $pid;
+    print "killed process $pid\n";
+    print "Shutdown complete\n";
+    unlink $pid_file && exit(0) if lc( $ARGV[0] ) eq "stop";
+    unlink $pid_file if lc( $ARGV[0] ) eq "forcerestart";
+    sleep(1)         if lc( $ARGV[0] ) eq "restart";
+}
+
+$SIG{TERM} = sub {
+    unlink $pid_file;
+    exit(0);
+};
+
+if ( -e $pid_file ) {
+    print "pid file already exists? unclean shutdown?\n";
+
+    # This shouldn't exit here but it should perhaps use a killall $name ?
+    #exit(1);
+}
+
+sub init_log {
+    require Log::Agent::Driver::File;    # logging made to file
+    logconfig(
+        -driver => Log::Agent::Driver::File->make(
+            -prefix   => $name,
+            -showpid  => $pid,
+            -channels => {
+                'error'  => "$log_file",
+                'output' => "$log_file",
+                'debug'  => "$log_file",
+            },
+        )
+    );
+
+}
+
+sub daemonize {
+    defined( my $pid = fork ) or die "Can't fork: $!";
+    if ($pid) {
+        open( "PID", ">$pid_file" );
+        print PID "$pid\n";
+        close("PID");
+        print "Process forked. ";
+        print "pid is $pid\nUsing pidfile $pid_file\n";
+        setsid or die "Can't start a new session: $!";
+        exit 0;    # I am the parent
+    }
+}
+
+if ( $ARGV[0] ne "nodetach" ) {
+    daemonize();
+}
+
+init_log;
+
+require ISPMan;
+import ISPMan;
+
+$ispman = ISPMan->new();
+
+$agentFrequency = $ispman->getConf("agentFrequency") || 1;
+$ldapBaseDN     = $ispman->getConf('ldapBaseDN');
+
+# get all host aliases
+my $hostInfo = $ispman->getHostInfo($hostname);
+if ( defined($hostInfo) ) {
+    @hostnames = $ispman->as_array( $hostInfo->{'ispmanHostAlias'} );
+}
+push @hostnames, $hostname;
+
+# Stanislav Sinyagin <ssinyagin@yahoo.com>
+# Jobs are ordered by priority. #1 goes first.
+# Default priority is 100.
+%jobPriorities = ( 'createMailbox' => 1 );
+
+sub jobPriority {
+    my $job = shift;
+    return ( defined( $jobPriorities{$job} ) ? $jobPriorities{$job} : 100 );
+}
+
+while (true) {
+    $ispman = ISPMan->new();
+
+#if  (!$ispman || !$ispman->ldap_ping()){
+#   print "Creating new connection";
+#   $ispman=ISPMan->new() || (print "Could not create an ISPMan instance" && die);
+#}
+
+    $processes = $ispman->getProcessesForHost( \@hostnames );
+    my $processHash;
+    my ( $domain, $params, $process );
+    my $message = "";
+
+    for ( keys %$processes ) {
+        $domain  = $processes->{$_}{'ispmanDomain'};
+        $params  = $processes->{$_}{'ispmanParams'} || "";
+        $process = $processes->{$_}{'ispmanProcess'};
+        $pid     = $_;
+        push @{ $processHash->{$domain}{$process}{$params} }, $pid;
+    }
+
+    #Only Dump the process data if debug is more than 2
+    print Dumper($processHash)
+      if $processHash && $ispman->{'Config'}{'debug'} > 2;
+
+    for $domain ( keys %$processHash ) {
+        for $job (
+            sort { jobPriority($a) <=> jobPriority($b) }
+            keys %{ $processHash->{$domain} }
+          )
+        {
+            for $params ( keys %{ $processHash->{$domain}{$job} } ) {
+                logsay("Doing $job on $domain with parameters $params");
+
+                # Make a hash from params
+                my @pairs = ();
+                my $pair  = "";
+                my $pname = "";
+                my $pval  = "";
+                my $phash = {};
+
+                @pairs = split( '&', $params );
+                for $pair (@pairs) {
+                    ( $pname, $pval ) = split( /\s*=\s*/, $pair );
+                    $phash->{$pname} = $pval;
+                }
+                $phash->{'domain'} = $domain;
+                $message = &{$job}($phash);
+                if ( $message == 1 ) {
+                    $ispman->deleteProcesses(
+                        $processHash->{$domain}{$job}{$params} );
+                }
+                else {
+                    $ispman->updateProcess(
+                        $processHash->{$domain}{$job}{$params},
+                        "error", $message );
+                }
+
+            }
+        }
+    }
+
+    if ($TEST) {
+        logsay( "Sleeping for ", 2 * $agentFrequency, " seconds" );
+        sleep( 2 * $agentFrequency );
+
+    }
+    else {
+        sleep( 60 * $agentFrequency );
+    }
+
+}
+
+## function called by the task scripts
+sub executeCommands {
+    $NOEXEC = 0;
+    my @cmnds = @_;
+
+    # iterate through each cmd and evalute result+output
+    foreach $cmd (@cmnds) {
+        # create wrapper script
+        my $tmp_base = File::Spec->tmpdir().mktemp("ispman-exec.XXXX");
+        open(EXEC,">$tmp_base.sh");
+        print EXEC $cmd;
+        close(EXEC);
+        chmod("$tmp_base.sh");
+        
+        my $rc=-1;
+        unless ($NOEXEC) {
+            $rc = system("$tmp_base.sh 2>$tmp_base.stderr >$tmp_base.stdout");
+        }
+        logsay( "Command=\"$command\", rc=" . $rc );
+        
+        # dump stdout
+        open(INPUT,"<$tmp_base.stdout");
+        while <INPUT> { print STDOUT $_; }
+        close(INPUT);
+
+        # dump stderr
+        open(INPUT,"<$tmp_base.stderr");
+        while <INPUT> { print STDERR $_; }
+        close(INPUT);
+
+        # bailout on any error
+        return $rc if $rc;
+    }
+    return 0;
+}
+
+sub AUTOLOAD {
+    my $self = shift;
+    my $type = ref($self);
+    my $params;
+    my $retVal;
+
+    if ( $type eq "HASH" ) {
+        $params = $self;
+    }
+    else {
+        $params = shift;
+    }
+
+    # preperation for task invokation
+    my $name = $AUTOLOAD;
+    $name =~ s/.*://;    # strip fully-qualified portion
+    $text = "Calling $name with ";
+    $text .= join ",", map { "$_=$params->{$_}" } keys %$params;
+    $text .= "\n";
+
+    $task_func = join "_", ( $name, "task" );
+    $task_dir  = $FindBin::Bin . "/../tasks/";
+    $task_file = "$task_dir/$task_func\.pl";
+
+    $text .= "Task dir: $task_dir does not exists"   unless ( -d $task_dir );
+    $text .= "Task file: $task_file does not exists" unless ( -e $task_file );
+
+    # invoke task
+    if ( -f $task_file ) {
+        do $task_file;
+        $retVal = &{$task_func}($params);
+    }
+    else {
+        print $text;
+    }
+    if ( $retVal == 0 ) {
+        return $text;
+    }
+
+}
+
+sub DESTROY {
+    close("STDERR");
+}
+__END__
+
+=head1 NAME
+
+ISPMan::Agent - Agent to monitor LDAP server for processes and execute them
+
+=head1 SYNOPSIS
+
+   to start
+     ispman-agent start  
+   
+   to restart
+     ispman-agent restart  
+   
+   to stop
+     ispman-agent stop  
+     
+   to start in foreground
+     ispman-agent nodetach
+     This is useful if you are running ispman-agent under daemontool's supervisor
+     Highly recommended
+
+   to force restart after a crash
+     ispman-agent forcerestart
+     This will remove the existing PID file and start ispman-agent instance.
+
+
+
+
+=head1 DESCRIPTION
+
+This agent runs as a daemon and checks periodically for processes, in the LDAP server.
+If it finds any then it deletes them after performing the task.
+
+
+=head1 AUTHOR
+
+Atif Ghaffar <atif@developer.ch>
+
+=head1 CONTRIBUTORS
+
+Justin F. Hallett <thesin@southofheaven.org>
+Stanislav Sinyagin <ssinyagin@yahoo.com>
+
+=head1 SEE ALSO
+
+perl(1).
+
+=cut
+

@@ -1,0 +1,52 @@
+<html>
+<head>
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+</head>
+<body>
+<perl>$message</perl>
+
+            
+<font face="Arial">
+
+<a href="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=addAdmin">Add a new Admin</a><br>
+
+<perl>
+        $r->param("message")
+</perl>
+
+
+<P>
+<form>
+<center>
+<table border=0 bgcolor="#d4eaf9">
+<tr>
+<td>
+
+        <table border=0>
+        <tr>
+        <th><perl>_("uid")</perl></th>
+        <th><perl>_("Name")</perl></th>
+        <th><perl>_("E-mail")</perl></th>
+        <th><perl>_("Level")</perl></th>
+	<th>&nbsp;</th>
+        </tr>
+        
+        <perl>
+            $text="";
+            my $admins=$ispman->getAdmins();
+            for my $dn(keys %$admins) {
+              $text.=qq|<tr><td><a href="$ENV{'SCRIPT_NAME'}?mode=editAdmin&uid=$admins->{$dn}{'uid'}">$admins->{$dn}{'uid'}</a></td>|;
+              $text.=qq|<td>$admins->{$dn}{'cn'}</td>|;
+              $text.=qq|<td>$admins->{$dn}{'ispmanSysadminMail'}</td>|;
+              $text.=qq|<td>$admins->{$dn}{'ispmanSysadminLevel'}</td>|;
+              $text.=qq|<td><a href="$ENV{'SCRIPT_NAME'}?mode=deleteAdmin&uid=$admins->{$dn}{'uid'}" onClick="return confirm('Are you sure')">D</a></td>|;
+              $text.="</tr>";
+            }
+        $text
+        </perl>
+        </table>
+</td>
+</tr>
+</table>
+</center>
+</form>

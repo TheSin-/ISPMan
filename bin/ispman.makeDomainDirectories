@@ -1,0 +1,112 @@
+#!/usr/bin/perl          
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      (
+        $FindBin::Bin,           "$FindBin::Bin/../lib",
+        "$FindBin::Bin/../conf", "$FindBin::Bin/../tasks"
+      );
+    use Getopt::Std;
+    getopt( 'd', \%opts );
+    unless ( $opts{'d'} ) {
+        print "$FindBin::Script -d domain_name|all \n";
+        print "  Examples:\n";
+        print
+          "  $FindBin::Script -d test.dom  (create directories for domain test.dom)\n";
+        print
+          "  $FindBin::Script -d all  (create directories for all domains)\n";
+        print "\n";
+        exit;
+    }
+}
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+
+sub exec_task {
+    my $func   = shift;
+    my $params = shift;
+    our @cmd = ();
+
+    do $func . ".pl";
+    &{$func}($params);
+
+    my $errs = 0;
+    for (@cmd) {
+        $rc = system($_);
+        print "System: \"$_\", rc=" . $rc . "\n";
+        $errs += ( $rc == 0 ? 0 : 1 );
+    }
+    return $errs;
+}
+
+my $domains;
+
+if ( lc( $opts{'d'} ) eq "all" ) {
+    $domains = $ispman->makeDomainHash(
+        $ispman->getDomains(
+            '|(ispmanDomainType=primary)(ispmanDomainType=slave)(ispmanDomainType=nodns)'
+        )
+    );
+}
+else {
+    $domains->{ $opts{'d'} }++;
+}
+
+for $domain ( keys %$domains ) {
+    my $domInfo = $ispman->getDomainInfo($domain);
+    my $dn      = $ispman->getDomainDN($domain);
+    exec_task(
+        "createDomainDirectories_task",
+        {
+            homeDirectory => $domInfo->{'homeDirectory'},
+            uidNumber     => $domInfo->{'uidNumber'},
+            gidNumber     => $domInfo->{'gidNumber'}
+        }
+    );
+
+    my $users =
+      $ispman->getEntriesAsHashRef( $dn, "objectClass=ispmanDomainUser" );
+    for $user ( keys %$users ) {
+        my $uid =
+          ref $users->{$user}{'uid'} eq ARRAY
+          ? $users->{$user}{'uid'}[0]
+          : $users->{$user}{'uid'};
+        my $userInfo = $ispman->getUserInfo($uid);
+        exec_task(
+            "createHomeDirectory_task",
+            {
+                homeDirectory => $userInfo->{'homeDirectory'},
+                uidNumber     => $userInfo->{'uidNumber'},
+                gidNumber     => $userInfo->{'gidNumber'}
+            }
+        );
+    }
+    my $vhosts =
+      $ispman->getEntriesAsHashRef( $dn, "objectClass=ispmanVirtualHost" );
+    for $vhost ( keys %$vhosts ) {
+        my $vhostInfo = $ispman->getVhostInfo(
+            $vhosts->{$vhost}{'ispmanVhostName'},
+            $vhosts->{$vhost}{'ispmanDomain'}
+        );
+        exec_task(
+            "AddVirtualHostDirectories_task",
+            {
+                homeDirectory => $vhostInfo->{'homeDirectory'},
+                uidNumber     => $vhostInfo->{'uidNumber'}
+                  || $domInfo->{'uidNumber'},
+                gidNumber => $vhostInfo->{'gidNumber'}
+                  || $domInfo->{'gidNumber'},
+                ispmanVhostDocumentRoot => $vhostInfo->{'ispmanVhostDocumentRoot'},
+                ispmanVhostScriptDir => $vhostInfo->{'ispmanVhostScriptDir'},
+                ispmanVhostLogdir  => $vhostInfo->{'ispmanVhostLogdir'},
+                ispmanVhostStatdir => $vhostInfo->{'ispmanVhostStatdir'}
+            }
+        );
+    }
+}
+
+1;
+__END__
+

@@ -1,0 +1,51 @@
+ISPMan now uses the dnszone schema by venaas@uninett.no for maintaining dns records.
+The schema is also used for Bind 9.x ldap backend.
+http://www.venaas.no/ldap/bind-sdb/
+
+Once you have installed ispman,
+please set the following variable
+namedBackend = bind8|tinydns|bind9-sdbldap
+namedConfFile = /etc/named.ispman.conf # Don't change this to named.conf instead include in using the "include" directive
+namedDir = /var/named # or where you prefer
+namedReloadCommand = /etc/init.d/named restart # or whatever your restart command is
+namedStartCommand = /etc/init.d/named start  # or whatever your start command is
+namedStopCommand = /etc/init.d/named stop  # or whatever your stop command is
+namedUser = User that run dns service (named, tinydns, etc)
+
+__VERY-IMPORTANT__
+
+primaryDNS = primary.name.server
+primaryDNSIP = ipaddress.of.primary.nameserver
+
+secondaryDNS = secondary.name.server
+secondaryDNSIP = ipaddress.of.secondary.nameserver
+
+primaryMX = primary.mail.server
+primaryMXIP = ipaddress.of.primary.mailserver
+
+secondaryMX = secondary.mail.server
+secondaryMXIP = ipaddress.of.secondary.mailserver
+
+dnsMasterEmail = user.domain.name
+
+You can set these variables from the GUI web-interface under 
+Configure ISPMan | dns_vars
+
+or you can set with the command line (preferred method)
+Example
+cd to /opt/ispman/bin directory
+./ispman.setVar -m dns_vars namedBackend bind8
+./ispman.setVar -m dns_vars primaryDNS ns1.isp.net
+./ispman.setVar -m dns_vars primaryDNSIP 1.2.3.4
+
+etc
+etc
+
+
+
+
+If you are using tinydns(djbdns) see DJBDNS_README
+If you are using bind9-sdbldap  see BIND9-sdb-ldap_README
+
+
+

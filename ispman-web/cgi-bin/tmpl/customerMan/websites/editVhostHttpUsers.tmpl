@@ -1,0 +1,54 @@
+<tr>
+    <td valign=top>
+        Website  Users<br>
+        
+        </td>
+    <td>
+        <font  class=info><i>
+        Webusers are users that do not get any email or webspace. Instead the username and password is used for authentification in restricted areas.
+        <br><br>
+        You cannot define a webuser whose username is the same as another user in your domain.
+        </font>
+        </td>
+</tr>
+<tr>
+<td colspan=2>                        
+<table border=0>
+            <perl>
+           
+           my $text="";
+           $webusers=$customer->getWebUsers();
+            for $webuser(keys %$webusers){
+                $text.="$webusers->{$webuser}{'userid'}<br>";
+            }
+            $text
+            </perl>
+</table>
+        
+        </td>
+</tr>
+
+
+
+<tr>
+<td colspan=2>
+
+        <table border>
+                <tr>
+                        <td>Username</td>
+                        <td>password</td>
+                        <td></td>                               
+                </tr>
+                <tr>
+                        <td><input type=text name=username value=""></td>
+                        <td><input type=text name=userpassword value=""></td>
+                        <td><input type=submit value="Add a new webuser"></td>
+                        <input type=hidden name=mode value="addHttpUser">
+                        
+                </tr>
+                                                        
+        </table>                
+</td>
+</tr>
+
+

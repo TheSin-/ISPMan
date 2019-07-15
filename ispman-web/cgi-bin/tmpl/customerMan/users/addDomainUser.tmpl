@@ -1,0 +1,108 @@
+<html>
+<head>
+<LINK HREF="<perl>$customer->getConfig('ispmanUrlPrefix')</perl>/control_panel/style.css" REL="stylesheet" TYPE="text/css">
+</head>
+<body>
+
+<font color=maroon>
+<!-- errors if any -->
+<perl>$r->param("errors")</perl>
+</font>
+
+
+<P>
+<table border=0>
+<form>
+<tr><td colspan=2>
+    <perl>$customer->getText("Adding user in")</perl>  
+    <perl>$r->param('ispmanDomain')</perl>
+    <br><hr noshade></td></tr>
+
+<perl>$customer->getText("Please fill in the following information so that a user account can be created.")</perl><br>
+
+
+
+
+        
+<tr class=item1>
+    <td><perl>$customer->getText("Username")</perl></td>
+    <td>
+        <input size=35 type=text name=ispmanUserId value="<perl>$r->param("ispmanUserId")</perl>">
+    </td>
+</tr>
+<tr class=item>
+    <td><perl>$customer->getText("Firstname")</perl></td>
+    <td>
+        <input size=35 type=text name=givenName value="<perl>$r->param("givenName")</perl>">
+    </td>
+</tr>
+<tr class=item1>
+    <td><perl>$customer->getText("Lastname")</perl></td>
+    <td>
+        <input size=35 type=text name=sn value="<perl>$r->param("sn")</perl>">
+    </td>
+</tr>
+
+<tr class=item>
+    <td><perl>$customer->getText("Password")</perl></td>
+    <td> 
+    <input  size=35 type=text name=userPassword value="<perl>$r->param("userPassword")</perl>">
+    </td>
+</tr>
+
+<tr class=item1>
+    <td>FTP Access</td>
+    <td> 
+    <select name="FTPStatus">
+    <option value="enabled">Enabled</option>
+    <option value="disabled">Suspended</option>
+    </td>
+</tr>
+
+
+<tr class=item>
+    <td>Max Storage Space (in MB) </td>
+    <td> 
+    <input  size=4 type=text name=FTPQuotaMBytes value="">
+    </td>
+</tr>
+
+<tr class=item1>
+    <td>Max email Storage Space (in MB) </td>
+    <td> 
+    <input  size=4 type=text name=mailQuota value="5">
+    </td>
+</tr>
+
+
+
+
+<input type=hidden name="mode" value="newDomainUser">
+<tr class=control><td align=left colspan=2>  
+ <a href="javascript:void(document.forms[0].reset())"><img name="resetForm"
+border=0 alt="Discard Changes"
+src="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/gfx/but/but_discard_chg_0.gif"></a>
+ <a href="javascript:void(document.forms[0].submit())"><img name="saveEntry"
+border=0 alt="Save Entry"
+src="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/gfx/but/but_new_entry_0.gif"></a>
+</td></tr>
+
+<tr>
+        <td colspan=2 class=info>
+        <perl>$customer->getText("The user will get")</perl>
+        <ul>
+        <li> <perl>$customer->getText("an email address")</perl> username@<perl>$customer->{'domain'}</perl><br>
+        <li> <perl>$customer->getText("a website")</perl> username.users.<perl>$customer->{'domain'}</perl><br>
+        <li> <perl>$customer->getText("space under your ftp area to store web documents.")</perl>
+        </ul>
+        <perl>$customer->getText("The user will be able to read emails either by using a desktop mail program such as<br>
+         Netscape Messager, Eudora, MS OutLook, or via your  webmail interface at")</perl> <br>
+        http://webmail.<perl>$customer->{'domain'}</perl>
+        <br>
+        </td>
+</tr>
+
+</form></table>
+ 
+ 
+        

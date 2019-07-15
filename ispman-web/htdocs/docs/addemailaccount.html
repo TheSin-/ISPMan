@@ -1,0 +1,52 @@
+<HTML>
+<TITLE>ISPMan help</TITLE>
+<link HREF="/ispman.css" REL="stylesheet" TYPE="text/css">
+<BODY>
+<table class="table" cellspacing=5 border=0>
+<tr><td class=menuheader>Adding an email account</td>
+<tr><td>To add a wildcard or catchall account set the mail aliases to
+@domain.com (where domain.com is the name of the domain).
+<BR>
+<tr><td>To add an email account in ISPMan follow these steps:
+<li>Select the domain to manage.
+<li>Click Add user under the Manage users section.
+<li>Fill out the information about the new user. 
+Username can contains characters a - z. No accent characters, numbers or
+punctuation marks are allowed. A good username is first character of
+firstname concatenated with lastname
+<pre>
+    * UserName - user name
+    * Surname - last name of the user
+    * FirstName -first name of the user
+    * Password - user password
+    * Create mailbox on server - choose a server from the mailstore group to
+create a mailbox, or None (no mailbox, just forwarding)
+    * FTP Access - enable or disable a private ftp folder
+    * Max FTP Storage Space (in MB) - set an ftp storage quota
+    * Max Mail Storage Space (in MB) - set an email storage quota
+</pre>
+<li>Set the Password field to an agreed upon password with the user or just
+assign a password and inform the user.
+<li>Click the "Save Entry" button.
+<li>Be sure to click "Commit Session" to activate your change.
+
+<tr><td>NOTE: Depending on your configuration, the password field may appear
+scrambled the next time you view the user. This is normal.
+<tr><td class=menuheader>Email account settings</td>
+
+<tr><td><b>SMTP server</b> Varies per ISP, but it is usually of of these 3:
+<br>1) hostname of the server where you created the mailbox. 
+<br>2) mail.domain.com  (where domain.com is the name of your ISP)
+<br>3) smtp.domain.com  (where domain.com is the name of your ISP)
+<tr><td><b>POP3/IMAP server</b> hostname of the server where you created the mailbox. 
+<tr><td><b>username</b> your email address, OR
+username_domain_com if your servers are not setup with Perdition.
+<tr><td><b>password</b> Whatever you set above.
+<p>
+
+<p>
+<tr><td><A HREF="/help.html">Return to Main Help Screen</A>
+</BODY>
+</HTML>
+
+

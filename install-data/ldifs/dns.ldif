@@ -1,0 +1,4 @@
+dn: ou=DNS, %%ldapBaseDN%%
+ou: DNS
+objectclass: ispmanBranch
+

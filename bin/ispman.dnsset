@@ -1,0 +1,167 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopts( 'vd:t:p:s:', \%opts );
+    unless ( $opts{'d'} && $opts{'t'} ) {
+        print "$FindBin::Script -d domain -t type more parameters\n";
+        print " Examples:\n";
+        print " $FindBin::Script -d example.com -t A [-p] hostname ipaddress\n";
+	print " $FindBin::Script -d example.com -t AAAA [-p] hostname ipaddress\n";
+        print "  -p add also PTR record\n";
+        print " $FindBin::Script -d example.com -t NS origin nameserver\n";
+        print " $FindBin::Script -d example.com -t MX origin weight mailserver\n";
+        print " $FindBin::Script -d example.com -t CNAME alias host\n";
+        print " $FindBin::Script -d example.com -t TXT hostname txt\n";
+        print " $FindBin::Script -d example.com -t SOA primary rootmail refresh retry expire minimum\n";
+        print " $FindBin::Script -d example.com -t SOA -s {primary|rootmail|refresh|retry|expirex|minimum}=val\n";
+        print "\n";
+        exit;
+    }
+}
+
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+
+$opts{'t'} = lc( $opts{'t'} );
+require "functions/dnsset.functions.pl";
+
+if ( lc( $opts{'d'} ) eq "all" || lc( $opts{'d'} ) eq "any" ) {
+    my $domains =
+      $ispman->makeDomainHash(
+        $ispman->getDomains("ispmanDomainType=primary") );
+    for ( keys %$domains ) {
+        $opts{'d'} = $_;
+        &{"set_$opts{'t'}"}($_);
+
+        $ispman->modifyDnsProcess($_);
+    }
+}
+else {
+
+    unless ( $ispman->branchExists( $ispman->getDNSDN( $opts{'d'} ) ) ) {
+        print "Note: This domain branch did not exist.\n";
+        print
+"You may still add domains to DNS. but it will not be managed by ispman\n";
+    }
+
+    &{"set_$opts{'t'}"};
+
+    $ispman->modifyDnsProcess( $opts{'d'} );
+}
+
+1;
+__END__
+
+=head1 NAME 
+
+ispman.dnsset - ispman command to set various dns settings
+
+=head1 SYNOPSIS
+  
+
+B<ispman.dnsset -d domain.name -t type options>
+
+
+=head1 DESCRIPTION
+
+ispman.dnsset allows you set dns informations such as MX, NS, A records to domains from CLI (command line)
+
+
+=head1 OPTIONS
+
+=head2 A addresses
+
+ispman.dnsset -d domainname -t A [-p] hostname ipaddress
+
+=head2 A addresses
+
+ispman.dnsset -d domainname -t TXT hostname text
+
+=head2 NS addresses
+
+ispman.dnsset -d domainname -t NS origin nameserver
+
+=head2 MX addresses
+
+ispman.dnsset -d domainname -t MX origin preference nameserver
+
+=head2 CNAME addresses
+
+ispman.dnsset -d domainname -t CNAME alias hostname
+
+=head2 SOA record
+
+ispman.dnsset -d domainname -t SOA primaryNameServer dnsAdminEmail refresh retry expire minimum
+
+
+
+
+=head1 Examples
+
+To set a SOA record for domain example.com
+B<Note>: You should not do this manually if you add a domain via ispman-web console or with the command line ispman.addDomain
+
+B<ispman.dnsset -d example.com -t SOA ns1.example.com admin.example.com 3H 15M 1W 1D>
+
+
+To set ip 192.168.1.1 to host www for domain example.com
+
+B<ispman.dnsset -d example.com -t A www 192.168.1.1>
+
+To set a SPF description for host mail for domain example.com
+
+B<ispman.dnsset -d example.com -t TXT mail "v=spf1 a mx">
+
+To set ns1.example.com as nameserver for domain example.com
+
+B<ispman.dnsset -d example.com -t NS @ ns1.example.com>
+
+To set ns3.uni.edu as nameserver for subdomain developers.example.com
+
+B<ispman.dnsset -d example.com -t NS developers ns3.uni.edu>
+
+
+To set mx1.example.com as primary mail exchange  for domain example.com with preference value of 10
+
+B<ispman.dnsset -d example.com -t MX @ 10 mx1.example.com>
+
+To set mx2.someisp.net as secondary mail exchange  for domain example.com with prerence value of 20
+
+B<ispman.dnsset -d example.com -t MX @ 20 mx2.someisp.net>
+
+To set mx3.uni.edu as mailserver  for subdomain developers.example.com
+
+B<ispman.dnsset -d example.com -t MX developers 10 mx3.uni.edu>
+
+To set a CNAME alias ftp to  point to ftp.developer.ch.
+
+B<ispman.dnsset -d example.com -t CNAME ftp ftp.developer.ch.>
+
+=head1 Author
+
+Atif Ghaffar
+
+=head1 Homepage
+
+http://ispman.sourceforge.org
+
+=head1 MailingLists
+
+ispman-developers@lists.sourceforge.org  - For developers
+
+ispman-users@lists.sourceforge.org  - For users
+
+=head1 Bug reporting / Support / Patches / Feature requests
+
+http://sourceforge.net/tracker/?group_id=8390
+
+
+=cut
+
+
+

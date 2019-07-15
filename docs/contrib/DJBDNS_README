@@ -1,0 +1,23 @@
+Please set the following
+namedBackend = tinydns
+namedUser = tinydns
+namedDir = /service/tinydns/root
+namedReloadCommand = "make -C   /service/tinydns/root"
+
+You can set the following either via the web interface under 
+Configure ISPMan | dns_vars
+
+or you can set with the command line (preferred method)
+cd to /opt/ispman/bin directory
+./ispman.setVar -m dns_vars namedBackend tinydns
+./ispman.setVar -m dns_vars namedUser tinydns
+./ispman.setVar -m dns_vars namedDir /service/tinydns/root
+./ispman.setVar -m dns_vars namedReloadCommand  "make -C   /service/tinydns/root"
+./ispman.setVar -m dns_vars namedStopCommand  "svc -d /service/tinydns"
+./ispman.setVar -m dns_vars namedStartCommand  "svc -u /service/tinydns"
+
+
+
+NOTE: This backend does not support replica domains or secondary domains.
+Please have a look at lib/dns.tinydns.lib and add these features if can.
+

@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+# exaple script.
+# shows users in domain
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'd', \%opts );
+    unless ( $opts{'d'} ) {
+        print "Usage: $FindBin::Script -d domain";
+        print "\n";
+        exit;
+    }
+}
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+
+if ( lc( $opts{'d'} ) eq "all" || lc( $opts{'d'} ) eq "any" ) {
+    my $domains = $ispman->makeDomainHash( $ispman->getDomains() );
+    for ( keys %$domains ) {
+        showUsers($_);
+    }
+    exit;
+}
+else {
+    showUsers( $opts{'d'} );
+}
+
+sub showUsers {
+    my $domain = shift;
+    print "Users for $domain\n";
+    my $users = $ispman->getUsers($domain);
+    print join "\n", keys %$users;
+    print "\n";
+}
+

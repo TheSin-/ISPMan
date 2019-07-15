@@ -1,0 +1,71 @@
+# All mailbox actions necessary for Courier IMAP Server
+
+sub create_mailbox {
+    my $server            = shift;
+    my $uid               = shift;
+    my $imapMailboxPrefix = $ispman->getConf("imapMailboxPrefix");
+
+    # remove the imapMailboxPrefix if present in the beginning of the uid
+    # for example if the uid is Maildir/aghaffar_ispman_org, change it to
+    # aghaffar_ispman_org
+    $uid =~ s/^$imapMailboxPrefix//;
+
+    $ispman->getUserInfo($uid);
+    my $homeDirectory = $ispman->{'userinfo'}{$uid}{'homeDirectory'};
+    my $uidNumber     = $ispman->{'userinfo'}{$uid}{'uidNumber'};
+    my $gidNumber     = $ispman->{'userinfo'}{$uid}{'gidNumber'};
+
+    my @commands = ();
+    push @commands,
+      "mkdir -p $homeDirectory/$imapMailboxPrefix/tmp $homeDirectory/$imapMailboxPrefix/cur $homeDirectory/$imapMailboxPrefix/new";
+    push @commands,
+      "chown  $uidNumber\.$gidNumber  $homeDirectory/$imapMailboxPrefix/tmp $homeDirectory/$imapMailboxPrefix/cur $homeDirectory/$imapMailboxPrefix/new $homeDirectory/$imapMailboxPrefix";
+    push @commands, "chmod -R 700 $homeDirectory/$imapMailboxPrefix";
+    for (@commands) {
+        system($_);
+    }
+}
+
+sub delete_mailbox {
+    my $server  = shift;
+    my $mailbox = shift;
+
+    # courier users:
+    # please add the logic here to set quota if necessary
+
+    print STDERR "delete_mailbox not implemented!" return 1;
+}
+
+sub get_quota {
+    my $server  = shift;
+    my $mailbox = shift;
+
+    # courier users:
+    # please add the logic here to set quota if necessary
+
+    print STDERR "get_quota not implemented!" return 1;
+}
+
+sub set_quota {
+    my $server  = shift;
+    my $mailbox = shift;
+    my $quota   = shift;
+
+    # courier users:
+    # please add the logic here to set quota if necessary
+
+    print STDERR "set_quota not implemented!" return 1;
+}
+
+sub list_mailboxes {
+    my $server = shift;
+    my $filter = shift;
+
+    # courier users:
+    # please add the logic here to set quota if necessary
+
+    print STDERR "list_mailboxes not implemented!" return 1;
+}
+
+1;
+

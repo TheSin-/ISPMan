@@ -1,0 +1,68 @@
+<html>
+<head>
+<LINK HREF="<perl>$customer->getConfig('ispmanUrlPrefix')</perl>/control_panel/style.css" REL="stylesheet" TYPE="text/css">
+</head>
+<body>
+<perl>$message</perl>
+
+
+
+
+<script>
+     function Delete(vhost){
+     if (confirm("Are you sure you want to permanently delete this virtualhost?")) 
+        self.location="<perl>$r->url</perl>?mode=deleteVhost&cn="+vhost;
+        //alert("<perl>$r->url</perl>?mode=deleteVhost&vhost="+vhost);
+        
+  }
+   function addUser(){
+         self.location="<perl>$r->url</perl>?mode=addDomainUser";
+   }
+
+        function checkForm(form){
+                if (form.user.options[form.user.selectedIndex].value){
+                return true;
+                } else {
+                return false;
+                }
+        }
+        
+</script>
+
+
+            
+<font face="Arial">
+
+<perl>
+        $r->param("message")
+</perl>
+
+
+<P>
+<A HREF="javascript:addUser()">Add User</a>
+<BR>
+<form onSubmit="return checkForm(this)">
+<SELECT NAME="user">
+<option value=''>Select User</option>
+<option value=''>&nbsp;</option>
+
+
+
+<perl>
+    $text="";
+    my $users=$customer->getDomainUsers();
+    for my $user(sort {lc($users->{$a}) cmp lc($users->{$b})} keys %$users) {
+      $text.="<option value='$user'>$users->{$user}</option>\n";
+    }
+$text
+</perl>
+</select>
+<input type=hidden name=mode value="editDomainUser">
+
+<input type=submit  value=" Edit User">
+</form>
+
+
+
+   
+

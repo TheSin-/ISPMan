@@ -1,0 +1,72 @@
+<tr>
+    <td colspan=2>
+        <font  class=info><i>
+        <perl>$customer->getText("Webusers are users that do not get any email or webspace. Instead the username and password is used for authentification in restricted areas.")</perl>
+        <br>
+        <perl>$customer->getText("You cannot define a webuser whose username is the same as another user in your domain.")</perl><br>
+        </font>
+        </td>
+</tr>
+
+<tr>
+<td colspan=2>
+
+        <table border=0>
+                <tr class=header>
+                        <td><perl>$customer->getText("Username")</perl></td>
+                        <td><perl>$customer->getText("password")</perl></td>
+                        <td colspan=2>&nbsp;</td>                               
+                </tr>
+                <tr class=control>
+                        <td><input type=text name=newusername value=""></td>
+                        <td><input type=text name=newuserpassword value=""></td>
+                        <td colspan=2><input type=submit value="<perl>$customer->getText("Add a new webuser")</perl>"></td>
+                        <input type=hidden name=mode value="addHttpUser">
+                        
+                </tr>
+                                                        
+            <perl>
+           
+           my $text="";
+           $webusers=$customer->getWebUsers();
+            $c=0;
+            
+            for $webuser(sort keys %$webusers){
+            $c++;
+                $dn=$webuser;
+                $dn=~s/ //g;
+                
+                if ($c%2){
+                        $text.="<tr class=item>";
+                } else {
+                        $text.="<tr class=item1>";
+                }
+                
+                if ($r->param("edituser") && $r->param("edituser") eq $webusers->{$webuser}{'ispmanUserId'}){
+                        $text.="<td><input type=text name=userid value='$webusers->{$webuser}{'ispmanUserId'}'></td>\n"; 
+                        $text.="<td><input type=text name=userpassword value='$webusers->{$webuser}{'userPassword'}'></td>\n";
+                        $text.="<td colspan=2><input type=button value='@{[$customer->getText('update')]}' onClick='updateWebUser(\"$webuser\")'></td>\n";
+                        $text.="<input type=hidden name=dn value='$webuser'>\n";
+                        
+                        
+                } else {
+                        $text.="<td>$webusers->{$webuser}{'ispmanUserId'}</td>\n"; 
+                        $text.="<td>$webusers->{$webuser}{'userPassword'}</td>\n";
+                        $text.="<td><a href='@{[$r->url]}?mode=advanceItems&section=HttpUsers&edituser=$webusers->{$webuser}{'ispmanUserId'}'>@{[$customer->getText('Edit')]}</a></td>\n";
+                        $text.="<td><a href='@{[$r->url]}?mode=deleteHttpUser&section=HttpUsers&dn=$dn'>@{[$customer->getText('Delete')]}</a></td>\n";
+                }
+                
+                
+                $text.="</tr>";
+                
+            }
+            $text
+            </perl>
+</table>
+        
+        </td>
+</tr>
+
+
+
+

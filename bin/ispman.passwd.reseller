@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'r', \%opts );
+    unless ( $opts{'r'} && $ARGV[0] ) {
+        print "Usage: $FindBin::Script -r resellerId  new_password\n\n";
+        exit;
+    }
+}
+
+use ISPMan;
+my $ispman = ISPMan->new();
+if ( $ispman->changeResellerPassword( $opts{"r"}, $ARGV[0] ) ) {
+    print "Password changed\n";
+}
+__END__
+
+
+

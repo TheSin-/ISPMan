@@ -1,0 +1,82 @@
+dn: ispmanModule=sys_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfModule
+ispmanModule: sys_vars
+ispmanModuleAlias: System Configuration 
+description: Misc system questions
+
+dn: ispmanVar=agentFrequency, ispmanModule=sys_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: agentFrequency
+ispmanVarAlias: Polling Frequency
+ispmanModule: sys_vars
+ispmanVal: 1
+ispmanQuestion: At what interval (in minutes) should the ispman-agent check for new processes.
+
+dn: ispmanVar=userPassHashMethod, ispmanModule=sys_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: userPassHashMethod
+ispmanVarAlias: User Password Hash Method
+ispmanModule: sys_vars
+ispmanVal: crypt
+ispmanQuestion: The hash method to use for user passwords, choose one of: <b>clear</b>, <b>crypt</b>, <b>md5</b>, <b>sha</b>.
+
+dn: ispmanVar=sleepSecondsBetweenRestart, ispmanModule=sys_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: sleepSecondsBetweenRestart
+ispmanVarAlias: Pause between Restart
+ispmanModule: sys_vars
+ispmanVal: 2
+ispmanQuestion: Sleep seconds between stop and start of services. 2 is a good choice.<br>NOTE:: Do not set this to zero. Some apps take some time to close open sockets etc.
+
+dn: ispmanVar=installDir, ispmanModule=sys_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: installDir
+ispmanVarAlias: Installation Directory
+ispmanModule: sys_vars
+ispmanVal: %%installDir%%
+ispmanQuestion: Directory where you want to install ispman components.<br>You may choose to install in on an NFS partition so that you can share the same files with multiple machines.<br>It is recommended to install at <tt>/opt/ispman</tt>.
+
+dn: ispmanVar=rootEmail, ispmanModule=sys_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: rootEmail
+ispmanVarAlias: Administrator Email Address
+ispmanModule: sys_vars
+ispmanVal: root@%%domain%%
+ispmanQuestion: Email of the administrator.<br>This email address is used to send emails if something fails
+
+dn: ispmanVar=menuMode, ispmanModule=sys_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: menuMode
+ispmanVarAlias: Menu Mode
+ispmanModule: sys_vars
+ispmanVal: list
+ispmanQuestion: Defines behavior of menu mode.<br>A setting of "<b>list</b>" will show all domains in the drop down list.<br>A setting of "<b>search</b>" presents only a search option.
+
+dn: ispmanVar=customMenuLink, ispmanModule=sys_vars, ou=conf, %%ldapBaseDN%%
+objectClass: ispmanConfVar
+ispmanVar: customMenuLink
+ispmanVarAlias: Custom Menu Link
+ispmanModule: sys_vars
+ispmanVal: http://sourceforge.net/projects/ispman|ISPMan Home
+ispmanQuestion: Optional top menu link, that appears if specify in the format URL|Name.
+
+dn: ispmanVar=domainActions, ispmanModule=sys_vars, ou=conf, %%ldapBaseDN%%
+objectClass: ispmanConfVar
+ispmanVar: domainActions
+ispmanVarAlias: Domain Action Scripts
+ispmanModule: sys_vars
+ispmanVal: none
+ispmanQuestion: Optional hooks, which can be selected on domain creation to trigger external actions.<br/>Format: script|decription[,script|description]*<br/>
+ Example: example1.pl|Example1 Script,example2.pl|Example2 Script<br/>
+ Scripts need to be placed in the tasks dir.
+
+dn: ispmanVar=vhostActions, ispmanModule=sys_vars, ou=conf, %%ldapBaseDN%%
+objectClass: ispmanConfVar
+ispmanVar: vhostActions
+ispmanVarAlias: VHost Action Scripts
+ispmanModule: sys_vars
+ispmanVal: none
+ispmanQuestion: Optional hooks, which can be selected on vhost creation to trigger external actions.<br/>Format: script|decription[,script|description]*<br/>
+ Example: example1.pl|Example1 Script,example2.pl|Example2 Script<br/>
+ Scripts need to be placed in the tasks dir.
+

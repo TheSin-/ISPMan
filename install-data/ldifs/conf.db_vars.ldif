@@ -1,0 +1,48 @@
+dn: ispmanModule=db_vars, ou=conf, %%ldapBaseDN%%
+ispmanModule: db_vars
+ispmanModuleAlias: Database config
+objectclass: ispmanConfModule
+description: Database configuration
+
+dn: ispmanVar=dbTypes, ispmanModule=db_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: dbTypes
+ispmanModule: db_vars
+objectclass: ispmanConfVar
+ispmanVal: MySQL, Oracle
+ispmanQuestion: Database types hints for your action scripts. Comma deparated, Default first.
+
+dn: ispmanVar=dbAdminName, ispmanModule=db_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: dbAdminName
+ispmanModule: db_vars
+objectclass: ispmanConfVar
+ispmanVal: fill_in_your_db_admin
+ispmanQuestion: Admin name on the database server (optional).
+
+dn: ispmanVar=dbAdminPass, ispmanModule=db_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: dbAdminPass
+ispmanModule: db_vars
+objectclass: ispmanConfVar
+ispmanVal: fill_in_your_db_password
+ispmanQuestion: Admin Password on the database server (optional).
+
+dn: ispmanVar=dbAccessHostFilter, ispmanModule=db_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: dbAccessHostFilter
+ispmanModule: db_vars
+objectclass: ispmanConfVar
+ispmanVal: %.example.com
+ispmanQuestion: Default Access Host Filter to restrict database access
+
+dn: ispmanVar=dbAccessPermissions, ispmanModule=db_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: dbAccessPermissions
+ispmanModule: db_vars
+objectclass: ispmanConfVar
+ispmanVal: Meta(ALL),Data(SELECT*|INSERT*|UPDATE*|DELETE*),Structure(CREATE*|ALTER*|INDEX*|DROP*),Administration(GRANT|REFERENCES*)
+ispmanQuestion: Database Permissions. Defaults are marked with "*"
+
+dn: ispmanVar=dbModifiableAttributes, ispmanModule=db_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: dbModifiableAttributes
+ispmanModule: db_vars
+objectclass: ispmanConfVar
+ispmanVal: ispmanDBName,ispmanDBUser,ispmanDBPass,ispmanDBAccessFilter
+ispmanQuestion: Database Attributes which can be modified after creation. Your DB action scripts need to support this!
+

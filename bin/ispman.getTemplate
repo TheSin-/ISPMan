@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    unless ( $ARGV[0] ) {
+        print "$FindBin::Script  template\n";
+        exit;
+    }
+}
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+my $template = $ispman->getTemplate( $ARGV[0] );
+print $template->fill_in();
+

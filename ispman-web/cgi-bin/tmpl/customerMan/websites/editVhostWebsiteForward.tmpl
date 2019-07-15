@@ -1,0 +1,75 @@
+<tr>
+    <td valign=top>
+        <perl>$customer->getText("Website  URL Forwarding")</perl>  <br>
+        
+        </td>
+    <td>
+        <font  color=white>
+        <perl>$customer->getText("With this feature you can redirect part of or all of your site to another location.")</perl>
+        <br>
+        <perl>$customer->getText("Example: redirect /search/ to http://www.google.com/")</perl>
+        
+        </font>
+        </td>
+</tr>
+
+
+<tr>
+<td colspan=2>
+
+        <table border>
+                <tr class=header>
+                        <td><perl>$customer->getText("Location to redirect")</perl></td>
+                        <td><perl>$customer->getText("Redirect destination")</perl></td>
+                        <td>&nbsp;</td>                               
+                </tr>
+                <tr>
+                        <td>http://<perl>join '.', ($r->param("vhost"), $customer->{'domain'})</perl>/<input type=text name=newredirectLocation value=""></td>
+                        <td><perl>$customer->getText("redirects to")</perl> <input type=text name=newredirectDestination value="http://"></td>
+                        <td><input type=submit value="<perl>$customer->getText("Add a new redirect")</perl>"></td>
+                        <input type=hidden name=mode value="addWebsiteRedirection">
+                        
+                </tr>
+                
+                                                        
+            <perl>
+           
+           my $text="";
+           if (%$URLRedirects){
+                $text="<tr><td colspan=4 class=control>";
+                $text.=$customer->getText("The following redirect  are defined for ");
+                my $vhost=join '.', ($r->param("vhost"), $customer->{'domain'});
+                $text.=join '.', ($r->param("vhost"), $customer->{'domain'});
+                $text.="</td></tr>";
+                
+                
+                for (sort {length($b) <=> length($a)} keys %$URLRedirects){ 
+                        $text.="<tr>";
+                        # the longest redirection url should come first. so /atif/ghaffar is still valid for redirection
+                        # even if redirection for /atif is defined. cool huh?
+                        my $redirectLocation=$URLRedirects->{$_}{'ispmanVhostRedirectURL'};
+                        my $redirectDestination=$URLRedirects->{$_}{'ispmanVhostRedirectLocation'};
+                        my $url=join "/", ($vhost, $redirectLocation);
+                        $text.="\n<td><font color=blue><a href='http://$url' target='redirectTest'>http://$vhost/</a>\n";
+                        $text.="<input type=text name='ispmanVhostRedirectURL' value='$redirectLocation'></font></td>";
+                        $text.="\n<td> @{[$customer->getText('redirects to')]} <font color=green>\n";
+                        $text.="<input type=text name='ispmanVhostRedirectLocation' value='$redirectDestination'></font></td>";
+                        $text.="</tr>";
+                }
+                $text.="<tr><td colspan=4 class=control align=right>";
+                $text.=$customer->getText("If you have made any changes, then");
+                $text.="<input type=button value='@{[$customer->getText('click here to update')]}' onClick='updateRedirects()'></td></tr>";
+            } else {
+                $text="<tr><td class=control colspan=4>@{[$customer->getText('No Website  URL forwarding  defined')]}</td></tr>";
+            }                                        
+            $text
+            </perl>
+</table>
+        
+        </td>
+</tr>
+
+
+
+
+

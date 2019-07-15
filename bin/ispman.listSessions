@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+use ISPMan;
+my $ispman = ISPMan->new();
+my $h;
+
+if (@ARGV) {
+    $session = shift @ARGV;
+    $h       =
+      { "ispmanSession=$session, ou=processes, $ispman->{'Config'}{'ldapBaseDN'}"
+          => '' };
+}
+else {
+    $h =
+      $ispman->getEntriesAsHashRef(
+        "ou=processes, @{[$ispman->getConf('ldapBaseDN')]}",
+        "objectClass=*", ["objectclass"], 'one' );
+}
+
+for ( keys %$h ) {
+    my $dnParts   = $ispman->explodeDN($_);
+    my $insession =
+      $ispman->getCount( $_,
+        '&(objectClass=ispmanProcesses)(ispmanStatus=insession)' );
+    my $new =
+      $ispman->getCount( $_,
+        '&(objectClass=ispmanProcesses)(ispmanStatus=new)' );
+    my $c = $insession + $new;
+    print
+"$dnParts->{'ispmanSession'}: $c processes ($new new, $insession in session)\n";
+}
+__END__

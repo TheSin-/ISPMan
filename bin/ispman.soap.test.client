@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+BEGIN{
+   use FindBin; unshift @INC, ($FindBin::Bin , "$FindBin::Bin/../lib");
+}
+
+$|++;
+
+use SOAP::Lite;
+my $soap= SOAP::Lite
+    -> uri('http://localhost:9999/ISPManSoapServer')
+    -> proxy('http://localhost:9999/ISPManSoapServer');
+
+   
+
+my $func=shift @ARGV;
+
+
+$response=$soap->$func(@ARGV);
+$res=$response->result;
+print "$res\n";
+
+
+
+	

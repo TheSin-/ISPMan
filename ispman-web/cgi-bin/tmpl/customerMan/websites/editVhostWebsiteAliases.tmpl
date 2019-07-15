@@ -1,0 +1,42 @@
+<tr>
+    <td valign=top colspan=2>
+        <font  class=info>
+        <perl>$customer->getText("Website  Aliases  are secondary names that you wish to call your website.")</perl>
+        <perl>$customer->getText("Example main website: www.company.com, aliases: web.company.com, w3.company.com etc")</perl>
+
+        
+        <perl>$customer->getText("All requests to the aliases will point to the main website.")</perl><br>
+        <perl>$customer->getText("The aliases cannot be outside of domain")</perl> (<perl>$customer->{'domain'}</perl>)
+        
+        </font>
+        </td>
+</tr>
+<tr>
+<td></td>
+<td>                        
+        <input type=button value="<perl>$customer->getText("Click here to add a new website  alias")</perl>" onClick="addWebsiteAlias()">
+            <perl>
+           
+           my $text="";
+           if (%$ServerAliases){
+                $text=$customer->getText("The following aliases point to ");
+                $text.=join '.', ($r->param("vhost"), $customer->{'domain'});
+                $text.="<br><br>";
+                for (keys %$ServerAliases){
+                s/\.$customer->{'domain'}$//;
+                
+                $text.="<input type=text name=serveralias value='$_'>.$customer->{'domain'}<br>";
+                }
+
+                $text.="<input type=button value='@{[$customer->getText('update')]}' onClick='updateWebsiteAliases()'>";
+                
+            } else {
+                $text=$customer->getText("No Website  Aliases defined");
+            }                                        
+            $text
+            </perl>
+        </td>
+</tr>
+
+<input type=hidden name="mode" value="">
+

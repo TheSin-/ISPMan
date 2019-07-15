@@ -1,0 +1,48 @@
+<tr>
+    <td>
+        <i>
+        <perl>$customer->getText("The user will be able to recieve emails additionally on the following aliases.")</perl><br>
+        <perl>$customer->getText("The aliases cannot be outside of domain")</perl> (<perl>$customer->{'domain'}</perl>)
+        </i>
+        </td>
+</tr>
+
+<tr>
+<td>                        
+        <table>
+        <tr class=header>
+        <td>&nbsp;</td>
+        <td  class=header>
+                <a class=header href="javascript:addMailAlias()">Add Alias</a>
+                &nbsp;|&nbsp; 
+                <a class=header  href="javascript:document.forms['<perl>$r->param("section")</perl>'].submit()">Delete Selected</a> 
+        </td>                
+        </tr>
+        <input type=hidden name="mode" value="deleteMailAlias">
+        
+                    <perl>
+                        my $text="";
+                        my @mailacceptinggeneralid=@{$customer->as_arrayref($ispman->{'user'}->{"mailAlias"})};
+                        
+                        if (scalar(@mailacceptinggeneralid)){
+                                my $c="";
+                                for (@mailacceptinggeneralid){
+                                        $text.="<tr class=item$c>\n";
+                                        if ($c eq ""){$c=1}else {$c=""};
+                                         
+                                        
+                                        $text.="<td><input type=checkbox name=mailAlias value='$_'></td>\n";
+                                        $text.="<td>$_</td>\n";
+                                        $text.="</tr>\n";
+                                }
+                        } else {
+                                $text="<tr><td>No mail Aliases defined</td></tr>";
+                                }
+                        $text
+                    </perl>
+        </table>
+    
+</td>
+</tr>
+
+

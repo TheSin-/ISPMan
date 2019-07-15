@@ -1,0 +1,32 @@
+<tr>
+<td colspan=2>
+        
+        <table border=0>
+                <tr>
+                        <td valign=top align=center class=header><perl>$customer->getText("Add a new list.")</perl></td>
+                </tr>
+                <tr class=control>
+                        <td valign=top><perl>$customer->getText("List name")</perl> <br><input type=text name=cn value=""></td>
+                </tr>
+                <tr class=control>                        
+                        <td align=center><perl>$customer->getText("List members")</perl><br> <select name=mailForwardingAddress MULTIPLE size=10>
+                        
+                        <perl>
+                            $text="";
+                            my $users=$customer->getDomainUsers();
+                            for my $user(sort keys %$users) {
+                                $text.="<option value='$user\@$customer->{'domain'}'>$user\@$customer->{'domain'}</option>\n";
+                            }
+                        $text
+                        </perl>
+                        </select></td>                        
+               </tr>
+               <tr align=right class=control>
+                        <td><input type=submit value="<perl>$customer->getText('Add a new list')</perl>"></td>
+                        <input type=hidden name=mode value="addMailingList">
+                </tr>
+        </table>                
+</td>
+</tr>
+
+

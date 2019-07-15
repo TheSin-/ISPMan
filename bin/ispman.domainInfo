@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'd', \%opts );
+    unless ( $opts{'d'} ) {
+        print "$FindBin::Script -d domain";
+        print "\n";
+        exit;
+    }
+}
+
+use ISPMan;
+my $self = ISPMan->new();
+
+#my $domain_info=$self->getDomainInfo($opts{'d'});
+
+my $dn    = $self->makeDomainDN( $opts{'d'} );
+my $entry = $self->getEntry($dn);
+
+$self->dumpEntry($entry);
+

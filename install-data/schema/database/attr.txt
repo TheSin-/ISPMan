@@ -1,0 +1,45 @@
+##################################################
+#  Database related AttributeTypes
+##################################################
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.4001 NAME 'ispmanDBType'
+    DESC 'database type linke mysql, postgres'
+    EQUALITY caseExactIA5Match
+    SUBSTR caseExactIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.4002 NAME 'ispmanDBName'
+    DESC 'database name'
+    EQUALITY caseExactIA5Match
+    SUBSTR caseExactIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.4003 NAME 'ispmanDBUser'
+    DESC 'username to connect to database'
+    EQUALITY caseExactIA5Match
+    SUBSTR caseExactIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.4004 NAME 'ispmanDBPass'
+    DESC 'password to connect to database'
+    EQUALITY caseExactIA5Match
+    SUBSTR caseExactIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.4005 NAME 'ispmanDBHost'
+    DESC 'hosts allowed to connect to database'
+    EQUALITY caseExactIA5Match
+    SUBSTR caseExactIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.4016 NAME 'ispmanDBAccessFilter'
+    DESC 'hosts filter for database access'
+    EQUALITY caseExactIA5Match
+    SUBSTR caseExactIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.4006 NAME 'ispmanDBPrivilege'
+    DESC 'database privilege'
+    EQUALITY caseExactIA5Match
+    SUBSTR caseExactIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )

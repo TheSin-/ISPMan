@@ -1,0 +1,145 @@
+
+Upgrade ISPMan from earlier version
+===================================
+
+Note:   Depending on which ispman version you are running, the
+        following may work more or less smooth for you.
+        If you encounter any trouble, please report any errors together with
+        as much information you have to
+        ispman-developers@lists.sourceforge.net, so we can improve the
+        upgrade process.
+
+
+Disclaimer:
+Upgrading is a delicate process which can harm your data. Be sure to
+have a recent backup to recover your installation. If possible try
+upgrading on a testsystem first.
+
+
+
+Preparation
+===========
+Updated ISPMan versions may come with modified LDAP schema, which
+makes it necessary to migrate the data.
+
+Thus, you should dump your existing ISPMan data to some temporary LDIF
+file:
+        -> <installdir>/bin/ispman.ldifdump > /tmp/myispman.ldif
+
+You may want to save this file to a more save location also for backup
+purposes.
+
+
+Next, the <installdir> has to be cleaned, so we get rid of any files,
+that are not contained in the updated version anymore.
+Best way to do this is to remove all subdirs except the conf
+directory, but be aware that this will remove any customization you
+have made to ISPMan files.
+
+
+
+Update ISPMan files
+===================
+
+Do the normal ISPMan install after you acquired the update via tarball or
+cvs (see INSTALL for more info):
+
+So this will be something like
+        -> ./configure --prefix=<installdir>
+        -> make clean
+        -> make
+        -> make install
+
+Besides the updated ISPMan files, the following important things get
+installed:
+
+<installdir>/conf/ispman.conf.example
+        A new default example for ispman.conf
+
+<installdir>/conf/ldif/ispman.ldif:
+        This is the basic LDAP DIT for ispman.
+        Though, most of this should already exist in your LDAP, it may
+        contain additional entries (e.g. confVars) that are not
+        present yet.
+
+<installdir>/conf/schema/*:
+        Updated schema files.
+
+Now check your (old) ispman.conf and update any missing or changed
+entries from ispman.conf.example.
+
+
+
+Migrate your LDAP data
+======================
+With all ISPMan files in place you can execute "<installdir>/bin/ispman.ldifupdate"
+to check consistency of your LDAP data
+        -> <installdir>/bin/ispman.ldifupdate -o /tmp/changes.ldif
+
+This reads ISPMan data from your LDAP server and checks it against some
+migration/validity rules.
+You will be informed about any necessary changes, which will be
+written in LDIF format to the sepcified output file (-o). 
+
+Keep that file for now, until you completed the next two steps.
+
+
+Apply config/schema changes
+===========================
+The install/upgrade process doesn't touch your existing ispman.conf,
+but comes with a new ispman.conf.example file.
+Make sure your ispman.conf contains the same config keys as the example.
+
+Next update your LDAP schemas. In case your OpenLDAP doesn't use the
+schemas directly from <installdir>/conf/schema, make sure to copy the
+updated files to OpenLDAP's schema directory.
+
+Check that your slapd.conf contains at least the following schemas:
+        core.schema
+        cosine.schema
+        nis.schema
+        misc.schema
+        inetorgperson.schema
+        dnszone.schema
+        proftpd.schema
+        ispman.schema
+
+
+Once your slapd.conf is ok and all schema's are included, restart your
+ldap server. Make sure that the ldap server started ok. If it doesn't
+start or give errors, try to see what is wrong and don't continue
+unless you fix the problems.
+
+
+Preparing Perl modules
+======================
+ISPMan versions up to 1.2 came with all needed perl modules bundled
+into the installation. Starting with 1.3 those dependant modules are
+still bundled with ISPMan, but not installed on default anymore, giving
+you the choice of using the bundled modules, or the ones provided by
+your system.
+
+Please note that we provide the perl modules for reference purposes,
+to make problems/bugs reproducible.
+So, if you are running into some trouble with ISPMan, please reproduce
+your problem with the bundled perl libs first and see if it persists.
+
+See the INSTALL doc (section 3) for your options and more information
+on how to install the bundled perl modules.
+
+
+Import new ISPMan data
+======================
+
+Now you should be able to load the generated LDIF file from above to 
+the LDAP server with
+	-> <installdir>/bin/ispman.ldifload -f /tmp/changed.ldif
+
+Please report any problems you have with running ispman.ldifupdate as the quality
+of logic greatly depends on users feedback.
+
+If that worked out ok, you should be ready to go.
+
+Please send any bugs or improvement suggestions to
+ispman-developers@list.sourceforge.net
+

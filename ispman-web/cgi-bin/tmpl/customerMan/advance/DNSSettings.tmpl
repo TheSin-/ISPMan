@@ -1,0 +1,118 @@
+</form>
+<tr>
+    <td valign=top class=header>
+        <perl>$customer->getText('DNS settings')</perl><br>
+        </td>
+    </tr>
+    <tr>
+    <td>
+        <font  class=info>
+        <perl>$customer->getText("With this interface you can change some parts of your domain's DNS settings.")</perl><br>
+        <perl>$customer->getText("Some settings may be locked by the administrator and may not be changeable")</perl>.
+        <br><br>
+        </font>
+        </td>
+
+</tr>
+<tr>
+<td colspan=2>                        
+
+<table border=0>
+            
+    <perl>
+           
+   my $text="";
+        use Data::Dumper;
+       my $nsrecords=$customer->{'ispman'}->getDNSnSRecords($customer->{'domain'});
+       my $mxrecords=$customer->{'ispman'}->getDNSmXRecords($customer->{'domain'});
+       my $arecords=$customer->{'ispman'}->getDNSaRecords($customer->{'domain'});
+       my $cnamerecords=$customer->{'ispman'}->getDNScNAMERecords($customer->{'domain'});
+       
+       
+
+
+
+        $text.="<tr><td  class=header colspan=5>@{[$customer->getText('Aliases (NS records)')]}</td></tr>";
+        $text.="<tr class=control><td>@{[$customer->getText('Origin')]}</td><td>@{[$customer->getText('Host')]}</td><td>&nbsp;</td><td>&nbsp;</td><td align=right>";
+        $text.="<a href='$ENV{'SCRIPT_NAME'}?mode=editDNSRecord&type=ns&changetype=add'>Add</a>\n";
+        $text."</td></tr>\n";
+        for (@$nsrecords){
+              my ($origion, $host)=($_->{'origion'}, $_->{'host'});
+                
+                $text.="<tr class=item>";
+                $text.="<td>$origion</td>\n";
+                $text.="<td>$host</td>\n";
+                $text.="<td>&nbsp;</td>\n";
+                
+                $text.="<td><a href='$ENV{'SCRIPT_NAME'}?mode=editDNSRecord&type=ns&host=$host&origion=$origion'>Edit</a></td>\n";
+                $text.="<td><a href='$ENV{'SCRIPT_NAME'}?mode=deleteDNSRecord&type=ns&host=$host&origion=$origion'>Delete</a></td>\n";
+                $text.="</tr>";
+        }
+
+        
+        $text.="<tr><td  class=light colspan=5>&nbsp;</td></tr>";
+        $text.="<tr class=header><td class=header colspan=5>@{[$customer->getText('MX records')]}</td></tr>";
+        $text.="<tr class=control><td>@{[$customer->getText('Origin')]}</td><td>@{[$customer->getText('Host')]}</td><td>@{[$customer->getText('Preference')]}</td><td>&nbsp;</td><td align=right>";
+        $text.="<a href='$ENV{'SCRIPT_NAME'}?mode=editDNSRecord&type=mx&changetype=add'>Add</a>\n";
+        $text.="</td></tr>\n";
+        for (@$mxrecords){
+              my ($origion, $host, $pref)=($_->{'origion'}, $_->{'host'}, $_->{'pref'});
+                $text.="<tr class=item>";
+                $text.="<td>$origion</td>\n";
+                $text.="<td>$host</td>\n";
+                $text.="<td>$pref</td>\n";
+                $text.="<td><a href='$ENV{'SCRIPT_NAME'}?mode=editDNSRecord&type=mx&host=$host&origion=$origion&pref=$pref'>Edit</a></td>\n";
+                $text.="<td><a href='$ENV{'SCRIPT_NAME'}?mode=deleteDNSRecord&type=mx&host=$host&origion=$origion&pref=$pref'>Delete</a></td>\n";
+                $text.="</tr>";
+        }
+
+        $text.="<tr><td  class=light colspan=5>&nbsp;</td></tr>";
+
+        $text.="<tr class=header><td class=header colspan=5>@{[$customer->getText('A records')]}</td></tr>";
+        $text.="<tr class=control><td>@{[$customer->getText('Host')]}</td><td>@{[$customer->getText('IP address')]}</td><td>&nbsp;</td><td>&nbsp;</td><td align=right>";
+        $text.="<a href='$ENV{'SCRIPT_NAME'}?mode=editDNSRecord&type=a&changetype=add'>Add</a>\n";
+        $text.="</td></tr>\n";
+        for (@$arecords){
+              my ($host, $ip)=( $_->{'host'}, $_->{'ip'});
+                $text.="<tr class=item>";
+                $text.="<td>$host</td>\n";
+                $text.="<td>$ip</td>\n";
+                $text.="<td>&nbsp;</td>\n";
+                $text.="<td><a href='$ENV{'SCRIPT_NAME'}?mode=editDNSRecord&type=a&host=$host&ip=$ip'>Edit</a></td>\n";
+                $text.="<td><a href='$ENV{'SCRIPT_NAME'}?mode=deleteDNSRecord&type=a&host=$host&ip=$ip'>Delete</a></td>\n";
+                $text.="</tr>";
+        }
+
+
+        $text.="<tr><td  class=light colspan=5>&nbsp;</td></tr>";
+
+        $text.="<tr class=header><td class=header colspan=5>@{[$customer->getText('Aliases (CNAME records)')]}</td></tr>";
+        $text.="<tr class=control><td>@{[$customer->getText('Alias')]}</td><td>@{[$customer->getText('Host')]}</td><td>&nbsp;</td><td>&nbsp;</td><td align=right>";
+        $text.="<a href='$ENV{'SCRIPT_NAME'}?mode=editDNSRecord&type=cname&changetype=add'>Add</a>\n";
+        $text.="</td></tr>\n";
+        for (@$cnamerecords){
+              my ($alias, $host)=($_->{'alias'}, $_->{'host'});
+                $text.="<tr class=item>";
+                $text.="<td>$alias</td>\n";
+                $text.="<td>$host</td>\n";
+                $text.="<td>&nbsp;</td>\n";
+                $text.="<td><a href='$ENV{'SCRIPT_NAME'}?mode=editDNSRecord&type=cname&host=$host&alias=$alias'>Edit</a></td>\n";
+                $text.="<td><a href='$ENV{'SCRIPT_NAME'}?mode=deleteDNSRecord&type=cname&host=$host&alias=$alias'>Delete</a></td>\n";
+                
+                $text.="</tr>";
+        }
+
+        $text.="</table></td></table></form>";
+
+
+        
+                
+                
+            $text
+            </perl>
+        
+        </td>
+</tr>
+
+
+

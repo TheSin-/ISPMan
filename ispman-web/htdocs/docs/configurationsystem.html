@@ -1,0 +1,27 @@
+<HTML>
+<TITLE>ISPMan help</TITLE>
+<link HREF="/ispman.css" REL="stylesheet" TYPE="text/css">
+<BODY>
+<table class="table" cellspacing=5 border=0>
+<tr><td class=menuheader>System Configuration</td>
+<tr><td>The System Configuration Screen allows you to set the
+administrator's email address, installaion directory, and password hashing
+methods.
+
+<tr><td><b>Understanding Password Hash Methods</b>
+The hash method used must balance the protocols, authentication types, and
+need for security. Hashing creates a long string of numbers based on the
+password. This long string of numbers is called the hash. It is considered one way, 
+since is is nearly impossible (if not impossible) to tell what the original 
+password is from the hash.
+<ul><li>clear - not a hash method. Stores the password string in base64 in LDAP, easily
+viewable. Required for SMTP AUTH using LOGIN.
+<li>crypt - standard unix crypt hash
+<li>md5 - 128-bit hash, stronger than crypt 
+<li>sha - 160-bit hash, stronger than md5, but slower
+</ul>
+<tr><td><A HREF="configuration.html">Return to Configuring ISPMan</A>
+</BODY>
+</HTML>
+
+

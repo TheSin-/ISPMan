@@ -1,0 +1,6 @@
+lib usr/share/ispman
+templates usr/share/ispman
+var usr/share/ispman
+conf/ldif usr/share/ispman/conf
+conf/schema usr/share/ispman/conf
+conf/ispman.conf.example usr/share/ispman/conf

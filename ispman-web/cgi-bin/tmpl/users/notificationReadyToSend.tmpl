@@ -1,0 +1,12 @@
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+   
+Message is ready for sending. Click "Commit session" to finally send it:
+
+<P><TT>From: <perl>$r->param("fromName")</perl> 
+&lt;<perl>$r->param("fromEmail")</perl>&gt;<BR>
+To: users in <perl>$r->param("notifyDomain")</perl><BR>
+CC: <perl>$r->param("cc")</perl><BR>
+Subject: <perl>$r->param("subject")</perl> </TT></P>
+<P><XMP><perl>$r->param("body")</perl></XMP></P>
+
+

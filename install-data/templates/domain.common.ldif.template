@@ -1,0 +1,53 @@
+dn: ispmanDomain=<perl>$domain</perl>, <perl>$ispman->getConf("ldapBaseDN")</perl>
+objectclass: ispmanDomain
+ispmanStatus: active
+ispmanCreateTimestamp: <perl>time()</perl>
+
+ispmanDomainType: <perl>$r->param("ispmanDomainType")</perl>
+ispmanDomainOwner: <perl>$r->param("ispmanDomainOwner")</perl>
+ispmanDomainCustomer: <perl>$r->param("ispmanDomainCustomer")</perl>
+ispmanDomainComment: <perl>$r->param("ispmanDomainComment")</perl>
+ispmanDomain: <perl>$domain</perl>
+ispmanDomainMailDeliveryMethod: <perl>$r->param("ispmanDomainMailDeliveryMethod")</perl>
+ispmanClientId: <perl>$r->param("ispmanClientId")</perl>
+ispmanClientName: <perl>$ispman->getClientNameById($r->param("ispmanClientId")) if $r->param("ispmanClientId")</perl>
+ispmanResellerId: <perl>$r->param("ispmanResellerId")</perl>
+ispmanResellerName: <perl>$ispman->getResellerNameById($r->param("ispmanResellerId")) if $r->param("ispmanResellerId")</perl>
+
+
+
+<perl>
+#If there is a site specific file load and evaluate it
+$templatesDir= join "/", ($ispman->getConf("installDir"), 'templates');
+unless (-d $templatesDir){
+        # For developers
+        $templatesDir= join "/", ($ispman->getConf("installDir"), 'install-data/templates');
+	#print "Dev version? Found templates in $templatesDir\n<br>";
+}
+
+</perl>
+
+<perl>if ($r->param("ispmanDomainType") ne "replica"){ 
+   $template=$ispman->getTemplate(join "/", ($templatesDir, "domain.extended.ldif.template"));
+   return $template->fill_in(PACKAGE => __PACKAGE__);
+};
+</perl>
+
+<perl>
+   $template=$ispman->getTemplate(join "/", ($templatesDir, "domain." . $r->param("ispmanDomainType") . ".ldif.template"));
+   return $template->fill_in(PACKAGE => __PACKAGE__);
+</perl>
+
+# PAB Stuff
+dn: ou=<perl>$domain</perl>, ou=pabs,  <perl>$ispman->getConf("ldapBaseDN")</perl>
+objectClass: top
+objectClass: organizationalUnit
+ou: <perl>$domain</perl>
+
+# GAB Stuff
+dn: ou=gab, ou=<perl>$domain</perl>, ou=pabs,  <perl>$ispman->getConf("ldapBaseDN")</perl>
+objectClass: top
+objectClass: organizationalUnit
+ou: gab
+
+

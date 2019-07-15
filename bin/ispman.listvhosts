@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'd', \%opts );
+    unless ( $opts{'d'} ) {
+        print "$FindBin::Script -d domain";
+        print "\n";
+        exit;
+    }
+}
+
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+if ( %{ $ispman->getApacheVhosts( $opts{'d'} ) } ) {
+    for ( keys %{ $ispman->getApacheVhosts( $opts{'d'} ) } ) {
+        print "$_\.$opts{'d'}\n";
+    }
+}
+
+__END__
+

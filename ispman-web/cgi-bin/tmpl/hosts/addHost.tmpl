@@ -1,0 +1,45 @@
+<script language="Javascript">
+function checkHostName(str){
+        if (str.indexOf(" ")!=-1) {
+                alert("You cannot have spaces in a hostname");
+                return false;
+        } else {
+                return true;                
+        }
+                        
+                        
+}
+</script>
+
+<perl>_("Adding new host")</perl>
+
+<form onsubmit="return checkHostName(this.ispmanHostName.value)">
+  <table>
+    <tr>
+      <td><perl>_("Machine hostname")</perl></td>
+      <td><input type=text name=ispmanHostName value=""></td>
+      <td><a href="javascript:alert('<perl>_("This is the hostname of the machine. You can find the correct hostname as ispman-agent sees it with the command ispman.myhostname")</perl>')">?</a></td>
+    </tr>
+    <tr>
+      <td><perl>_("Host Aliases")</perl></td>
+      <td><textarea rows="3" cols="18" name=ispmanHostAlias></textarea></td>
+    </tr>
+    <tr>
+	  <td><perl>_("IP Address")</perl></td>
+      <td><input type=text name=ispmanHostIp value=""></td>
+    </tr>
+    <tr>
+      <td><perl>_("Description")</perl></td>
+      <td><input type=text name=ispmanHostInfo value=""></td>
+    </tr>
+    <tr>
+      <td align=left colspan=2>
+		<input type=hidden name="mode" value="addHost">
+		<input type=button class="button" onClick="self.location='<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=manageHosts'" value="<perl>_("Cancel")</perl>">
+        <input type=button class="button" onClick="document.forms[0].reset()" value="<perl>_("Reset")</perl>">
+        <input type=button class="button" onClick="document.forms[0].submit()" value="<perl>_("Add host")</perl>">
+      </td>
+    </tr>
+  </table>
+</form>
+

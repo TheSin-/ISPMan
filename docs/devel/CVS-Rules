@@ -1,0 +1,184 @@
+From: Joerg Delker <jd@onix.de>
+To: ispman-developers@lists.sourceforge.net
+Subject: [Ispman-developers] CVS: the new way of developing
+
+Hi Folks, 
+
+I'm glad to announce the redesign of the ISPMan cvs.
+
+To get you all on track, let my explain the changes with the help of
+some ascii-art.
+
+First have a look at the old tag/branch structure:
+=======================================================
+ O
+ |
+ |
+ |\_______________________ ...
+ |  REL_0_8 (branch) \
+ |                   |
+ |                   * REL_1_0 (tag) 
+ |                   |
+ |\__________________
+ |  REL_0_9 (branch) \
+ |                   |
+ * REL_1_0 (tag)     * REL_1_0 (tag/branch)
+ |                   |\_______________...     
+ |                   |
+ |
+==============snip=============snap====================
+The above is just a rough excerpt of the previous cvs (the detailed view
+is much more confusing)
+The 4 major problems here:
+1) There are a LOT of branches (and sub branches), leading to some very
+"deep versioning"
+2) No tags on the way. There is no way back to some known working state.
+3) The main trunk (HEAD) is differing very much from branches, making
+merging a nightmare
+4) REL_1_0 tag is spreading over several branches, specifying both tag
+and branch.
+
+Ok, besides people who still work on pre-1.0 versions, we just remember
+this lesson and forget about that stuff.
+
+Now to the new cvs:
+==============snip=============snap====================
+ |
+ * experimental (tag)
+ |\_______________________...
+ |  experimental-branch (branch)
+ |
+ * dev_1_1 (tag)                <=== We are here right now
+ |
+ | 
+ * dev_1_2 (tag)
+ |
+(...) maybe further dev_1_x tags
+ |
+ * rel_1_x (tag)
+ |\______________________...
+ |  rel_1_x-branch (branch)
+ |
+ * dev_1_(x+1) (tag)
+ |
+...
+=======================================================
+What happened here?
+First of all, the current HEAD was tagged "experimental" and branched
+off in the "experimental-branch" to move this "far ahead development
+thread" out of the way (see Rule #8).
+By doing this we practically "saved" HEAD in this new branch and can
+pull code from there or continue experimental development if necessary.
+
+Next step:
+To continue development on the "productive version" REL_1_0, which is
+tagged all over the old structure, HEAD was adjusted to match REL_1_0,
+resulting practically in a rollback of the trunk to the latest REL_1_0
+release.
+This was tagged "dev_1_1" then, marking the kick-off for the current
+development version. So currently, the equation holds REL_1_0 = dev_1_1
+(= HEAD). The latter one will continue on of course.
+
+Future steps:
+Main development (for the former REL_1_0 version) will continue on HEAD
+now. This will be bugfixes as well as new code (eventually from
+"experimental-branch").
+
+As soon as we believe that we have a halfway decent working state in
+HEAD or we want to mark the current state whatsoever, we TAG it with
+some "dev_x_y" incremental tag (see Rule #3).
+
+Eventually, when there is some really nice state in HEAD or Atif just
+believes that it's time for a new public release  it get's tagged with
+an incremental "rel_x_y" and also get branched of as "rel_x_y-branch"
+(see Rule #6,#8).
+
+Development will continue in HEAD, important bugfixes of the public
+release go into the rel_x_y-branch and merged back to HEAD (Rule #5,#6).
+
+This will just continue over and over until we have "the perfect ISPMan"
+;))
+
+
+Ok, let's put this into some simple rules:
+
+Rule 1:
+--> Focus main development on HEAD
+Every change in branches must eventually be merged back to HEAD
+sometime. Remember: The more is developed on branches, the more
+difficult it will be to get it back into HEAD.
+
+Rule 2:
+--> Make small logical changes to files
+--> and document them when commiting.
+Committing five bugfixes and two new coded features in one shot makes
+testing and troubleshooting a nightmare.  Split it up in small chunks.
+
+Rule 3:
+--> Tag the milestones
+To easily recover to specific states and have common reference points
+(bug reports, etc.) it's important to tag the trunk/branch once a while.
+There is no golden rule *when* to do this but do it at least for known
+stable versions.
+
+Rule 4:
+--> Tag completely
+When tags are applied, do it always on the complete trunk/branch you are
+on ("cvs tag" in root of your repository).
+Never ever tag/update/commit across different branches!
+
+Rule 5:
+--> Tag your merge
+When changes are merged back to the trunk, remember to tag the releases
+of the involved files in your branch (e.g. dev_x_y-branch-merge1).
+This makes later merging again much easier.
+If possible, try to merge your entire branch to HEAD (if your changes
+allow that)
+
+Additional comment (jdelker 2004-06-20):
+        This rule is abandoned for now. Currently, fixes are merged
+        immediately to HEAD on a manual basis without tagging.
+
+Rule 6:
+--> New branch for public releases
+Releases we put in tar files for download, should be branched off (see
+also Rule #8)
+The branch should be used mainly for bugfixes we merge back to the
+trunk. Try to develop new features directly on HEAD.
+
+Rule 7:
+--> New branches for experimental ideas
+If you have some big things in mind and you don't know if it all will
+work out eventually, ask for a experimental branch (e.g.
+"dev_1_x-altvhosts"; see also Rule #8).  But focus on your idea, we have
+to merge it back soon 
+
+Rule 8:
+--> Set branch point tags
+For every branch we split of the trunk, there should be a "branch point
+tag" set. Otherwise there is no way back to the state when we branched
+off.
+Example: For a new "release branch" (as in Rule #6) we set a "rel_x_y"
+tag on HEAD ("cvs tag rel_x_y") and branch off with a "rel_x_y-branch"
+branch tag ("cvs tag -b rel_x_y-branch").
+
+Rule 9:
+--> no branch of branches
+Don't let us fall back to the old days.
+There should not be a need to, anyhow.
+
+Rule 10:
+--> No retagging
+Same as #8
+
+Last comment:
+If anybody is not that familiar with cvs and is unsure how to get along
+in some situations, I will be glad to help.
+
+Very last comment:
+This document will be on HEAD as README.cvs, so everyone has it handy
+when he needs it.
+I want to consider it's content a working guideline, which we can change
+anytime if rules are inadequate.
+
+Good nite, Joerg

@@ -1,0 +1,37 @@
+<perl>
+$host=$ispman->getHostInfo($r->param("hostname"));
+""
+</perl>
+
+
+
+
+<perl>_("Editing host")</perl> <B><perl>$host->{'ispmanHostName'}</perl></b>
+
+<form>
+  <table>
+    <tr>
+        <td><perl>_("Host Aliases")</perl></td>
+        <td><textarea rows="3" cols="18" name=ispmanHostAlias><perl>join "\n", $ispman->as_array($host->{'ispmanHostAlias'})</perl></textarea></td>
+    </tr>
+    <tr>
+        <td><perl>_("IP address")</perl></td>
+        <td><input type=text name=ispmanHostIp value="<perl>$host->{'ispmanHostIp'}</perl>"></td>
+    </tr>
+    <tr>
+        <td><perl>_("Description")</perl></td>
+        <td><input type=text name=ispmanHostInfo value="<perl>$host->{'ispmanHostInfo'}</perl>"></td>
+    </tr>
+    <tr>
+      <td align=left colspan=2>  
+        <input type=hidden name="mode" value="modifyHost">
+        <input type=hidden name="ispmanHostName" value="<perl>$host->{'ispmanHostName'}</perl>">
+        <input type=button class="button" onClick="self.location='<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=manageHosts'" value="<perl>_("Cancel")</perl>"> 
+        <input type=button class="button" onClick="document.forms[0].reset()" value="<perl>_("Reset")</perl>">
+        <input type=button class="button" onClick="document.forms[0].submit()" value="<perl>_("Update")</perl>">
+      </td>
+    </tr>
+  </table>
+</form> 
+ 
+

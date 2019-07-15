@@ -1,0 +1,527 @@
+<HTML>
+<TITLE>
+Running ISPMAN on Debian 3.0 Full Install Guide
+</TITLE>
+<BODY>
+Running ISPMAN on Debian 3.0 Full Install Guide
+<PRE>
+Overview of the process:
+A) Configure and install ISPMAN, populate LDAP for a first time install B)
+Log into the ISPMAN web interface, then finish configuring ISPMAN C) Setup
+ISPMAN agents with a /etc/init.d/ispman-agent startup script D) Configure
+each application to work with the ISPMAN agent or the LDAP information
+
+Preinstallation checklist:
+
+apt-get install libdigest-md5-perl cvs slapd
+ Directory initialization method: auto
+ Directory suffix style: custom 
+ Enter your suffix:  o=ispman
+ Passwd: xxxxxx   <-- needs to match LDAP password during compile
+ Replicate to another LDAP server: No
+
+ISPMAN Primary Server Setup Notes:
+
+1. creat a user called ispman
+2. "chown ispman /opt" and "cd /opt"
+3. login as ispman and download the latest ispman-someversion.tar.gz to /opt
+4. tar zxf ispman-someversion.tar.gz 
+5. cd ispman-someversion
+6. cvs -z3 update -dP    
+7. ./configure
+  Accepted all defaults except:
+   Domain is azxws.com
+   LDAP directory is /etc/ldap
+   set ldap password
+   set cyrus password
+
+8. "make ispman"
+FIRST TIME INSTALL ONLY (EMPTY LDAP TREE)
+NOTE: This will WIPE out an existing ispman installation.
+ A. AS ROOT: cp /opt/ispman-someversion/tmp/conf/slapd.conf
+/etc/ldap/slapd.conf B. AS ROOT: cp
+/opt/ispman-someversion/tmp/conf/schema/* /etc/ldap/schema/ C.
+/etc/init.d/slapd restart D. make ldif_install
+
+9. make install_ispman_common
+10. make install_ispman_web
+11. Setup ispman web access:
+  A. AS ROOT: apt-get install apache apache-ssl
+  B. Modify /etc/apache-ssl/httpd.conf with
+       Include /etc/ispman/apache.conf
+  C. Create the file /etc/ispman/apache.conf like so:
+
+/----- /etc/ispman/apache.conf ---
+Alias /ispman /opt/ispman/htdocs
+<Directory  /opt/ispman/htdocs>
+    Options ExecCGI
+    AddHandler cgi-script .cgi
+    DirectoryIndex index.html index.cgi
+    AllowOverride None
+</Directory>
+\------ end apache.conf --------
+
+  D. /etc/init.d/apache-ssl restart
+
+You should now be able to access ISPMAN at
+https://ip.add.re.ss/ispman/ 
+
+If unable to access the website, check /var/log/apache_ssl/error_log and fix
+it..
+
+----ISPMAN Web Configuration --
+Login using the name ispman with the LDAP password entered above.
+
+Click Configuration, make sure to setup hosts and host groups.
+
+ISPMAN - Apache Configuration
+ Apache stop command - /etc/init.d/apache stop
+ Webalizer command - /usr/bin/webalizer
+ Apache vhost file - /etc/apache/vhosts.conf
+   (Must add "Include /etc/apache/vhosts.conf" to apache's httpd.conf)
+ Apache start command - /etc/init.d/apache start
+ Apache graceful reload command - /etc/init.d/apache reload
+ Default vhost IP -- * (Allows it to work on any machine)
+ Apache reload command - /etc/init.d/apache reload
+
+
+ISPMAN - Mail Configuration
+ IMAP server - cyrus
+ Server Maps command - /usr/sbin/postmap
+ SMTP reload command - /etc/init.d/postfix reload
+ Map files directory - /etc/postfix
+ Mailbox Prefix - user.
+
+DNS Config:
+ Named Start Command - /etc/init.d/bind start
+ Primary DNS (name) - ns1.domain.com
+ ISPMan's DNS data directory -  ispman/
+ Primary Mail Server (name) - mail.domain.com
+ Named data directory - /var/named  
+ Secondary Mail Server (IP) - xxx.xxx.xxx
+ DNS Backend - bind8
+ Secondary DNS (IP) - xxx.xxx.xxx.xxx
+ Reverse Zone directory - rev/
+ Header file for named.conf - /opt/ispman/templates/named.conf.header Named
+Reload Command - /etc/init.d/bind reload Footer file for named.conf -
+/opt/ispman/templates/named.conf.footer Named Stop Command -
+/etc/init.d/bind stop Secondary Zone directory - sec/ Named Config File  -
+/etc/named.ispman.conf
+ Primary DNS (IP) - xxx.xxx.xxx.xxx
+ Secondary Mail Server (name) - mail2.domain.com
+ Secondary DNS (name) - ns2.domain.com
+ Primary Mail Server (IP) - xxx.xxx.xxx.xxx
+ Catch all CNAME  - none
+ Primary Zone directory - pri/
+ Hostmaster's email address - hostmaster.domain.com
+ Named User - root 
+
+Set up additional users if desired.
+
+--ISPMAN-AGENT---
+
+1) apt-get install daemontools-installer, when asked DO make the /service
+directory  2) mkdir /etc/ispman 
+3) edit /etc/ispman/run like so:
+
+/---- /etc/ispman/run ----
+#!/bin/sh
+exec Starting ispman agent
+exec /opt/ispman/bin/ispman-agent nodetach
+\----- end file -----
+
+4) ln -s /etc/ispman /service/
+5) ln -s /opt/ispman/var/ /var/log/ispman/
+6) edit /etc/init.d/ispman-agent like so:
+
+/--------/etc/init.d/ispman-agent----
+#!/bin/sh
+#     * svc -h /service/yourdaemon: sends HUP
+#     * svc -t /service/yourdaemon: sends TERM, and automatically restarts
+the #       daemon after it dies #     * svc -d /service/yourdaemon: sends
+TERM, and leaves the service down #     * svc -u /service/yourdaemon: brings
+the service back up #     * svc -o /service/yourdaemon: runs the service
+once daemon="/service/ispman"
+process="ispman"
+name="ispman-agent"
+
+case "$1" in
+    start)
+        echo -n "Starting $name:"
+        svc -u $daemon
+        echo  " started"
+        ps aux | grep $process
+        ;;
+    stop)
+        echo -n "Stopping $name:"
+        svc -d /service/ispman
+        echo  " stopped"
+        ps aux | grep $process
+        ;;
+    restart|force-reload)
+        echo -n "Restarting $name:"
+        svc -t $daemon
+        echo " restarted"
+        ;;
+    reload)
+        echo -n "Reloading $name:"
+        svc -h $daemon
+        echo " reloaded"
+        ;;
+    status)
+        echo -"Getting Status... Jobs in queue: "
+        /opt/ispman/bin/ispman.processes -h $HOSTNAME
+        ;;
+    *)
+        echo 'Usage: /etc/init.d/ispman
+{start|stop|restart|force-reload|reload|
+status}'
+        exit 1
+esac
+
+exit 0
+\--------/etc/init.d/ispman-agent----
+
+NOTE: I had to edit /opt/ispman/bin/ispman.processes and tell it the
+ispman/lib path.
+
+7) chmod +x /etc/init.d/ispman-agent
+8) /etc/init.d/ispman-agent start
+tail the logs in /var/log/ispman/ to see whats happening.
+The biggest problem with agents not completing tasks is that the hostname
+does not match. Checking the syslog will show what hostname the agent looks
+for. 
+
+9) update-rc.d defaults ispman-agent 99
+
+
+NOTE: Do above steps sans web configuration stuff for each machine
+participating in the net. It should also be possible to just copy
+/opt/ispman sans the htdocs dir to each server.
+
+--LDAP setup ---
+
+YOU MUST HAVE A NEWLINE AFTER YOUR ENTRIES OR THIS WON'T WORK. This secures
+LDAP from foreign queries. Feel free to add LDAP ACL and iptable rules too.
+You need to setup your own replication servers.
+
+1) Edit /etc/hosts.allow adding: 
+slapd: XXX.XXX.XXX.XXX 127.0.0.1 : ALLOW
+
+
+2) Edit /etc/hosts.deny adding:
+slapd: ALL : DENY
+
+NOTE: test using ldapsearch locally and from a remote machine not in the
+allowed file. 
+
+3) Test it like so (requires ldap-utils package)
+   ldapsearch -xvu -LLL -b "o=ispman" ispmanVar=*
+
+--PAM_LDAP setup ---
+This basically allows any daemon using PAM for authentication to use LDAP.
+Some programs like Cyrus don't authenticate directly from LDAP without
+patches. This lets them 'ask' PAM for authentication. PAM then acts as an
+'LDAP proxy' finding out authentication information and and returns the
+answer in an understandable way.  
+
+1) make sure libpam-ldap is installed
+(apt-get install libpam-ldap)
+ make configuration readable/writeable by owner only: Yes 
+ Make local root Database admin: No 
+ Database requires logging in: No 
+ Local crypt to use when changing passwords: crypt
+
+2) Edit /etc/pam_ldap.conf like so:
+host 127.0.0.1   <--- will differ if the LDAP server is elsewhere.  base
+o=ispman 
+ldap_version 3
+pam_password crypt
+
+
+--CYRUS/IMAP/POP3D---
+This includes setup guides for Cyrus 1.5 which is in the stable branch and
+Cyrus2.1 which is official, but is backported. Cyrus 1.5 is easier to setup,
+but lacks SSL support and sieve mail sorting. The /var/spool/cyrus directory
+layout of 2.xx is designed for large installations. Authentication depends
+on different daemons, but thanks to pam support, they both work easily with
+an ISPMAN LDAP site.
+
+CYRUS 2.1 instructions 
+1) Add these line to /etc/apt/sources.list
+  #Cyrus21 Backports
+  deb http://people.debian.org/~hmh/woody/ hmh/cyrus/
+
+2) apt-get update 
+
+3) apt-get install cyrus21-pop3d cyrus21-common cyrus21-imapd cyrus21-admin
+cyrus21-admin cyrus21-clients cyrus21-doc gawk libcyrus-imap-perl21 libsasl2
+libsnmp-base libsnmp4.2 sasl2-bin libsasl2-modules libsasl2 and sasl2-bin
+
+4) Edit the following lines in /etc/imapd.conf like so:
+
+admins: cyrus
+popminpoll: 0
+allowplaintext: yes
+sasl_minimum_layer: 0
+sasl_mech_list: plain login
+sasl_pwcheck_method: saslauthd
+lmtp_downcase_rcpt: yes
+tls_ca_file: /etc/ssl/cyrus.pem 
+tls_cert_file: /etc/ssl/cyrus.pem 
+tls_key_file: /etc/ssl/cyrus.pem
+
+5) Edit /etc/cyrus.conf and allow lmtp localhost, imaps, and pop3s
+
+6) Create SSL key and pem file for cyrus
+  A. openssl req -new -nodes -out req.pem -keyout key.pem  
+  B. openssl rsa -in key.pem -out new.key.pem
+  C. openssl x509 -in req.pem -out ca-cert -req \
+     -signkey new.key.pem -days 999 
+  D. mv new.key.pem /etc/ssl/cyrus.pem
+  E. cat ca-cert >> /etc/ssl/cyrus.pem
+  F. chown cyrus.mail /etc/ssl/cyrus.pem
+  G. chmod 600 /etc/ssl/cyrus.pem 
+
+7) Edit /etc/pam.d/imap AND /etc/pam.d/pop like so:
+auth    sufficient      pam_ldap.so 
+account sufficient      pam_ldap.so
+
+8) Add cyrus to the sasl group (adduser cyrus sasl)
+ 
+9)  Now, configure saslauthd to use PAM mode and startup:
+   Modify /etc/default/saslauthd so that it reads:
+   start=yes
+   MECHANISMS="pam"
+
+  NOTE: I've seen configs where saslauthd goes straight to LDAP. 
+  The example I followed didn't work, so I stuck with pam. YMMV.
+
+10) Restart saslauthd and cyrus
+  /etc/init.d/cyrus21 restart
+  /etc/init.d/saslauthd restart
+
+11) Test the setup by doing this:
+   #cyradm --user cyrus localhost
+   localhost password:  <--- compile time cyrus password
+   localhost> lm   <-- lm shows installed mailboxes
+   If you don't get a hostname> prompt, check the syslog for errors. Verify
+LDAP is running.
+
+   THEN the ultimate: Create a domain and verify connectivity!
+   telnet localhost 110
+   USER someuser_domain_com
+   PASS password
+   LIST (you should see all mail waiting.)
+ 
+
+
+CYRUS 1.5 SETUP
+
+1) edit /etc/imapd.conf, change the two lines listed like so:
+   popminpoll:0 
+   admins: cyrus
+
+2) adduser --system cyrus  (may already exist)
+3) passwd cyrus  (to whatever you set it up as in ./configure)
+
+4) update-alternatives --config pwcheck 
+   choose    2        /usr/sbin/pwcheck_pam
+
+NOTE: Unless you stop pwcheck before this step, restarting it will leave you
+with the old pwcheck_standard running. I do a killall pwcheck after this
+step for good measure.
+
+5) edit /etc/pam.d/cyrus so it says:
+auth            sufficient              /lib/security/pam_ldap.so
+account         sufficient              /lib/security/pam_ldap.so
+
+6) test it! sample test for cyrus 1.5:
+   #cyradm -u cyrus localhost
+   localhost password:  <--- compile time cyrus password
+   localhost> lm   <-- lm shows installed mailboxes
+
+   If you get anything but a hostname> prompt, check the syslog and auth.log
+for errors. Verify that pwcheck_pam is really running. Permission problems
+in /var/lib/cyrus or /var/spool/cyrus can 'block' a cyradm session. If you
+are still stuck, try strace'ing a pwcheck agent and see what it spits out. 
+     
+--BIND 8 SETUP--
+
+1) apt-get install bind
+2) Add this line to /etc/named/named.conf:
+
+     include "/etc/named.ispman.conf";
+
+NOTE: The ; at the end is critical, if it is dropped, you'll see a syslog
+error like:
+   /etc/bind/named.conf:67: parse error near <end of file>
+
+3) Then as root: ln -s /etc/bind/ /var/named
+ISPMAN likes to put stuff in /var/named/ispman/ so we make a symlink
+
+4) Reload bind (/etc/init.d/bind reload) and check the logs, it should be
+happy. 
+
+--APACHE NOTES--
+1) apt-get install squirrelmail apache apache-ssl
+2) Edit /etc/apache/httpd.conf adding these lines: (change IPs and Server
+Name)
+
+UseCanonicalName Off  
+NameVirtualHost * 
+Include /etc/apache/vhosts.conf  < --- this is where the agent adds stuff
+Include /etc/ispman/apache.conf  < --- this should still be in there
+
+NOTE: With UseCanonicalName Off the server name comes from the contents of
+the Host: header in the request.
+
+2) if /etc/apache/vhosts.conf does not exist then (touch
+/etc/apache/vhosts.conf) 3) /etc/init.d/apache restart
+
+Check apache's logs, he should be happy. 
+
+NOTE: ISPMAN uses an intermediate file in /etc/apache/vhosts.conf.hash file.
+I've had to edit this file manually when a domain just wouldn't die.
+
+
+--POSTFIX---
+NOTE: postfix-snap packages are postfix 2.0 and some config options have
+changed, this setup is for plain postfix
+
+1) apt-get install postfix-ldap postfix-tls libsasl-modules-plain
+
+2) Edit /etc/pam.d/smtpd like so:
+auth    sufficient      pam_ldap.so 
+account sufficient      pam_ldap.so
+
+2) mkdir /etc/postfix/sasl and then create /etc/postfix/sasl/smtpd.conf like
+so:  pwcheck_method: pam
+
+3) Edit /etc/postfix/master.cf
+Make sure smtpd is NOT chrooted -- This lets it do SMTP Auth.  
+WARNING: SMTP Auth is an addon to postfix, it does decrease the overall
+security.
+
+4) Create TLS cert and key in /etc/postfix
+   A. #openssl req -new -x509 -nodes -out cert.pem 
+   B. chown root.postfix *.pem
+   C. chmod 640 *.pem  
+
+4) edit /etc/postfix/main.cf like so:
+
+mailbox_transport=cyrus
+mydomain = domain.com
+myhostname = host.domain.com
+program_directory = /usr/lib/postfix
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+# NOTE: myorigin MUST match the maildrop hostname in ISPMAN.
+myorigin = /etc/mailname
+relayhost = 
+mailbox_size_limit = 0
+recipient_delimiter = +
+inet_interfaces = all
+
+mydestination = $mydomain, $myhostname, localhost.$mydomain,
+/etc/postfix/destination, hash:/etc/postfix/destination_domains
+relay_domains = $mydomain, $myhostname, localhost.$mydomain,
+/etc/postfix/destination, hash:/etc/postfix/relay_domains  #canonical_maps =
+hash:/etc/postfix/canonical
+virtual_maps = ldap:ldapvirtual
+
+default_transport = smtp
+
+ldapvirtual_server_host = localhost
+ldapvirtual_server_port = 389
+ldapvirtual_bind_dn = o=ispman
+ldapvirtual_bind = no
+ldapvirtual_timeout =
+
+ldapvirtual_search_base = o=ispman
+ldapvirtual_query_filter = (|(mailLocalAddress=%s)(mailAlias=%s))
+ldapvirtual_result_attribute = mailRoutingAddress,mailForwardingAddress
+ldapvirtual_lookup_wildcards = no
+
+#relocated_maps = hash:/etc/postfix/relocated
+#smtpd_sender_restrictions = hash:/etc/postfix/access
+
+$transport_maps = hash:/etc/postfix/transport
+
+smtpd_banner = $myhostname ESMTP $mail_name ($mail_version)
+local_destination_concurrency_limit = 2
+default_destination_concurrency_limit = 10
+debug_peer_level = 2
+debugger_command =
+         PATH=/usr/bin:/usr/X11R6/bin
+
+# SMTP Auth Stuff see http://killyridols.net/postfixtlssmtpauth.shtml
+smtpd_sasl_auth_enable = yes smtpd_sasl_security_options = noanonymous
+smtpd_sasl_local_domain = $myhostname
+smtpd_recipient_restrictions = permit_sasl_authenticated,
+check_relay_domains
+
+#For STARTTLS SMTP
+smtpd_tls_cert_file = /etc/postfix/cert.pem
+smtpd_tls_key_file = /etc/postfix/privkey.pem
+smtpd_use_tls = yes
+tls_random_source = dev:/dev/urandom
+tls_daemon_random_source = dev:/dev/urand
+
+5) Test it! telnet localhost 25
+If postfix drops the connect, read syslog. Most of my install problems are
+with SMTP auth settings, try commenting that out and restarting if postfix
+components are dying. Also ensure that your pam files are correct and that
+smtpd is not in a chroot environment.
+
+LMTP can speed up stuff, but I didn't do this step, yet....
+6) Setup LMTP deliveries (if using cyrus 2.1)
+
+ # addgroup lmtp
+ # adduser postfix lmtp
+ Fix the socket directory permissions:
+        # dpkg-statoverride --force --update --add \
+          cyrus lmtp 750 /var/run/cyrus/socket
+ Restart Postfix and Cyrus IMAPd
+        # /etc/init.d/postfix restart
+        # /etc/init.d/cyrus21 restart
+
+
+
+
+--PUREFTPD --
+Proftpd doesn't support the ISPMAN LDAP space quotas or denied users so we
+run pure-ftpd-ldap.
+
+1) install purftpd-ldap package, setup to run from inetd
+  A. edit /etc/apt/sources.list adding:
+deb ftp://ftp.debian.org/debian testing main contrib non-free
+  B. apt-get update
+  C. apt-get install pure-ftpd-ldap libc6 libpam0g libc6-dev locales
+
+2) Edit /etc/pure-ftpd/db/ldap.conf  like so:
+
+LDAPServer localhost
+LDAPPort   389
+LDAPBaseDN o=ispman
+LDAPFilter (&(objectClass=posixAccount)(uid=\L)
+
+3) Edit /etc/inetd.conf like so:
+ftp stream tcp nowait root /usr/sbin/tcpd /usr/sbin/pure-ftpd -l
+ldap:/etc/pure- ftpd/db/ldap.conf
+
+4) Create a test domain as per our documentation, make sure to add an FTP
+user to use below. Be sure to Commit the Session. 
+
+5) Restart inetd and test:
+   /etc/init.d/inetd restart
+   ftp localhost 
+       USER www.domain.com   
+       PASS password      
+
+NOTE: Logs to syslog, verify that it is checking LDAP
+
+NOTE: Search for users like so:
+  ldapsearch -xv -LLL -b "o=ispman" '(&(objectClass=posixAccount)(uid=joe))'
+</PRE>
+</HTML>

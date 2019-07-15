@@ -1,0 +1,72 @@
+<tr>
+    <td valign=top>
+        Website  URL Forwarding  <br>
+        
+        </td>
+    <td>
+        <font  color=white><i>
+        All requests to the aliases will point to the main website.<br>
+        The aliases cannot be outside of domain (<perl>$customer->{'domain'}</perl>)
+        
+        <br>
+        Example main website: www.company.com, aliases: web.company.com, w3.company.com</i>
+        
+        </font>
+        </td>
+</tr>
+<tr>
+<td colspan=2>                        
+<table border=0>
+            <perl>
+           
+           my $text="";
+           if (%$URLRedirects){
+                $text="The following redirect  are defined for ";
+                my $vhost=join '.', ($r->param("vhost"), $customer->{'domain'});
+                $text.=join '.', ($r->param("vhost"), $customer->{'domain'});
+                $text.="<br><br>";
+                
+                
+                for (sort {length($b) <=> length($a)} keys %$URLRedirects){ 
+                        $text.="<tr>";
+                        # the longest redirection url should come first. so /atif/ghaffar is still valid for redirection
+                        # even if redirection for /atif is defined. cool huh?
+                        my ($redirectLocation, $redirectDestination)=($_, $URLRedirects->{$_});
+                        my $url=join "", ($vhost, $redirectLocation);
+                        $text.="<td><font color=blue><a href='http://$url' target='redirectTest'>http://$url</a></font></td><td> redirects to</td><td> <font color=green>$redirectDestination</font></td>";
+                        $text.="<tr>";
+                }
+            } else {
+                $text="<tr><td>No Website  URL forwarding  defined</td></tr>";
+            }                                        
+            $text
+            </perl>
+</table>
+        
+        </td>
+</tr>
+
+
+
+<tr>
+<td colspan=2>
+
+        <table border>
+                <tr>
+                        <td>Location to redirect</td>
+                        <td>Redirect destination</td>
+                        <td></td>                               
+                </tr>
+                <tr>
+                        <td><input type=text name=redirectLocation value=""></td>
+                        <td><input type=text name=redirectDestination value="http://"></td>
+                        <td><input type=submit value="Add a new redirect"></td>
+                        <input type=hidden name=mode value="addWebsiteRedirection">
+                        
+                </tr>
+                                                        
+        </table>                
+</td>
+</tr>
+
+

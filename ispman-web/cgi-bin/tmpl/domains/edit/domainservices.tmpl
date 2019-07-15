@@ -1,0 +1,31 @@
+<tr>
+    <td><perl>_("Domain Services")</perl></td>
+    <td>
+        <SELECT MULTIPLE name=ispmanDomainService>
+        <perl>
+            my $services=$ispman->getDomainServices();
+            my %selectedServices;
+            my $text="";
+
+            for ($ispman->as_array($ispman->{'domain'}{'ispmanDomainService'})){
+		$selectedServices{$_}=1;
+	    }
+
+            for (keys %$services){
+		my $serviceName=$services->{$_}{'ispmanDomainServiceName'};
+		if (defined $selectedServices{$serviceName}){
+		    $text.="<option selected ";
+		} else {
+		    $text.="<option ";
+		}
+
+		$text.="value='$serviceName'>";
+		$text.="$services->{$_}{'ispmanDomainServiceAlias'} </option>\n";
+            }
+            $text
+        </perl>        
+        </select>
+        
+    </td>
+</tr>
+

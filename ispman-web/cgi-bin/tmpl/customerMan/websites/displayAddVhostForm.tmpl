@@ -1,0 +1,26 @@
+<html>
+<head>
+<LINK HREF="<perl>$customer->getConfig('ispmanUrlPrefix')</perl>/control_panel/style.css" REL="stylesheet" TYPE="text/css">
+</head>
+<body>
+
+<font color=maroon>
+<!-- errors if any -->
+<perl>$r->param("errors")</perl>
+</font>
+
+
+<P>
+<form>
+<perl>$customer->getText("I want this new website to be called")</perl> <input type=text name=ispmanVhostName>.<perl>$customer->{'domain'}</perl> <input type=submit value="Add my new website"><br>
+<input type=hidden name=mode value="addCustomerVhost">
+<br>
+<perl>$customer->getText("Please note, you can only use alphanumerical characters in your website name.")</perl><br>
+<perl>$customer->getText("you may use ")</perl>
+<ul>
+<li>a-z
+<li>0-9
+<li><b>.</b> (<perl>$customer->getText("the DOT character")</perl>)
+</ul>
+</form>
+        

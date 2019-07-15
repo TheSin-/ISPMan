@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'd', \%opts );
+    unless ( $opts{'d'} ) {
+        print "$FindBin::Script -d domain";
+        print "\n";
+        exit;
+    }
+}
+use ISPMan;
+my $ispman = ISPMan->new();
+print $ispman->dumper( $ispman->get_mail_groups( $opts{'d'} ) );
+print "\n";
+

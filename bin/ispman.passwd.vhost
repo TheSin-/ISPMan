@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'dv', \%opts );
+    unless ( $opts{'d'} && $opts{"v"} && $ARGV[0] ) {
+        print "Usage: $FindBin::Script -d domain -v vhost new_password\n\n";
+        exit;
+    }
+}
+
+use ISPMan;
+my $ispman = ISPMan->new();
+if ( $ispman->changeVhostPassword( $opts{"v"}, $opts{"d"}, $ARGV[0] ) ) {
+    print "Password changed\n";
+}
+
+__END__
+

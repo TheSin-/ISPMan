@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+use ISPMan;
+my $ispman = ISPMan->new();
+exit unless @ARGV;
+
+for $session (@ARGV) {
+    my $dn =
+      "ispmanSession=$session, ou=processes, $ispman->{'Config'}{'ldapBaseDN'}";
+    print "Deleting tree $dn\n";
+    $ispman->delTree($dn);
+
+}
+
+__END__

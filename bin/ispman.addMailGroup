@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'dfa', \%opts );
+    unless ( $opts{'d'} && $opts{'f'} && $ARGV[0] ) {
+        print qq[
+$FindBin::Script -d domain -f forwardingAddress mailGroupName
+
+Example:
+$FindBin::Script -d domain.tld -f postmaster\@domain.tld abuse
+
+This will create a mailGroup with the address \"abuse\@domain.tld\",
+which will forward all mails to \"postmaster\@domain.tld\".
+
+The forwarding address does not need to be in the same domain as the mailGroup.
+If you want more than one address in the mailgroup, separate the addresses
+with two spaces (e.g. \"-f 'adress1  adress2'\")
+];
+        exit;
+    }
+}
+use ISPMan;
+use CGI;
+
+my $r = CGI->new();
+$r->param( "ispmanDomain",          $opts{"d"} );
+$r->param( "mailForwardingAddress", $opts{"f"} );
+$r->param( "cn",                    $ARGV[0] );
+
+my $ispman = ISPMan->new();
+$ispman->addMailGroup($r);
+

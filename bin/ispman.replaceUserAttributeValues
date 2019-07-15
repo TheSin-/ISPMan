@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'dua', \%opts );
+    unless ( $opts{'d'} && $opts{'u'} && $opts{'a'} && $ARGV[0] ) {
+        print
+"Usage: $FindBin::Script -d domain -u username -a attribute value [value value]forward_address [forward_address forward_address]\n";
+
+        print
+"Note: This command deletes all previously values of the attribute and adds the new ones\n";
+        exit;
+    }
+}
+
+use ISPMan;
+
+my $ispman = ISPMan->new();
+$ispman->replaceUserAttributeValues( $opts{'u'}, $opts{'d'}, $opts{'a'},
+    \@ARGV );
+
+print "OK\n";
+

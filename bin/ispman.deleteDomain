@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'd', \%opts );
+    unless ( $opts{'d'} ) {
+        print "$FindBin::Script -d domain";
+        print "\n";
+        exit;
+    }
+}
+
+
+use ISPMan;
+use CGI;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+$vhost  = shift @ARGV;
+
+my $r = new CGI();
+
+$r->param( "ispmanDomain", $opts{"d"} );
+$ispman->deleteDomain($r);
+

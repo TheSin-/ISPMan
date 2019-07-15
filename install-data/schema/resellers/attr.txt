@@ -1,0 +1,24 @@
+##################################################
+# ISPMan Reseller information. Minumum information
+# The rest can be managed by another apllication
+##################################################
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1910 NAME 'ispmanResellerId'
+        DESC 'A string defining a unique  reseller id'
+        EQUALITY caseIgnoreIA5Match
+        SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1911 NAME 'ispmanResellerName'
+        DESC 'Display name of the reseller'
+        EQUALITY caseIgnoreIA5Match
+        SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{1024} )
+
+attributeType ( 1.3.6.1.4.1.8833.2.1.1912 NAME 'ispmanResellerMaxClients'
+        DESC 'Maximum number of clients this Reseller can create'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE)
+

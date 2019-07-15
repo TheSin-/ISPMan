@@ -1,0 +1,103 @@
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+
+   
+<br>
+<table border=0>
+<form>
+<tr class=line0><td colspan=2>
+    Viewing  VirtualHost  
+    
+    <perl>join '.', ($ispman->{'vhost'}->{'ispmanVhostName'}, $ispman->{'vhost'}->{'ispmanDomain'})</perl>
+    <br><hr noshade></td></tr>
+
+    
+
+<tr class=line1>
+    <td>Ip address </td>
+    <td>
+        <perl>$ispman->{'vhost'}->{"ispmanVhostIpAddress"}</perl>
+    </td>
+</tr>
+
+<tr class=line0>
+    <td>DocumentRoot </td>
+    <td>
+        <perl>$ispman->{'vhost'}->{"ispmanVhostDocumentRoot"}</perl>
+    </td>
+</tr>
+
+<tr class=line1>
+    <td valign=top>DocumentRoot <br>directory options </td>
+    <td>
+	<perl>
+	my $directoryOptions=$ispman->{'vhost'}->{"ispmanVhostDocumentRootOption"};
+	if (ref $directoryOptions eq "ARRAY"){
+	    for (@$directoryOptions){
+		$text.="$_<br>";
+	    }
+	} else {
+		$text.=$directoryOptions . "<br>";
+	}
+	
+	$text
+	</perl>
+	
+    </td>
+</tr>
+
+<tr class=line0>
+    <td>ScriptDirectory (/cgi-bin/) </td>
+    <td>
+        <perl> $ispman->{'vhost'}->{"ispmanVhostScriptDir"}</perl>
+    </td>
+</tr>
+
+
+<tr class=line1>
+    <td>Script  directory options </td>
+    <td>
+	<perl>
+	my $text="";
+	my $directoryOptions=$ispman->{'vhost'}->{"ispmanVhostScriptDirOption"};
+	if (ref $directoryOptions eq "ARRAY"){
+	    for (@$directoryOptions){
+		$text.="$_<br>";
+	    }
+	} else {
+		$text.="$directoryOptions<br>";
+	}
+	$text
+	</perl>
+    </td>
+</tr>
+
+
+<tr class=line0>
+    <td valign=top>Server Aliases<br>(Optional)</td>
+    <td colspan=2>
+       <perl>
+       my $text="";
+       my $aliases=$ispman->{'vhost'}->{"ispmanVhostServerAlias"};
+       if (ref $aliases eq "ARRAY"){
+           for   (@aliases){
+              $text.= "$_\n";
+           }
+        } else {
+            $text=$aliases;
+        }
+       $text;
+       </perl>
+   </td>                                                                                                                                        
+</tr>
+
+<tr class=line1>
+    <td valign=top>Extra configurations<br>(Optional)</td>
+    <td colspan=2>
+        <perl>$ispman->{'vhost'}{'ispmanVhostExtraConf'}</perl>
+   </td>                                                                                                                                        
+</tr>
+
+</table>
+ 
+ 
+

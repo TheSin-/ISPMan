@@ -1,0 +1,50 @@
+<html>
+<head>
+<LINK HREF="<perl>$customer->getConfig('ispmanUrlPrefix')</perl>/control_panel/style.css" REL="stylesheet" TYPE="text/css">
+</head>
+<body>
+<perl>$message</perl>
+
+
+<table>
+<tr>
+        <td>
+                Username
+        </td>
+        <td>
+                <perl>$username</perl>@<perl>$domain</perl>
+        </td>
+</tr>
+<tr>
+        <td>
+                Password
+        </td>
+        <td>
+                <perl>$userpassword</perl>
+        </td>
+</tr>
+<tr>
+        <td>
+                HTML Directory
+        </td>
+        <td>
+                public_html
+        </td>
+</tr>
+<tr>
+        <td>
+                Email address
+        </td>
+        <td>
+                <perl>$username</perl>@<perl>$domain</perl>
+        </td>
+</tr>
+</table>
+<p><hr>
+
+<perl>$givenname</perl> can login via ftp using the username/password <br>
+pair and can store files in his/her homedirectory.
+
+<br><br>
+Please note that there may be a few minutes delay before this account is activated.
+

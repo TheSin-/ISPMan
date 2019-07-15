@@ -1,0 +1,441 @@
+#!/usr/bin/perl
+# ispman.vlogger
+# (may be used in conjunction with ispman.makeawstats
+#  at the time of writing ispman.makelogs will not work without
+#  modification)
+#
+# ARGV[0] = one line of Apache's log with %v the frist column
+# Apache directive to log with %v:
+# LogFormat "%v %h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" vlogger
+# fromated with  perltidy -io <ispman.vlogger >ispman.vlogger.indent - is there a better way?
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use vars qw (
+      $ldapBaseDN
+      $vhost
+      $vhosts
+      $alias
+      $alises
+      %logfilepath
+      %logfileprefix
+      %gidhash
+      %uidhash
+    );
+}
+
+use ISPMan;
+use strict;
+use File::Copy;
+use File::Path;
+no strict "refs";
+use warnings;
+use sigtrap qw(handler closeall HUP USR1 TERM INT PIPE);
+use Date::Format;
+use Getopt::Std;
+use IO::Handle;
+
+my $VERSION = "0.2 BETA";
+my %logs    = ();
+
+# this comes from vlogger - ever used?
+my $LASTDUMP = time();
+my ( $key, $value );
+my $MAXFILES;
+my $MAXSIZE;
+my $TEMPLATE;
+my $DEFAULTLOGFILE;
+my %vhost;
+my $vhosts;
+my $alias;
+my $aliases;
+
+# get command line options
+our %OPTS;
+getopts( 'dhlstrmvgu', \%OPTS );
+
+# print out version
+if ( $OPTS{'v'} ) {
+    print "ispman.vlogger $VERSION (apache logfile parser for ISPMAN)\n";
+    print "Written by Andreas John <aj\@net-lab.net>\n\n";
+    print "Based on vlogger by Steve J. Kondik's (a.k.a. shade)";
+    print "This is free software; see the source for copying conditions.\n";
+    print "There is NO warranty; not even for MERCHANTABILITY or FITNESS\n";
+    print "FOR A PARTICULAR PURPOSE.\n\n";
+    exit;
+}
+
+# max files to keep open
+if ( $OPTS{'f'} ) {
+    $MAXFILES = $OPTS{'f'};
+}
+else {
+    $MAXFILES = "100";
+}
+
+# filesize rotation
+if ( $OPTS{'r'} ) {
+    $MAXSIZE = $OPTS{'r'};
+}
+
+# filename template set manually? If not use default
+# I do *not* use vloggers default, because this would sort
+# in a non chronologial order with ls
+if ( $OPTS{'t'} ) {
+    $TEMPLATE = $OPTS{'t'};
+    $TEMPLATE =~ /(.*)/;
+    $TEMPLATE = $1;
+}
+else {
+    $TEMPLATE = ".%Y%m%d.access";
+
+    # $servername.access as in vhosts.conf.template
+}
+
+# maintain a symlink? If yes there is a symlink to "$servername.access"
+# unless other specified
+
+if ( $OPTS{'s'} ) {
+    $OPTS{'s'} =~ /(.*)/;
+    $OPTS{'s'} = $1;
+}
+else {
+    $OPTS{'s'} = ".access";
+}
+
+if ( $OPTS{'l'} ) {
+    $DEFAULTLOGFILE = $OPTS{'l'};
+    $DEFAULTLOGFILE =~ /(.*)/;
+    $DEFAULTLOGFILE = $1;
+}
+else {
+    $DEFAULTLOGFILE = "/var/log/apache/access.log";
+}
+
+# print help
+if ( $OPTS{'h'} ) {
+    usage();
+    exit;
+}
+
+# I keep a FH to the default log open permanently.
+# If the logfile is moved away, perl will create a new one automatically.
+open my $defaultlog, ">>$DEFAULTLOGFILE"
+  or warn("can't open default log");
+
+my $ispman     = ISPMan->new();
+my $ldapBaseDN = $ispman->getConf('ldapBaseDN');
+
+# get all vhosts and add them $logfilepath hash (fdqn = logfilepath)
+# get all vhosts and add them $logfilepprefix hash (fdqn = logfileprefix)
+
+$vhosts =
+  $ispman->getEntriesAsHashRef( $ldapBaseDN, "objectclass=ispmanVirtualHost" );
+foreach $vhost ( keys %$vhosts ) {
+
+  # add to hash like ( www.example.com = /var/www/example.com/vhosts/www/logs/ )
+    $logfilepath{ $vhosts->{$vhost}{'ispmanVhostName'} . "."
+          . $vhosts->{$vhost}{'ispmanDomain'} } =
+        $vhosts->{$vhost}{'homeDirectory'} . "/"
+      . $vhosts->{$vhost}{'ispmanVhostLogdir'} . "/";
+
+    # add to hash like ( www.example.com = www.example.com )
+    # does not make sense?  ;)  Not here but in the next loop it's extented
+    # and used to build the full pathtologfile l8ter.
+    $logfileprefix{ $vhosts->{$vhost}{'ispmanVhostName'} . "."
+          . $vhosts->{$vhost}{'ispmanDomain'} } =
+        $vhosts->{$vhost}{'ispmanVhostName'} . "."
+      . $vhosts->{$vhost}{'ispmanDomain'};
+    $uidhash{ $vhosts->{$vhost}{'ispmanVhostName'} . "."
+          . $vhosts->{$vhost}{'ispmanDomain'} } =
+      $vhosts->{$vhost}{'uidNumber'};
+    $gidhash{ $vhosts->{$vhost}{'ispmanVhostName'} . "."
+          . $vhosts->{$vhost}{'ispmanDomain'} } =
+      $vhosts->{$vhost}{'gidNumber'};
+}
+
+# do the same as above but for website aliases
+my $filter = "objectclass=ispmanVirtualHostAlias";
+$aliases = $ispman->getEntriesAsHashRef( $ldapBaseDN, $filter );
+
+foreach $alias ( keys %$aliases ) {
+    $logfilepath{ $aliases->{$alias}{'ispmanVhostServerAlias'} } =
+      $logfilepath{ $aliases->{$alias}{'ispmanVhostName'} . "."
+          . $aliases->{$alias}{'ispmanDomain'} };
+
+    # there kind of construts make be believe perlcoders are insane
+    $logfileprefix{ $aliases->{$alias}{'ispmanVhostServerAlias'} } =
+        $aliases->{$alias}{'ispmanVhostName'} . "."
+      . $aliases->{$alias}{'ispmanDomain'};
+
+    $uidhash{ $aliases->{$alias}{'ispmanVhostServerAlias'} } =
+      $uidhash{ $aliases->{$alias}{'ispmanVhostName'} . "."
+          . $aliases->{$alias}{'ispmanDomain'} };
+
+    $gidhash{ $aliases->{$alias}{'ispmanVhostServerAlias'} } =
+      $gidhash{ $aliases->{$alias}{'ispmanVhostName'} . "."
+          . $aliases->{$alias}{'ispmanDomain'} };
+}
+
+# for debug
+if ( $OPTS{'d'} ) {
+    print "debug mode: vhost = logfilepath:\n";
+    while ( ( $key, $value ) = each %logfilepath ) {
+        print "$key = $value\n";
+    }
+    print "debug mode: vhost = logfileprefix:\n";
+    while ( ( $key, $value ) = each %logfileprefix ) {
+        print "$key = $value\n";
+    }
+    print "debug mode: vhost = uid:\n";
+    while ( ( $key, $value ) = each %uidhash ) {
+        print "$key = $value\n";
+    }
+    print "debug mode: vhost = gid:\n";
+    while ( ( $key, $value ) = each %gidhash ) {
+        print "$key = $value\n";
+    }
+}
+
+# here comes the vloggers while loop
+# keep in mind that you have to restart apache and thus the ispman.vlogger
+# processs to make it read the new ldap stuff!
+
+# set the process name
+$0 = "ispman.vlogger (access log)";
+
+while ( my $log_line = <STDIN> ) {
+
+    # parse out the first word (the vhost)
+    # split by space
+    my @this_line = split( /\s/, $log_line );
+
+    # copy 1st element to vhost var:
+    my ($logvhost) = $this_line[0];
+
+    # maybe for future integration with pmacct
+    # or some other accounting tool:
+    # my $reqsize = $this_line[10];
+
+    # ensure $logvhost does not contain rubbish
+    $logvhost = lc($logvhost) || "default";
+    if ( $logvhost =~ m#[/\\]# ) { $logvhost = "default" }
+
+    # filter out "new line" chars:
+    $logvhost =~ /(.*)/o;
+    $logvhost = $1;
+
+  # if we know the vhost by name, write to it's own log. It not, log to default!
+    if ( $logfileprefix{$logvhost} ) {
+
+        $logvhost = $logfileprefix{$logvhost};
+
+      # option "n" is "NOrollrollover" - in my case this is senseless
+      # not to roll over logs but I leave it in for others - it comes from shade
+        unless ( $OPTS{'n'} ) {
+            if (
+                $logs{$logvhost}
+                && ( time2str( "%Y%m%d", time() ) >
+                    time2str( "%Y%m%d", $logs{$logvhost} ) )
+              )
+            {
+                foreach $key ( keys %logs ) {
+                    close $key;
+                }
+                %logs = ();
+            }
+            elsif ( $OPTS{'r'} && $logs{$logvhost} ) {
+
+                # check the size
+                my @filesize = $logvhost->stat;
+                if ( $filesize[7] > $MAXSIZE ) {
+                    close $logvhost;
+                    delete( $logs{$logvhost} );
+                }
+            }
+        }
+
+        # open a new log if there if none in the pool:
+        if ( !$logs{$logvhost} ) {
+
+  # migration mode ("m" flag) - move old-style logfile (www.example.com.access)
+  # to a templated one (www.example.com.20050621.access)
+  # www.example.com.access should be a symlink to the current log
+  # $logfileprefix{$logvhost}.$OPTS{'s'} = www.example.com.access usually. YMMV.
+            if ( $OPTS{'m'} ) {
+                print "migration: "
+                  . $logfilepath{$logvhost}
+                  . $logfileprefix{$logvhost}
+                  . $OPTS{'s'} . "\n";
+                if (  -f $logfilepath{$logvhost}
+                    . $logfileprefix{$logvhost}
+                    . $OPTS{'s'}
+                    && !-l $logfilepath{$logvhost}
+                    . $logfileprefix{$logvhost}
+                    . $OPTS{'s'} )
+                {
+
+                    # debug mode
+                    if ( $OPTS{'d'} ) {
+                        print
+"Probably old logfile from before ispman.vlogger found:\n";
+                        print $logfilepath{$logvhost}
+                          . $logfileprefix{$logvhost}
+                          . $OPTS{'s'} . "\n";
+                        print "moving it away ...\n";
+                    }
+
+# if www.example.com.access exists and is a file then move it to www.example.com.20050621.access
+                    move(
+                        $logfilepath{$logvhost}
+                          . $logfileprefix{$logvhost}
+                          . $OPTS{'s'},
+                        time2str(
+                            $logfilepath{$logvhost}
+                              . $logfileprefix{$logvhost}
+                              . $TEMPLATE,
+                            time()
+                        )
+                    );
+                }
+
+            }
+
+            # check how many files we have open, close the oldest one
+            if ( keys(%logs) > $MAXFILES ) {
+                my ( $key, $value ) =
+                  sort { $logs{$a} <=> $logs{$b} } ( keys(%logs) );
+                close $key;
+                delete( $logs{$key} );
+            }
+
+            # open the file using the template
+            # for debug
+            if ( $OPTS{'d'} ) {
+                print "vhost: " . $logvhost . " ";
+                print "path: " . $logfilepath{$logvhost} . " ";
+                print "prefix: " . $logfileprefix{$logvhost} . "\n";
+            }
+
+    # $logvhost is example.com, not www.example.com -> better to convert before?
+            open $logvhost,
+              ">>$logfilepath{$logvhost}/$logfileprefix{$logvhost}"
+              . time2str( $TEMPLATE, time() )
+              or warn("can't open logfile in $logfilepath{$logvhost}");
+            if ( $OPTS{'u'} ) {
+                if ( $OPTS{'g'} ) {
+
+                    # set uid and gid
+                    chown $uidhash{$logvhost}, $gidhash{$logvhost},
+                      $logfilepath{$logvhost} . "/"
+                      . $logfileprefix{$logvhost}
+                      . time2str( $TEMPLATE, time() );
+                }
+
+                # set uid only
+                chown $uidhash{$logvhost}, 0,
+                  $logfilepath{$logvhost} . "/"
+                  . $logfileprefix{$logvhost}
+                  . time2str( $TEMPLATE, time() );
+            }
+            else {
+                if ( $OPTS{'g'} ) {
+
+                    # set gid only
+                    chown 0, $gidhash{$logvhost},
+                      $logfilepath{$logvhost} . "/"
+                      . $logfileprefix{$logvhost}
+                      . time2str( $TEMPLATE, time() );
+                }
+            }
+
+            # autoflush the handle unless -a
+            if ( !$OPTS{'a'} ) {
+                $logvhost->autoflush(1);
+            }
+
+            # make a symlink if -s is set (I do this by default for ispman)
+            if ( $OPTS{'s'} ) {
+
+                # debug mode
+                if ( $OPTS{'d'} ) {
+                    print "symlink management:"
+                      . $logfileprefix{$logvhost}
+                      . $OPTS{'s'} . " -> "
+                      . time2str( $logfileprefix{$logvhost} . $TEMPLATE,
+                        time() )
+                      . "\n";
+                }
+
+          # the symlink should be 'local' to the directory for chmod'ed ftp'lers
+                chdir("$logfilepath{$logvhost}/");
+
+# at the time this may be inefficient. It deletes and creates a symlink
+# every time when there is a new FH created. If your have < $MAXFILES vhosts,
+# this won't occur very often. Maybe it would be better for filesystem
+# performance to to check if the symlink that exists points already to the right location?
+                if ( -l $logfileprefix{$logvhost} . $OPTS{'s'} ) {
+                    unlink( $logfileprefix{$logvhost} . $OPTS{'s'} );
+                }
+
+                symlink(
+                    time2str( $logfileprefix{$logvhost} . $TEMPLATE, time() ),
+                    $logfileprefix{$logvhost} . $OPTS{'s'} );
+            }
+        }
+
+        # update the timestamp and write the line
+        $logs{$logvhost} = time();
+        if ( $OPTS{'i'} ) {
+            $log_line =~ s/^\S*\s+\S*\s+\S*\s+//o;
+        }
+        else {
+            $log_line =~ s/^\S*\s+//o;
+        }
+
+        # write the logline to file
+        print $logvhost $log_line;
+
+    }
+    else {
+
+        # log to default log if the handle is not found
+        &logtodefault($log_line);
+    }
+}    # of while loop
+
+# sub to close all files
+sub closeall {
+    if ( $OPTS{'d'} ) {
+        print "closing all filehandles and quitting ...\n";
+    }
+    foreach my $key ( keys %logs ) {
+        close $key;
+    }
+    %logs = ();
+    close $defaultlog;
+    exit;
+}
+
+sub logtodefault {
+    if ( $OPTS{'d'} ) {
+        print $_[0];
+    }
+    print $defaultlog $_[0];
+}
+
+# print usage info
+sub usage {
+    print "Usage: ispman.vlogger [OPTIONS]\n";
+    print "Handles a piped logfile from a webserver, splitting it into it's\n";
+    print "host components, and rotates the files daily.\n\n";
+    print "ispman.vlogger -dhlstrmv\n";
+    print "see source for details ;)";
+    print "In your apache conf there must be two lines:\n";
+    print "CustomLog       \"|/opt/ispman/bin/ispman.vlogger\" vlogger";
+    print "LogFormat \"%v %h %l %u %t \\\"%r\\\" %>s %b \\\"%{Referer}i\\\" \\\"%{User-Agent}i\\\"\" vlogger\n";
+    print "and there must NOT be a CustomLog line in the <VirtualHost> obviously\n\n";
+}
+

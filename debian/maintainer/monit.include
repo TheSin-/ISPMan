@@ -1,0 +1,5 @@
+check process ispman-agent
+with pidfile "/var/run/ispman-agent.pid"
+start program = "/usr/share/ispman/bin/ispman-agent start"
+stop program = "/usr/share/ispman/bin/ispman-agent stop"
+

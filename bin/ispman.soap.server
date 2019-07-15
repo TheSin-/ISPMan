@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+BEGIN{
+   use FindBin; unshift @INC, ($FindBin::Bin , "$FindBin::Bin/../lib");
+   use Getopt::Std;
+}
+
+use SOAP::Lite;
+use SOAP::Transport::HTTP;
+
+  # don't want to die on 'Broken pipe' or Ctrl-C
+  #$SIG{PIPE} = $SIG{INT} = 'IGNORE';
+
+  my $port=$ARGV[0]||9999;
+  my $daemon = SOAP::Transport::HTTP::Daemon
+    -> new (LocalPort => $port, ReuseAddr =>1)
+    -> dispatch_to("$FindBin::Bin/../lib/ISPMan/SOAP", 'ISPManSoapServer');
+
+  print "Contact to SOAP server at ", $daemon->url, "\n";
+  $daemon->handle;
+
+

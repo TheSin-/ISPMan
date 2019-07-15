@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+package ISPMan;
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+	unless (@ARGV){
+		print "Usage: $FindBin::Script domain\n";
+		exit;
+	}
+
+}
+
+use File::Path;
+use Fcntl;
+use POSIX qw(tmpnam setsid);
+use ISPMan;
+$ispman = ISPMan->new();
+
+$namedConfFile       = $ispman->getConf('namedConfFile');
+$namedConfHeaderFile = $ispman->getConf('namedConfHeaderFile');
+$namedConfFooterFile = $ispman->getConf('namedConfFooterFile');
+
+$namedDir = join "/",
+  ( $ispman->getConf('namedDir'), $ispman->getConf('namedIspmanSubDir') );
+$namedRevDir = join "/", ( $namedDir, $ispman->getConf('namedRevDir') );
+$namedPriDir = join "/", ( $namedDir, $ispman->getConf('namedPriDir') );
+$namedSecDir = join "/", ( $namedDir, $ispman->getConf('namedSecDir') );
+
+$namedDir    =~ s!//!/!g;
+$namedRevDir =~ s!//!/!g;
+$namedPriDir =~ s!//!/!g;
+$namedSecDir =~ s!//!/!g;
+
+
+require "$FindBin::Bin/../lib/dns.lib";
+my $filter = sprintf("&(objectclass=ispmanDomain)");    #(dnsHost=%s)" , $hostname);
+&make_named_conf( $ARGV[0], $filter );
+
+
+__END__
+
+

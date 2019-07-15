@@ -1,0 +1,8 @@
+START=false
+# SET THIS TO "true" if you want to start the ISPMan agent 
+# via the initscript.
+# Alternatively let 'monit' run and supervise it.
+# a config snippet for monit can be found in the ispman-doc
+# package: 
+# /usr/share/doc/ispman-doc/examples/monit.include
+ 

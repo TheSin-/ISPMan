@@ -1,0 +1,9 @@
+
+- In future, domain ownership should be linked so one customer can own multiple
+  domains.  Perhaps this is already done with the client login.
+
+- Domain type should be modifiable, perhaps tying in with domain services and
+  specified dns host.
+
+- FTP Access is also domain login password.  This should be made more clear.
+

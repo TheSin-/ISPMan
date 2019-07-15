@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+use ISPMan;
+my $ispman = ISPMan->new();
+exit unless @ARGV;
+
+my $session = shift @ARGV;
+print "Committing session $session\n";
+if (my $tasks=$ispman->releaseSession($session)) {
+    print "... processes $tasks task(s)\n"; 
+} else {
+    print "... no tasks found\n";
+}
+
+__END__

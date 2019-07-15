@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+# This script will add
+# users email address also as the uid of the user
+# example for user aghaffar_ispman_org
+# whose mailLocalAddress is aghaffar@ispman.org
+# the following entries will be set as uid
+# dn: uid=aghaffar_ispman_org, ou=users, ispmanDomain=ispman.org, o=ispman
+# uid: aghaffar_ispman_org
+# uid: aghaffar@ispman.org
+
+# Using these, the user will be able to login to some programs either using
+# aghaffar_ispman_org
+# or
+# aghaffar@ispman.org
+
+# Example: A user can login to pure-ftpd using aghaffar@ispman.org
+# This wont work for Cyrus at the moment, but we can use
+# perdition for the mail user mapping
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+
+my $users = $ispman->getEntriesAsHashRef( $ispman->{'Config'}{'ldapBaseDN'},
+    "objectclass=ispmanDomainUser" );
+
+USER: for ( keys %$users ) {
+    @uids = $ispman->as_array( $users->{$_}{'uid'} );
+    $mail = $users->{$_}{'mailLocalAddress'};
+
+    if ( $#uids == 0 ) {
+        $ispman->updateEntryWithData( $_, { 'uid' => [ $uids[0], $mail ] } );
+        printf( "Fixing this entry  %s which had  only one element\n",
+            $uids[0] );
+    }
+    else {
+        print "Skipping entry $mail";
+    }
+    print "\n";
+
+}

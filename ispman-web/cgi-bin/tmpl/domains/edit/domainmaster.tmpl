@@ -1,0 +1,22 @@
+<tr>
+    <td valign=center><perl>_("This Replica points to")</perl> </td>
+    <td>
+        <select name="ispmanReplicaMaster">
+        <perl>
+        my $text="";
+        my $ispmanDomainType;
+        my $domains=$ispman->getPrimaryDomains();
+        for ( sort { $domains->{$a} cmp $domains->{$b} } keys %$domains) {                                                                   
+            #a replica cannot point to another replica
+            next if lc($ispman->getDomainType($_)) eq "replica";
+            $text.="<option VALUE ='$_' ";
+            $text.=" selected " if ($ispman->{'domain'}{'ispmanReplicaMaster'} eq $_);
+            $text.=">$_</option>";        
+        }
+        $text
+        </perl>
+        </select>
+   </td>
+</tr>
+
+

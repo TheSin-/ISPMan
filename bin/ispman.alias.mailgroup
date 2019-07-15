@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'dg', \%opts );
+    unless ( $opts{'d'} && $opts{'g'} ) {
+        print "$FindBin::Script -d domain -g mailgroup alias";
+        print "\n";
+        exit;
+    }
+}
+use ISPMan;
+my $ispman = ISPMan->new();
+print $ispman->dumper( $ispman->get_mail_groups( $opts{'d'} ) );
+print "\n";
+

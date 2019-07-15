@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'h', \%opts );
+    unless ( $opts{'h'} ) {
+        print
+          "Usage: $FindBin::Script -h imap_server mailbox [mailbox] [mailbox] .. [mailbox]\n";
+        exit;
+    }
+}
+
+require "mailbox_actions.lib";
+
+my @mailboxes = @ARGV;
+my $err       = 0;
+
+for (@mailboxes) {
+    $err += delete_mailbox( $opts{'h'}, $_ );
+}
+
+exit $err;
+
+__END__
+

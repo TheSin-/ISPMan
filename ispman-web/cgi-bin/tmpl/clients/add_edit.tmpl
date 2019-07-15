@@ -1,0 +1,119 @@
+<form method="post" name="form">
+<br>
+
+
+<table border="0" cellpadding="4" cellspacing="1" width="100%" bgcolor="white">
+<td>
+
+
+        <table border="0" cellpadding="4" cellspacing="1" width="100%" bgcolor="white">
+<perl>
+$text="";
+if ($ispman->{'session'}->param("logintype") eq "admin") {
+        $text.="<tr><td>@{[_('Reseller')]}</td><td> <select name=ispmanResellerId>";
+        $resellers=$ispman->getResellers();
+        for (keys %$resellers){
+                $text.=sprintf("<option value='%s'>%s</option>", $resellers->{$_}{'ispmanResellerId'}, $resellers->{$_}{'ispmanResellerName'});
+        }
+        $text.="</select></td></tr>";
+        $text;
+}
+</perl>
+                        
+        
+        
+        <tr>
+                <td  bgColor=#999999 class=head4><a href="javascript:void(0)" title="<perl>_("Name that the client will use for authentification")</perl>"><perl>_("Username")</perl></a></td>
+                <td bgColor=#dcdcdc><input CLASS="formtext" type=text name=uid value="<perl>$ispman->{'client'}{'uid'}</perl>"></td>
+        </tr>
+        <tr>
+                <td  bgColor=#999999 class=head4><perl>_("Password")</perl></td>
+                <td bgColor=#dcdcdc><input CLASS="formtext" type=text name=userPassword value="<perl>$ispman->{'client'}{'userPassword'}</perl>"></td>
+        </tr>
+        <tr>
+                <td  bgColor=#999999 class=head4><perl>_("First Name")</perl></td>
+                <td bgColor=#dcdcdc><input CLASS="formtext" type=text name=givenName value="<perl>$ispman->{'client'}{'givenName'}</perl>"></td>
+        </tr>
+        <tr>
+                <td bgColor=#999999 class=head4><perl>_("Last Name")</perl></td>
+                <td bgColor=#dcdcdc><input CLASS="formtext" type=text name=sn value="<perl>$ispman->{'client'}{'sn'}</perl>"></td>
+        </tr>
+        <tr>        
+                <td bgColor=#999999 class=head4><perl>_("Client Name")</perl></td>
+                <td bgColor=#dcdcdc><input CLASS="formtext" type=text name=ispmanClientName  value="<perl>$ispman->{'client'}{'ispmanClientName'}</perl>"></td>
+        </tr>
+        <tr>
+                <td bgColor=#999999 class=head4><perl>_("Display name")</perl></td>
+                <td bgColor=#dcdcdc><input CLASS="formtext" type=text name=cn  value="<perl>$ispman->{'client'}{'cn'}</perl>"></td>
+        </tr>
+        </table>
+
+</td>
+<td valign=top>
+
+<table border="0" cellpadding="4" cellspacing="1" width="100%" bgcolor="white">
+        <tr>
+                <td bgColor=#999999 class=head4><perl>_("Telephone")</perl></td>
+                <td bgColor=#dcdcdc><input CLASS="formtext" type=text name=telephoneNumber  value="<perl>$ispman->{'client'}{'telephoneNumber'}</perl>"></td>
+        </tr>
+<tr>
+        <td bgColor=#999999 class=head4><perl>_("Street")</perl></td>
+        <td bgColor=#dcdcdc><input CLASS="formtext" type=text name=street  value="<perl>$ispman->{'client'}{'street'}</perl>"></td>
+</tr>
+<tr>
+        <td bgColor=#999999 class=head4><perl>_("Postal code")</perl></td>
+        <td bgColor=#dcdcdc><input CLASS="formtext" type=text name=postalCode  value="<perl>$ispman->{'client'}{'postalCode'}</perl>"></td>
+</tr>
+<tr>
+        <td bgColor=#999999 class=head4><perl>_("City")</perl></td>
+        <td bgColor=#dcdcdc><input CLASS="formtext" type=text name=l  value="<perl>$ispman->{'client'}{'l'}</perl>"></td>
+</tr>
+<tr>
+        <td bgColor=#999999 class=head4><perl>_("Country")</perl></td>
+        <td bgColor=#dcdcdc><input CLASS="formtext" type=text name=c  value="<perl>$ispman->{'client'}{'c'}</perl>"></td>
+</tr>
+        <tr>
+                <td bgColor=#999999 class=head4><perl>_("Fax")</perl></td>
+                <td bgColor=#dcdcdc><input CLASS="formtext" type=text name=facsimileTelephoneNumber  value="<perl>$ispman->{'client'}{'facsimileTelephoneNumber'}</perl>"></td>
+        </tr>
+<tr>
+	<td bgColor=#999999 class=head4><perl>_("Maximum domains")</perl></td>
+	<td bgColor=#dcdcdc><input CLASS="formtext" type=text name=ispmanClientMaxDomains  value="<perl>$ispman->{'client'}{'ispmanClientMaxDomains'}</perl>"></td>
+</tr>
+</table>
+</td>
+</table>
+<perl>
+$text="";
+if ($r->param("ispmanClientId")){
+$text="<input type=hidden name=ispmanClientId value='";
+$text.=$r->param("ispmanClientId");
+$text.="'>\n";
+}
+$text
+</perl>
+
+<input type=hidden name="mode" value="<perl>($r->param("mode") eq "formAddClient")?"AddClient":"ModifyClient"</perl>">
+
+
+
+
+<!--=========Start Send Button=========-->
+<br>
+<table border="1" cellpadding="4" cellspacing="0" width="100%" bgcolor="white">
+<tr>
+<td valign="middle" align="right" bgcolor="#dcdcdc"><span class=head2>&nbsp;</span></td>
+<td valign="middle" align="right" bgcolor="#dcdcdc" width=18><input type="submit" value="<perl>($r->param("mode") eq "formAddClient")?_("Add this client") : _("Update this client")</perl>"></td>
+</tr>
+</table>
+<!--=========End Send Button=========-->
+<br>
+</form>
+<!--=========End Form=========-->
+
+
+
+
+
+
+

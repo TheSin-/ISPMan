@@ -1,0 +1,6 @@
+#!/bin/sh
+perl -pi -e 's/#\!\/usr\/bin\/perl/#\!\/usr\/bin\/perl\nuse lib qw(\/usr\/share\/ispman\/lib \/usr\/share\/ispman\/ \/etc\/ispman)\;/g' ../../../bin/ispman.*
+
+# same for the agent:
+perl -pi -e 's/#\!\/usr\/bin\/perl/#\!\/usr\/bin\/perl\nuse lib qw(\/usr\/share\/ispman\/lib \/usr\/share\/ispman\/ \/etc\/ispman)\;/g' ../../../bin/ispman-agent
+

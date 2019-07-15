@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    unless ( $ARGV[1] ) {
+        print "$FindBin::Script  domain masters password\n";
+        print "multiple masters can be separated with ,\n";
+        print "\n";
+        exit;
+    }
+}
+
+use vars qw($ispman $r $domain );
+( $domain, $masters, $password ) = @ARGV;
+
+# change these to meet your site specifics
+
+$d = {
+    'ispmanDomainType' => 'slave',
+
+    'ispmanDomainMailDeliveryMethod' => 'local',
+    'ispmanDomainServices'           => '',
+    'FTPStatus'                      => 'disabled',
+    'userPassword'                   => $password,
+    'masters'                        => $masters,
+};
+
+
+
+use ISPMan;
+use CGI;
+$ispman = ISPMan->new();
+$r      = new CGI();
+$r->param( "domain",       $domain );
+$r->param( "ispmanDomain", $domain );
+
+$d->{'homeDirectory'} =
+  join( '/', $ispman->getConf("defaultHomeDirectoryPath"), $domain );
+
+for ( keys %$d ) {
+    $r->param( $_, $d->{$_} );
+}
+
+$ispman->addDomain($r);
+__END__
+

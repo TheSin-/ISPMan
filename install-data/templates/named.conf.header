@@ -1,0 +1,8 @@
+# Please don't put anything in this file anymore.
+# ispman will create and maintain a file called named.ispman.conf (by defaut)
+# you can in your named.conf define something like
+# include "/etc/named.ispman.conf";
+# this file will still be included, so if you have some 
+# site-related setting, please put them here
+#
+

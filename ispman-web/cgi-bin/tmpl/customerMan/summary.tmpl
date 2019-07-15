@@ -1,0 +1,26 @@
+<html>
+<head>
+<LINK HREF="<perl>$customer->getConfig('ispmanUrlPrefix')</perl>/control_panel/style.css" REL="stylesheet" TYPE="text/css">
+</head>
+<body text="#000000" topmargin="10" leftmargin="0" maginwidth=0 marginheight=10 bgcolor="#9abbd6" >
+
+
+<font face="Helvetica, Arial">
+
+    <perl>$customer->getText("Hello")</perl> <perl>$customer->{'domaininfo'}{'ispmanDomainOwner'}</perl>
+    <br>
+    <br>
+    <br>
+
+    <perl>$customer->getText("Domain Summary")</perl>  (<i><b><perl>$r->param('domain')</perl></b></i>)<br>
+
+    <table border=0><tr class=header><td>&nbsp;</td><td align=right><perl>$customer->getText("Quota")</perl></td><td align=right><perl>$customer->getText("Used")</perl></td></tr>
+    <tr class=item><td><perl>$customer->getText("Websites")</perl></td><td align=right><perl>$customer->getDomainInfoByAttr("ispmanMaxVhosts")</perl></td><td align=right><perl>$customer->getVhostCount($r->param("domain"))</perl></td></tr>
+    <tr class=item1><td><perl>$customer->getText("Users")</perl></td><td align=right><perl>$customer->getDomainInfoByAttr("ispmanMaxAccounts")</perl></td><td align=right><perl>$customer->getUserCount($r->param("domain"))</perl></td></tr>
+    </table>
+    <br>
+    </body>
+</html>
+
+ 
+

@@ -1,0 +1,289 @@
+<html><head><title>amavisd-new with ISPMan Howto</title>
+<h1>amavisd-new with ISPMan Howto</A>
+
+Adapted from README.postfix for ISPMAN .97 on Debian 3.0/Stable by wasson@azxws.com
+Author of README.postfix: Mark Martinec &lt;Mark.Martinec@ijs.si&gt;
+<p>
+Using Amavisd on an ISPMan mail server installation
+---
+<p>
+1. If you're using Debian Stable 3.0, amavisd isn't in the stable branch.
+You can work around this in either of these ways: (I used option A, probably
+out of habit). if you're using some other distribution get amavisd-new
+installed either from source or some packages for your distro. 
+<p>
+A) Visit <a
+href="http://packages.debian.org">http://packages.debian.org</a> and
+download the needed packages and dependencies
+<BR>     Put all the deb files on the server  
+<BR>     LIST OF FILES: <a
+href="http://packages.debian.org/testing/mail/amavisd-new.html">http://packages.debian.org/testing/mail/amavisd-new.html</a>
+<BR>    'dpkg -i' install them, if you get stuck 'dpkg -r' the package and try
+again.
+
+
+<p>
+
+  B) Edit /etc/apt/sources.list and add a testing source (this will update
+libc6 and a bunch of stuff)
+    "apt-get update;apt-get install amavisd-new spamassassin clamav-daemon"
+     when done, remove the testing source.
+
+<p>
+I installed spam assassin using dh-make-perl to grab it from CPAN, you're on
+your own here:
+
+  apt-get install dh-make-perl
+  dh-make-perl --build --install --cpan Mail::Spamassassin
+
+<p>
+NOTE: DEBUGGING amavisd
+
+  # su - amavisd (Debian creates this automagically)
+  $ /usr/local/sbin/amavisd debug
+<BR>
+
+
+LIST OF DEB PACKAGES
+file libmime-perl libconvert-tnef-perl libconvert-uulib-perl 
+libcompress-zlib-perl libarchive-tar-perl libarchive-zip-perl 
+libmailtools-perl libunix-syslog-perl libnet-perl 
+libnet-server-perl libmime-base64-perl spamassassin clamav 
+clamav-daemon lha arj unrar zoo nomarch cpio lzop
+</pre>
+<p>
+2) After installation edit amavisd.conf like so:
+<p>
+Change these lines
+<pre>
+#Use this line if you are doing this for all ISPMan domains
+read_hash(\%local_domains, '/etc/postfix/local_domains'); 
+
+#If you want people to know they got sent a virus, uncomment this
+#NOT A GOOD IDEA DURING A MICROSOFT VIRUS STORM
+#$warnvirusrecip = 1;   
+
+#Make sure these addresses work for your site
+#or just comment them out
+$virus_admin = "virusalert\@$mydomain";
+$spam_admin = "spamalert\@$mydomain";
+$virus_quarantine_to  = 'virus-quarantine';
+$spam_quarantine_to = 'spam-quarantine';
+
+#Add virus/spam lovers here + quarantine, abuse and trouble ticket addresses
+ $virus_lovers{lc("postmaster\@$mydomain")} = 1;
+ $virus_lovers{lc('postmaster@example.com')} = 1;
+ $virus_lovers{lc('abuse@example.com')} = 1;
+ $virus_lovers{lc('some.user@')} = 1;  # this recipient, regardless of
+domain
+ $virus_lovers{lc('boss@example.com')} = 0; # never, even if domain matches  
+ $virus_lovers{lc('example.com')} = 1; # this domain, but not its subdomains 
+ $virus_lovers{lc('.example.com')}= 1; # this domain, including its
+subdomains
+#or:
+# @virus_lovers_acl = qw( me@lab.xxx.com !lab.xxx.com .xxx.com yyy.org );
+
+ $bypass_virus_checks{lc('some.user2@butnot.example.com')} = 1;
+ @bypass_virus_checks_acl = qw( some.ddd !butnot.example.com .example.com );
+
+ @virus_lovers_acl = qw( postmaster@example.com );
+ $virus_lovers_re = new_RE( qr'(helpdesk|postmaster)@example\.com$'i );
+ $spam_lovers{lc("postmaster\@$mydomain")} = 1;
+ $spam_lovers{lc('postmaster@example.com')} = 1;
+ $spam_lovers{lc('abuse@example.com')} = 1;
+ @spam_lovers_acl = qw( !.example.com );   
+ $spam_lovers_re = new_RE( qr'^user@example\.com$'i );
+
+</pre>
+Customize Text in /var/amavis/ with proper notification info (like abuse@
+spam@ virus@ addresses)
+<p>
+<p>
+3) Verify amavisd is listening on a local SMTP port 10024 (default):
+<pre>
+--&gt; $ telnet 127.0.0.1 10024
+Trying 127.0.0.1...
+Connected to 127.0.0.1.
+Escape character is '^]'.
+
+220 [127.0.0.1] ESMTP amavisd-new service ready
+
+--&gt; quit
+
+221 Bye
+Connection closed by foreign host.
+
+</pre>
+<p>
+<p>
+4) Configure spam assassin
+<pre >
+  Edit /etc/defaults/spamassassin and set ENABLED=1
+  hup spamassassin (it listens on port 783)
+</pre>
+<p>
+5) Configure clamav
+<pre >
+  Nothing to do for Debian, but make sure it is running and schedule virus
+definition updates
+</pre>
+<p>
+6) With a text editor add to the Postfix master.cf file
+the following two entries, e.g. near the end of the file:
+<pre >
+
+ (YOU COULD USE LMTP FOR THIS, IF YOUR POSTFIX IS NEW ENOUGH)
+</pre>
+<pre>
+smtp-amavis  unix   -    -    n   -    2 smtp
+ -o smtp_data_done_timeout=1200
+ -o disable_dns_lookups=yes
+
+127.0.0.1:10025  inet  n - n - - smtpd
+ -o content_filter=
+ -o local_recipient_maps=
+ -o relay_recipient_maps=
+ -o smtpd_restriction_classes=
+ -o smtpd_client_restrictions=
+ -o smtpd_helo_restrictions=
+ -o smtpd_sender_restrictions=
+ -o smtpd_recipient_restrictions=permit_mynetworks,reject
+ -o mynetworks=127.0.0.0/8
+ -o strict_rfc821_envelopes=yes
+</pre>
+Of all the options specified above in the second entry, the one
+that is essential is the '-o content_filter=' .
+<p>
+Check the other (normal) smtp and smtpd postfix services in this file
+and use the same setting here for the chroot 'y/n'. 
+<p>
+7) Do a 'postfix reload', check the log file for any complaints,
+and verify if it is listening on port 10025. 
+<pre>
+--&gt; $ telnet 127.0.0.1 10025
+Trying 127.0.0.1...
+Connected to 127.0.0.1.
+Escape character is '^]'.
+220 yourhost.example.com ESMTP Postfix
+--&gt; quit
+221 Bye
+Connection closed by foreign host.
+
+</pre>
+<p>
+8) If you want, simulate a mail sent to amavisd and see if it gets delivered
+via Postfix to its recipient. Try first with a simple and clean message,
+then with an EICAR test virus pattern which should be recognized by all
+virus scanners (unless you have them disabled or not installed):
+<pre>
+--&gt; $ telnet 127.0.0.1 10024
+Trying 127.0.0.1...
+Connected to 127.0.0.1.
+Escape character is '^]'.
+220 [127.0.0.1] ESMTP amavisd-new service ready
+--&gt; MAIL FROM:&lt;test@example.com&gt;
+250 2.1.0 Sender test@example.com OK
+--&gt; RCPT TO:&lt;postmaster&gt;
+250 2.1.5 Recipient postmaster OK
+--&gt; DATA
+354 End data with &lt;CR&gt;&lt;LF&gt;.&lt;CR&gt;&lt;LF&gt;
+
+--&gt; Subject: test1
+--&gt;
+--&gt; test1
+--&gt; .
+
+*** 250 2.6.0 Ok, id=31859-01, from MTA: 250 Ok: queued as 90B7F16F
+
+--&gt; MAIL FROM:&lt;test@example.com&gt;
+250 2.1.0 Sender test@example.com OK
+--&gt; RCPT TO:&lt;postmaster&gt;
+
+250 2.1.5 Recipient postmaster OK
+--&gt; DATA
+354 End data with &lt;CR&gt;&lt;LF&gt;.&lt;CR&gt;&lt;LF&gt;
+--&gt; Subject: test2 - virus test pattern
+--&gt;
+--&gt; X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
+--&gt; .
+
+
+</pre>
+<p>
+you should get one of the following replies, depending on your
+$final_virus_destiny and *virus_lovers* settings in amavisd.conf:
+<ul >
+<ul >
+<ul >
+<li> 550 5.7.1 Message content rejected, id=16968-01 - VIRUS: EICAR-AV-Test
+<li> 250 2.5.0 Ok, but 1 BOUNCE
+<li> 250 2.7.1 Ok, discarded, id=16984-01 - VIRUS: EICAR-AV-Test
+<li> 250 2.6.0 Ok, id=17041-01, from MTA: 250 Ok: queued as 3F1841A5F5
+</ul>
+</ul>
+</ul>
+
+<p>
+--&gt; QUIT
+221 2.0.0 [127.0.0.1] (amavisd) closing transmission channel
+Connection closed by foreign host.
+<p>
+You may need/want to use different sender and recipient addresses.
+The test pattern must be entered exactly, starting at the beginning
+of the line (without indentation).
+<p>
+Depending on the settings in amavisd.conf, the sender (test@example.com)
+and the virus administrator should have been sent a (non-)delivery status
+notification, the second message quarantined, and the first message must
+have
+been successfully delivered to the recipient. See the log that is scrolling
+on the terminal (as setup at step 1) and check for possible problems.
+<p>
+9) Tell Postfix to start forwarding all mail it receives to amavisd-new for
+content inspection.
+<p>
+<pre >
+   Add this line to /etc/postfix/main.cf
+   content_filter = smtp-amavis:[127.0.0.1]:10024
+</pre>
+<p>
+<p>
+
+10) Do a 'postfix reload' and watch the logs - both the Postfix logs,
+and the amavisd log file (on the screen or wherever you have it directed).
+<p>
+If you get in trouble, you only need to undo the step 9 and reload postfix.
+New mail will no longer be tagged with content filter routing.
+<p>
+NOTE: the messages that have been received while 'content_filter' was set,
+will still try to get delivered to your old setting of content_filter,
+and will wait in the queue until successful or deleted - or until you do:
+postsuper -r ALL; postfix reload
+<BR>
+<BR>
+<BR>
+<H3>Mail Flow Overview With Amavisd</H3>
+Here's an overview of how the mail flow is once amavis is installed:
+<pre>
+Postfix (25) -> Amavisd (10024) -> Postfix#2 (10025) -> Cyrus
+                  |     ^
+                 \ /    |
+               Spam Assassin (783) 
+</pre>
+
+1) Mail comes to port 25 (postfix) 
+
+2) Postfix sends the mail to amavisd (port 10024)
+
+3) Amavis spam checks and virus checks it (uses Spam Assassin port 783)
+
+4) Amavis tags the message if spam is detected, and passes it BACK to
+postfix (port 10025)
+
+5) Postfix delivers the mail to Cyrus
+
+6) Cyrus delivers the mail according to sieve rules.
+
+
+
+</body></html>

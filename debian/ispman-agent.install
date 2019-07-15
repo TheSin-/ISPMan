@@ -1,0 +1,5 @@
+bin/ispman* usr/share/ispman/bin 
+bin/functions usr/share/ispman/lib
+bin/ldif* usr/share/ispman/bin
+tasks usr/share/ispman
+

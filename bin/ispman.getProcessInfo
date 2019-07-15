@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    unless ( $ARGV[0] ) {
+        print "Please provide a process id\n";
+        exit;
+    }
+}
+
+use ISPMan;
+my $ispman = ISPMan->new();
+my $pid    = $ARGV[0];
+my $entry  = $ispman->getEntry( $ispman->getProcessesBranchDN(),
+    "ispmanPid=$pid", [], "sub" );
+$entry->dump() if $entry;
+

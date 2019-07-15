@@ -1,0 +1,52 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+use ISPMan;
+use vars qw($ispman $smtpServerConfDir);
+$ispman = ISPMan->new();
+
+$smtpServerConfDir = $ispman->getConf("smtpServerConfDir");
+$smtp_lib = join "/", ( $ispman->getConf("installDir"), "lib/smtp.lib" );
+
+require $smtp_lib;
+
+showDomains($ispman);
+
+sub showDomains {
+    my $domains       = $ispman->makeDomainHash( $ispman->getDomains() );
+    my $canonical_map = ();
+    my $relay_map     = ();
+    my $dest_map      = ();
+    my $transport_map = ();
+    for ( keys %$domains ) {
+        next unless $_;
+        $domain_info = $ispman->getDomainInfo($_);
+
+        # add domain to relay or destination map depending on delivery method
+        if ( $domain_info->{'ispmanDomainMailDeliveryMethod'} eq "smtp" ) {
+            $relay_map->{$_} = $_;
+        }
+        else {
+            $dest_map->{$_} = $_;
+        }
+        
+        if ( $domain_info->{'ispmanReplicaMaster'} ) {
+                $canonical_map->{"\@$_"} = join "",
+                ( '@', $domain_info->{'ispmanReplicaMaster'} );
+            }
+        
+        $transport_map->{$_} = $ispman->getTransportMap($_);
+    }
+
+    write_map( "$smtpServerConfDir/canonical",           $canonical_map );
+    write_map( "$smtpServerConfDir/relay_domains",       $relay_map );
+    write_map( "$smtpServerConfDir/destination_domains", $dest_map );
+    write_map( "$smtpServerConfDir/transport_domains",   $transport_map );
+}
+
+1;
+

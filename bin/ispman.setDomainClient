@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'c', \%opts );
+    unless ( $opts{'c'} && $ARGV[0] ) {
+        print
+          "$FindBin::Script -c ClientID DomainName [DomainName] [DomainName] ";
+        print "\n";
+        exit;
+    }
+}
+use ISPMan;
+
+my $ispman = ISPMan->new();
+my $client = $ispman->getClientById( $opts{'c'} );
+
+for (@ARGV) {
+    print "Setting ispmanClientId for $_ to ", $client->{'ispmanClientId'},
+      "\n";
+
+    $ispman->setDomainAttribute( $_, "ispmanClientId",
+        $client->{'ispmanClientId'} );
+    print "Setting ispmanClientName for $_ to ", $client->{'ispmanClientName'},
+      "\n";
+    $ispman->setDomainAttribute( $_, "ispmanClientName",
+        $client->{'ispmanClientName'} );
+}
+print "\n";
+

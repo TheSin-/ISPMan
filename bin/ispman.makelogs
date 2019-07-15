@@ -1,0 +1,315 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use vars qw (
+      $domain
+      $domainVhosts
+      $servername
+      $date
+      $lastdate
+      $vhost
+      $vhosts
+      $vhostsHashFile
+      $date
+      $lastDate
+      $VAR1
+      $vhostDirectory
+      $webalizer
+      $rawDirectory
+    );
+}
+
+use strict;
+use File::Copy;
+use File::Path;
+
+
+use ISPMan;
+my $ispman = ISPMan->new();
+
+$webalizer = $ispman->getConf("apacheWebalizerPath");
+my $apacheGracefulCommand = $ispman->getConf("apacheGracefulCommand");
+my $apacheGracefulTime    = $ispman->getConf("apacheGracefulTime");
+
+# Basic Password security
+#our $protectLogs=$ispman->getConf("protectLogs");
+#our $authBindHost=$ispman->{'Config'}{'ldapHost'};
+#our $authBindDN=$ispman->{'Config'}{'ldapBaseDN'};
+#our $authBindRootDN=$ispman->{'Config'}{'ldapRootDN'};
+#our $authBindRootPass=$ispman->{'Config'}{'ldapRootPass'};
+
+#unless ($protectLogs eq "no") {
+#	$protectLogs="yes";
+#}
+
+unless ($apacheGracefulCommand) {
+    ( $apacheGracefulCommand = $ispman->getConf("apacheStartCommand") ) =~
+      s!\w+$!graceful!g;
+    print "!!!WARNING!!!!!\n";
+    print "---------------\n";
+    print "apacheGracefulCommand is missing.\n";
+    print "This was added recently to 0.9\n\nTo fix this problem.\n";
+    print "Please run\n";
+    print "cvs -z3 update -dP\n";
+    print "/configure\n";
+    print "make ldif\n";
+    print "$FindBin::Bin/ispman.loadldif -f tmp/ldif/ispman.ldif\n\n";
+    print
+      "At the moment I am guess this command to be $apacheGracefulCommand\n\n";
+}
+
+unless ($apacheGracefulTime) {
+    $apacheGracefulTime = 600;
+}
+
+unless ( -e $webalizer ) {
+    warn
+"Webalizer command does not exists\nI will split the files but no reports will be generated.";
+}
+
+if ( $ispman->getConf("apacheVhostsStyle") =~ /dir/m ) {
+    print "Using one hash file per domain\n";
+    my ( $domain, $domains );
+
+    $domains = $ispman->makeDomainHash( $ispman->getDomains() );
+
+    $vhosts = "";
+    foreach $domain ( keys %$domains ) {
+        my $domainInfo = $ispman->getDomainInfo($domain);
+        unless ( $domainInfo->{'ispmanDomainType'} eq "replica" ) {
+            $vhostsHashFile =
+              join( "/", $ispman->getConf("apacheVhostsFile"), "hash", $domain )
+              . ".hash";
+            if ( -e $vhostsHashFile ) {
+                print "Loading $vhostsHashFile...\n";
+                require $vhostsHashFile;
+                $vhosts .= $VAR1;
+            }
+            else {
+                warn "No file found for $domain\n";
+            }
+        }
+    }
+}
+else {
+    print "Using one hash file for all domains\n";
+    $vhostsHashFile = join '.',
+      ( $ispman->getConf("apacheVhostsFile"), "hash" );
+    if ( -e $vhostsHashFile ) {
+        require $vhostsHashFile;
+        $vhosts = $VAR1;
+    }
+    else {
+        die "No VhostsHash file found $vhostsHashFile\n";
+    }
+}
+
+my (@NEWARGS);
+my $quiet = "";
+foreach my $arg (@ARGV) {
+        if ($arg == "-q") {
+                $quiet = $arg;
+        } else {
+                push(@NEWARGS, $arg);
+        }
+}
+
+@ARGV = @NEWARGS;
+
+if ( $ARGV[0] ) {
+    print $ARGV[0], "\n";
+    processAllServers( $ARGV[0] );
+    exit;
+}
+
+print
+  "\nStart by moving current log files to new filename to avoiding writing\n";
+print "to them while we are working with em.\n";
+processAllServers("moveLogsForClose");
+print
+"\nNow lets restart the webserver to open new logfiles. Open connections will be\n";
+print "logged to temporary logfiles for the next "
+  . $apacheGracefulTime / 60
+  . " minutes.\n  ";
+system($apacheGracefulCommand);
+print "Now lets hold the script for "
+  . $apacheGracefulTime / 60
+  . " minutes to give the webserver a chance \n";
+print "to close open connections. Please stand by...";
+sleep($apacheGracefulTime);
+print "OK. It\'s time to work!\n";
+processAllServers("moveLogsForParse");
+print "\nNow we generate the reports\n";
+processAllServers("generateReports");
+print "\nDone!\n\n";
+
+sub processAllServers {
+    my $whatCanIDoForYou = shift;
+    no strict "refs";
+    for $domain ( keys %$vhosts ) {
+        $domainVhosts = $vhosts->{$domain};
+        for $vhost ( keys %$domainVhosts ) {
+            $servername = $domainVhosts->{$vhost}{'servername'};
+            if ( lc( $domainVhosts->{$vhost}{'ispmanVhostStats'} ) eq "enable"
+                || $domainVhosts->{$vhost}{'logdir'} eq "" )
+            {
+                &{$whatCanIDoForYou};
+            }
+        }
+    }
+}
+
+sub moveLogsForClose {
+    my $logdir = $domainVhosts->{$vhost}{'logdir'};
+
+    ### Here for upgraders
+    if ( $logdir eq "" ) {
+        $logdir = $ispman->getConf("apacheLogsDirectory");
+        $logdir = join "/", ( $logdir, "vhosts" );
+    }
+
+    ### Check for relative paths
+    if ( $logdir !~ /^\// ) {
+        $logdir = join "/",
+          ( $domainVhosts->{$vhost}{'serverroot'}, "vhosts", $logdir );
+    }
+
+    my $logfile      = join "/", ( $logdir, $servername . ".access" );
+    my $closelogfile = join "/", ( $logdir, $servername . ".access.close" );
+    print "  Working on logs for $servername...";
+    if ( -e $logfile ) {
+        print " (found)...";
+        print " (moved)\n";
+        move( $logfile, $closelogfile );
+    }
+
+}
+
+sub moveLogsForParse {
+    my $statdir = $domainVhosts->{$vhost}{'statdir'};
+    my $logdir  = $domainVhosts->{$vhost}{'logdir'};
+
+    ### Here for upgraders
+    if ( $logdir eq "" ) {
+        $logdir = $ispman->getConf("apacheLogsDirectory");
+        $logdir = join "/", ( $logdir, "vhosts" );
+    }
+    if ( $statdir eq "" ) {
+        $statdir = $ispman->getConf("apacheLogsDirectory");
+        $statdir = join "/", ( $statdir, "domains", $domain, $vhost );
+    }
+
+    ### Check for relative paths
+    if ( $logdir !~ /^\// ) {
+        $logdir = join "/",
+          ( $domainVhosts->{$vhost}{'serverroot'}, "vhosts", $logdir );
+    }
+    if ( $statdir !~ /^\// ) {
+        $statdir = join "/",
+          ( $domainVhosts->{$vhost}{'serverroot'}, "vhosts", $statdir );
+    }
+
+    my $logfile = $logdir . "/" . $servername . ".access.close";
+    my $rawfile = $servername . ".access";
+    print "  Logfile for $servername...";
+    if ( -e $logfile ) {
+        print "(found)\n";
+        my $rawDirectory    = $statdir . "/raw";
+        my $reportDirectory = $statdir . "/report";
+        mkpath($rawDirectory)    unless ( -d $rawDirectory );
+        mkpath($reportDirectory) unless ( -d $reportDirectory );
+        move( $logfile, "$rawDirectory/$rawfile" );
+    }
+    else {
+        print "No logfile found. Skipping this one\n";
+    }
+}
+
+sub generateReports {
+    my $statdir = $domainVhosts->{$vhost}{'statdir'};
+    my $logfile, $vhostDirectory, $rawDirectory;
+
+    ### Here for upgraders
+    if ( $statdir eq "" ) {
+        $statdir = $ispman->getConf("apacheLogsDirectory");
+        $statdir = join "/", ( $statdir, "domains", $domain, $vhost );
+    }
+
+    ### Check for relative paths
+    if ( $statdir !~ /^\// ) {
+        $statdir = join "/",
+          ( $domainVhosts->{$vhost}{'serverroot'}, "vhosts", $statdir );
+    }
+
+    $vhostDirectory = $statdir;
+    $logfile        = $vhostDirectory . "/raw/" . $servername . ".access";
+    if ( -e $logfile ) {
+        $rawDirectory = "$vhostDirectory/raw";
+        open "FILE", "$logfile" || die "Cant open logFile";
+        $lastDate = "";
+
+        for (<FILE>) {
+            m!(\d\d/\w+?/\d+)!;
+            $date = $1;
+            $date =~ s/\//-/g;
+            openFile("$rawDirectory/$date") unless $date eq $lastDate;
+            print F $_;
+            $lastDate = $date;
+        }
+        close(FILE);
+    }
+
+    #	print "Generating .htaccess for $domain\n";
+    #	generateHtAccessFile();
+
+    if ( -e $webalizer ) {
+        print "  Building report for $servername\n";
+        my $cmd =
+"perl $FindBin::Bin/ispman.loganalyzer $quiet -c $webalizer -h $servername $vhostDirectory";
+        system($cmd);
+    }
+}
+
+#sub generateHtAccessFile{
+#	if ($protectLogs eq "yes") {
+#		my $htaccessFile="$logsDir/domains/$domain/.htaccess";
+#		open (HTACCESS, ">${htaccessFile}") || die "Cannot open $htaccessFile for writing";
+#		print HTACCESS <<"EOF";
+#AuthType Basic
+#AuthName "Statistics for $domain"
+#LDAP_Server \"$authBindHost\"
+#Bind_DN \"$authBindRootDN\"
+#Bind_Pass \"$authBindRootPass\"
+#Base_DN \"$authBindDN\"
+#UID_Attr uid
+#require user $domain
+#EOF
+#		close (HTACCESS);
+#	}
+#}
+
+sub openFile {
+    my $file = shift;
+    if ( -e $file ) {
+        open F, ">>$file" || die "Cant open $file";
+    }
+    else {
+        open F, ">$file" || die "Cant open $file";
+    }
+}
+
+sub touch {
+    my $file = shift;
+    open "TFILE", ">$file";
+    close("TFILE");
+}
+
+sub debug {
+    print STDERR @_ if my $DEBUG;
+}
+
+1;
+__END__
+

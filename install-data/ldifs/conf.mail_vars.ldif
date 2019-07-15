@@ -1,0 +1,73 @@
+dn: ispmanModule=mail_vars, ou=conf, %%ldapBaseDN%%
+ispmanModule: mail_vars
+ispmanModuleAlias: Mail Configuration
+objectclass: ispmanConfModule
+description: These are SMTP and IMAP server configuration variables. Currently the only supported SMTP server is Postfix
+
+dn: ispmanVar=smtpServerReloadCommand, ispmanModule=mail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: smtpServerReloadCommand
+ispmanVarAlias: SMTP reload command
+ispmanModule: mail_vars
+objectclass: ispmanConfVar
+ispmanVal: /usr/sbin/postfix reload
+ispmanQuestion: Command to reload the postfix SMTP server
+
+dn: ispmanVar=makeMapCommand, ispmanModule=mail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: makeMapCommand
+ispManVarAlias: Server Maps command
+ispmanModule: mail_vars
+objectclass: ispmanConfVar
+ispmanVal: /usr/sbin/postmap
+ispmanQuestion: Command to make postfix maps
+
+dn: ispmanVar=smtpServerConfDir, ispmanModule=mail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: smtpServerConfDir
+ispmanVarAlias: Map files directory
+ispmanModule: mail_vars
+objectclass: ispmanConfVar
+ispmanVal: /etc/postfix
+ispmanQuestion: Where to put maps generated for the postfix smtp server
+
+dn: ispmanVar=imapMailboxPrefix, ispmanModule=mail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: imapMailboxPrefix
+ispmanVarAlias: Mailbox Prefix
+ispmanModule: mail_vars
+objectclass: ispmanConfVar
+ispmanVal: user/
+ispmanQuestion: The mailbox prefix. For Courier set this to '<b><tt>Maildir/</tt></b>'. 
+ For Cyrus, if '<b>cyrusVirtDomainFeature</b>' config var<br>is set to 'yes', then set 
+ this to '<b><tt>user/</tt></b>' else, set it to '<b><tt>user.</tt></b>'.
+
+dn: ispmanVar=imapServerBackend, ispmanModule=mail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: imapServerBackend
+ispmanVarAlias: IMAP server
+ispmanModule: mail_vars
+objectclass: ispmanConfVar
+ispmanVal: cyrus
+ispmanQuestion: IMAP server backend. currently supported are 'cyrus' and 'courier'
+
+dn: ispmanVar=cyrusVirtDomainFeature, ispmanModule=mail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: cyrusVirtDomainFeature
+ispmanVarAlias: Use the cyrus virtdomain feature
+ispmanModule: mail_vars
+objectclass: ispmanConfVar
+ispmanVal: yes
+ispmanQuestion: Defines how Cyrus IMAP Server handles mailbox names. 
+ Usually this option is set to 'yes' when Cyrus needs<br>to accept logins in 
+ the form of <b><tt>'username@domain.tld'</tt></b> instead of 
+ <b><tt>'username_domain_tld'</tt></b>.<br>This requires <b><tt>'virtdomains: 
+ on'</tt></b> or <b><tt>'virtdomains: userid'</tt></b> on cyrus 
+ <b><tt>'imapd.conf'</tt></b>. <br><b>NOTE: Don't change this with existing user data! 
+ It requires modifying your LDAP data accordingly, at your own risk.</b>
+
+dn: ispmanVar=defaultMailboxFolders, ispmanModule=mail_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: defaultMailboxFolders
+ispmanVarAlias: Default Mailbox Folders
+ispmanModule: mail_vars
+objectclass: ispmanConfVar
+ispmanVal: Drafts Sent Trash
+ispmanQuestion: List of folders which will be automaticly created when adding a new 
+ mailbox. Separate folder names by a blank space.<br><b>NOTE: This is currently 
+ only supported by cyrus</b>.
+
+

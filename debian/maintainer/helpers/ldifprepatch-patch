@@ -1,0 +1,23 @@
+#!/bin/sh
+
+exit 0
+
+perl -pi -e 's/ispmanVal: \/ispman\/domains/ispmanVal: \/var\/www/' install-data/ldifs/*.ldif 
+perl -pi -e 's/\/etc\/httpd\/conf\/vhosts.conf/\/etc\/apache2\/httpd.conf.ispmanvhosts/' install-data/ldifs/*.ldif 
+perl -pi -e 's/\/etc\/rc.d\/init.d\/httpd stop/\/etc\/init.d\/apache2 stop/' install-data/ldifs/*.ldif 
+perl -pi -e 's/\/etc\/rc.d\/init.d\/httpd reload/\/etc\/init.d\/apache2 reload/' install-data/ldifs/*.ldif 
+perl -pi -e 's/\/etc\/rc.d\/init.d\/httpd start/\/etc\/init.d\/apache2 start/' install-data/ldifs/*.ldif 
+perl -pi -e 's/\/usr\/local\/bin\/webalizer/\/usr\/bin\/webalizer/' install-data/ldifs/*.ldif 
+perl -pi -e 's/\/etc\/rc.d\/init.d\/httpd graceful/\/usr\/sbin\/apache2ctl graceful/' install-data/ldifs/*.ldif 
+perl -pi -e 's/\/var\/named/\/etc\/bind/' install-data/ldifs/*.ldif 
+perl -pi -e 's/\/etc\/named.ispman.conf/\/etc\/bind\/named.conf.ispman/' install-data/ldifs/*.ldif 
+perl -pi -e 's/: named/: bind/' install-data/ldifs/*.ldif 
+perl -pi -e 's/\/etc\/rc.d\/init.d\/named start/\/etc\/init.d\/bind9 start/' install-data/ldifs/*.ldif 
+perl -pi -e 's/\/etc\/rc.d\/init.d\/named stop/\/etc\/init.d\/bind9 stop/' install-data/ldifs/*.ldif 
+perl -pi -e 's/\/etc\/rc.d\/init.d\/named reload/\/etc\/init.d\/bind9 reload/' install-data/ldifs/*.ldif 
+perl -pi -e 's/: bind8/: bind9/' install-data/ldifs/*.ldif 
+perl -pi -e 's/\/usr\/sbin\/postfix reload/\/etc\/init.d\/postfix reload/' install-data/ldifs/*.ldif 
+perl -pi -e 's/: \/ispman\/domain/: stats/' install-data/ldifs/*.ldif 
+perl -pi -e 's/: \/ispman\/logs/: logs/' install-data/ldifs/*.ldif 
+
+

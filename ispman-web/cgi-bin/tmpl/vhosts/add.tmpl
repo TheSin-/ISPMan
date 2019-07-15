@@ -1,0 +1,305 @@
+<script type="text/javascript" language="JavaScript">
+<!--
+        function check_input(){
+	    homedir = document.addvhost.homeDirectory.value;
+	    docroot = document.addvhost.ispmanVhostDocumentRoot.value;
+	    scriptdir = document.addvhost.ispmanVhostScriptDir.value;
+	    logdir = document.addvhost.ispmanVhostLogdir.value;
+	    statdir = document.addvhost.ispmanVhostStatdir.value;
+	    
+	    rc = true;
+	    
+	    if (homedir==""){
+		alert('<perl>_("vhost homedirectory is empty!")</perl>');
+		rc = false;
+	    }
+	    
+	    if (docroot==""){
+		alert('<perl>_("DocumentRoot is empty")</perl>');
+		rc = false;
+	    }
+	    
+	    if (scriptdir==""){
+		alert('<perl>_("ScriptDirectory is empty")</perl>');
+		rc = false;
+	    }
+	    
+	    if (logdir==""){
+		alert('<perl>_("LogDirectory is empty")</perl>');
+		rc = false;
+	    }
+	    
+	    if (statdir==""){
+		alert('<perl>_("StatDirectory is empty")</perl>');
+		rc = false;
+	    }
+
+	    return rc;
+	}
+//-->
+</script>
+
+<form name="addvhost" onsubmit="return check_input();" action="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/admin/index.cgi" method="POST">
+
+<perl>
+   $substmap={	
+       vhost => $r->param("ispmanVhostName"),
+       domain => $r->param("ispmanDomain")
+       };
+   ($vhost,$port) = split ":", $r->param("ispmanVhostName");
+
+   "Adding vhost: ".$vhost.".".$r->param("ispmanDomain").($port?":$port":"");
+</perl>
+<hr>
+
+<table border=0>
+<tr>
+    <td>IP address </td>
+    <td>
+        <input type=text name=ispmanVhostIpAddress value="<perl>$ispman->getConf("apacheVhostsIP")</perl>">
+    </td>
+</tr>
+
+<tr>
+    <td valign=center>Create vhost on server</td>
+    <td>
+        <select name="webHost" MULTIPLE>
+        <perl>
+        my $text="";
+        my @webhosts=$ispman->getGroupMembers("httpgroup");
+        my @defaulthosts=$ispman->as_array($ispman->{'domain'}->{'ispmanDomainDefaultWebHost'});
+
+        for (@webhosts){
+            my $webhost=$_;
+            my $tag="";
+            for (@defaulthosts){
+                if ($webhost eq $_) { $tag="selected" };
+            }
+            $text.="<option VALUE=\"$_\" $tag>$_</option>";
+        }
+
+        if  ($#webhosts<0){
+            $text.="<option VALUE=''>WARNING: No members in group httphosts defined</option>";
+        }
+
+        $text
+        </perl>
+        </select>
+   </td>
+</tr>
+
+<tr>
+    <td valign=center>Create directories on server</td>
+    <td>
+        <select name="fileHost">
+        <perl>
+        my $text="";
+        my @filehosts=$ispman->getGroupMembers("fileservergroup");
+        my $filehost=$ispman->{'domain'}->{'ispmanDomainDefaultFileServer'};
+
+        for (@filehosts){
+            if ($filehost eq $_) {
+               $text.="<option VALUE=$_ selected>$_</option>";
+            } else {
+               $text.="<option VALUE=$_>$_</option>";
+            }
+        }
+
+        if  ($#filehosts<0){
+            $text.="<option VALUE=''>WARNING: No members in group fileserverhosts defined</option>";
+        }
+
+        $text
+        </perl>
+        </select>
+   </td>
+</tr>
+
+<tr>
+    <td>Vhost's Home</td>
+    <td>
+        <input size=35 type=text name=homeDirectory value="<perl>join '/', ($ispman->{'domain'}->{'homeDirectory'}, "vhosts", $r->param("ispmanVhostName"))</perl>">
+    </td>
+</tr>
+
+<tr>
+    <td>DocumentRoot*</td>
+    <td>
+        <input size=35 type=text name=ispmanVhostDocumentRoot value="htdocs">
+    </td>
+</tr>
+
+<tr>
+    <td>DocumentRoot directory options</td>
+    <td>
+        <select name=ispmanVhostDocumentRootOption MULTIPLE>
+        <perl>
+        my $text="";
+        my @options=split ",",$ispman->getConf("apacheDocumentRootOptions");
+
+        for (@options){
+	  if ($_ =~ s/^\*//) {
+	    $text.="<option VALUE=\"$_\" selected>$_</option>";
+          } else {
+	    $text.="<option VALUE=\"$_\">$_</option>";
+          }
+        }
+        
+        $text
+        </perl>
+	</select>
+    </td>
+</tr>
+
+<tr>
+    <td>ScriptDirectory (/cgi-bin/)* </td>
+    <td>
+        <input size=35 type=text name=ispmanVhostScriptDir value="cgi-bin">
+    </td>
+</tr>
+
+
+<tr>
+    <td>ScriptDirectory options </td>
+    <td>
+	<select name=ispmanVhostScriptDirOption MULTIPLE>
+        <perl>
+        my $text="";
+        my @options=split ",",$ispman->getConf("apacheScriptDirOptions");
+
+        for (@options){
+	  if ($_ =~ s/^\*//) {
+	    $text.="<option VALUE=\"$_\" selected>$_</option>";
+          } else {
+	    $text.="<option VALUE=\"$_\">$_</option>";
+          }
+        }
+        
+        $text
+        </perl>
+	</select>
+    </td>
+</tr>
+
+<tr>
+    <td>Vhost features</td>
+    <td>
+	<select name=ispmanVhostFeature MULTIPLE>
+        <perl>
+        my $text="";
+        my @options=split ",",$ispman->getConf("apacheVhostsFeatures");
+
+        for (@options){
+	  if ($_ =~ s/^\*//) {
+	    $text.="<option VALUE=\"$_\" selected>$_</option>";
+          } else {
+	    $text.="<option VALUE=\"$_\">$_</option>";
+          }
+        }
+
+        $text
+        </perl>
+	</select>
+    </td>
+</tr>
+<tr>
+    <td>Vhost actions<br>(Optional)</td>
+    <td>
+        <perl>
+           my @actions=split ',',$ispman->getConf("vhostActions");
+           my $out="";
+           for (@actions) {
+              /(.*)\|(.*)/;
+              $out .= qq|<input type="checkbox" name="vhostActions" value="$1">$2<br>| unless $1 eq "none";
+           }
+           $out
+        </perl>
+    </td>
+</tr>
+<tr>
+    <td valign=top>Extra configurations<br>(Optional)</td>
+    <td colspan=2>
+        <textarea wrap=virtual cols=65 rows=8 name=ispmanVhostExtraConf></textarea>
+   </td>
+</tr>
+
+<tr>
+    <td>Log Directory*</td>
+    <td>
+        <perl>
+          if ($ispman->getConf('apacheLogsDirectory')) {
+            $logdir = $ispman->substitute(
+                  $ispman->getConf('apacheLogsDirectory'),
+		  $substmap);
+          } else {	
+            $logdir = "logs";
+          }
+          ""
+        </perl>
+        <input size=35 name=ispmanVhostLogdir value="<perl>$logdir</perl>">
+    </td>
+</tr>
+<tr>    
+    <td>Stats Directory (/stats/)*</td>
+    <td>
+        <perl>
+          if ($ispman->getConf('apacheStatDirectory')) {
+            $statdir = $ispman->substitute(
+	          $ispman->getConf('apacheStatDirectory'),
+		  $substmap);
+          } else {
+            $statdir = "stats";
+          }
+          ""
+        </perl>
+        <input size=35 name=ispmanVhostStatdir value="<perl>$statdir</perl>">
+    </td>
+</tr>
+<tr>
+    <td>Web Stats</td>
+    <td>
+    <select name="ispmanVhostStats">
+    <option value="enable">Enable</option>
+    <option value="disable">Disable</option>
+    </td>
+</tr>
+<tr>
+    <td>FTP Access</td>
+    <td> 
+    <select name="FTPStatus">
+    <option value="enabled">Enabled</option>
+    <option value="disabled">Suspended</option>
+    </td>
+</tr>
+<tr>
+    <td>FTP Password </td>
+    <td> 
+    <input  size=35 type=text name=userPassword value="">
+    </td>
+</tr>
+
+
+
+<tr>
+    <td>Max Storage Space (in MB) </td>
+    <td> 
+    <input  size=4 type=text name=FTPQuotaMBytes value="<perl>$ispman->getConf('defaultVhostFtpQuota')</perl>">
+    </td>
+</tr>
+
+<tr><td align=left colspan=2>  
+        <input type=hidden name="mode" value="newVhost">
+	<input type=hidden name="ispmanVhostName" value="<perl>$r->param("ispmanVhostName")</perl>">
+        <input type=hidden name="ispmanDomain" value="<perl>$r->param("ispmanDomain")</perl>">
+        <input type="reset" class="button" value="Reset">
+        <input type="submit" class="button" value="Add">
+</td></tr>
+
+</table>
+</form>
+<hr>
+<b>*) paths without leading "/" are relative to vhost's home.</b>
+
+ 
+ 
+

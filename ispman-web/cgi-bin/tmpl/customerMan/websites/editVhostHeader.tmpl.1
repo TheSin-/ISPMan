@@ -1,0 +1,95 @@
+<html>
+<head>
+<LINK HREF="/css/customerman/websites.css" REL="stylesheet" TYPE="text/css">
+</head>
+<body>
+
+
+
+<script language="Javascript">
+        function Delete(){
+                var vhost="<perl>$r->param("vhost")</perl>";
+                if (confirm("Are you sure you want to permanently delete this website?")) {
+                        self.location="<perl>$r->url</perl>?mode=deleteVhost&cn="+vhost;
+                }
+        }
+   
+
+</script>
+
+
+            
+<font face="Arial">
+
+<perl>
+        $r->param("message")
+</perl>
+
+<font color=maroon>
+<!-- errors if any -->
+<perl>$r->param("errors")</perl>
+</font>
+
+
+
+<table border=0>
+<form>
+<input type=hidden name=cn value="<perl>$r->param("vhost")</perl>">
+
+<tr><td colspan=2>
+    Editing Website 
+    "<perl>$r->param("vhost")</perl>.<perl>$customer->{'domain'}</perl>"
+    <br><hr noshade></td>
+</tr>
+
+<tr><td colspan=2>
+<a href="<perl>$r->url</perl>?mode=editVhost&section=WebsiteInfos&vhost=<perl>$r->param("vhost")</perl>">Website Infos</a>
+| <a href="<perl>$r->url</perl>?mode=editVhost&section=WebsiteAliases&vhost=<perl>$r->param("vhost")</perl>">Website aliases</a>
+| <a href="<perl>$r->url</perl>?mode=editVhost&section=WebsiteForward&vhost=<perl>$r->param("vhost")</perl>">Forward website</a>
+| <a href="<perl>$r->url</perl>?mode=editVhost&section=AccessControl&vhost=<perl>$r->param("vhost")</perl>">Access Control</a>
+| <a href="javascript:Delete()">Delete Website</a>
+<br><hr noshade>
+</td>
+</tr>
+
+
+
+<perl>
+    $text="";
+    $vhost=$customer->getDomainVhostInfo($r);
+    $DocumentRootOptions={};
+    $ScriptDirOptions={};
+    $ServerAliases={};
+        
+    unless (ref $vhost->{'documentrootoption'} eq "ARRAY"){
+        push @{$vhost->{'documentrootoption'}}, $vhost->{'documentrootoption'};
+    }
+    
+    unless (ref $vhost->{'serveralias'} eq "ARRAY"){
+        push @{$vhost->{'serveralias'}}, $vhost->{'serveralias'};
+    }
+
+    unless (ref $vhost->{'scriptdiroption'} eq "ARRAY"){
+        push @{$vhost->{'scriptdiroption'}}, $vhost->{'scriptdiroption'};
+    }
+    
+    for (@{$vhost->{'serveralias'}}){
+        $ServerAliases->{$_}=1;
+        }
+
+    for (@{$vhost->{'documentrootoption'}}){
+        $DocumentRootOptions->{$_}=1;
+        }
+
+    for (@{$vhost->{'scriptdiroption'}}){
+        $ScriptDirOptions->{$_}=1;
+        }
+                        
+    $AccessContro=$vhost->{'accesscontrol'};
+use Data::Dumper;
+Dumper($DocumentRootOptions, $ScriptDirOptions);
+</perl>
+
+
+
+

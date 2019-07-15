@@ -1,0 +1,66 @@
+<html>
+<head>
+<LINK HREF="<perl>$customer->getConfig('ispmanUrlPrefix')</perl>/control_panel/style.css" REL="stylesheet" TYPE="text/css">
+
+<script language="Javascript">
+        function updateListMembers(){
+                document.forms[0].mode.value="updateMailingList";
+                document.forms[0].submit();
+        }
+        
+
+        function updateWebUser(){
+                document.forms[0].mode.value="updateHttpUser";
+                document.forms[0].submit();
+        }
+        
+        function Delete(){
+                var vhost="<perl>$r->param("vhost")</perl>";
+                if (confirm("Are you sure you want to permanently delete this website?")) {
+                        self.location="<perl>$r->url</perl>?mode=deleteVhost&cn="+vhost;
+                }
+        }
+   
+        function addWebsiteAlias(){
+                if(alias==prompt("Please enter the alias\n.<perl>$r->param("ispmanDomain")</perl> will be automatically added to the alias" , "")){
+                        self.location="<perl>$r->url</perl>?mode=addWebsiteAlias&vhost=<perl>$r->param("vhost")</perl>&alias="+alias;
+                }
+        }
+        
+        function addWebsiteAlias(){
+                if(alias==prompt("Please enter the alias\n.<perl>$r->param("ispmanDomain")</perl> will be automatically added to the alias" , "")){
+                        self.location="<perl>$r->url</perl>?mode=addWebsiteAlias&vhost=<perl>$r->param("vhost")</perl>&alias="+alias;
+                }
+        }
+
+
+</script>
+
+</head>
+<body marginheight=0 marginwidth=10>
+
+
+
+
+
+            
+<font face="Arial">
+
+<perl>
+        $r->param("message")
+</perl>
+
+<font color=maroon>
+<!-- errors if any -->
+<perl>$r->param("errors")</perl>
+</font>
+
+
+
+<table border=0 cellspacing=0 cellpadding=0 width=100%>
+<form>
+
+
+
+
+

@@ -1,0 +1,104 @@
+dn: ispmanModule=account_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfModule
+ispmanModule: account_vars
+ispmanModuleAlias: Account variables
+description: These are variables used when creating accounts (both users/domains)
+
+dn: ispmanVar=loginShell, ispmanModule=account_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: loginShell
+ispmanVarAlias: Login shell
+ispmanModule: account_vars
+ispmanVal: /bin/false
+ispmanQuestion: The default shell for new users
+
+dn: ispmanVar=vhostShell, ispmanModule=account_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: vhostShell
+ispmanVarAlias: Login shell for vhosts
+ispmanModule: account_vars
+ispmanVal: /bin/false
+ispmanQuestion: The default shell for new vhosts
+
+dn: ispmanVar=domainShell, ispmanModule=account_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: domainShell
+ispmanVarAlias: Login shell for domains
+ispmanModule: account_vars
+ispmanVal: /bin/false
+ispmanQuestion: The default shell for new domains
+
+dn: ispmanVar=defaultHomeDirectoryPath, ispmanModule=account_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: defaultHomeDirectoryPath
+ispmanVarAlias: Default homedirectory location
+ispmanModule: account_vars
+objectclass: ispmanConfVar
+ispmanVal: /var/www
+ispmanQuestion: Directory where all accounts be created. Domain accounts are created just beneath this directory and the domain user/virtual hosts directories are created underneath that
+
+dn: ispmanVar=defaultUserMailQuota, ispmanModule=account_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: defaultUserMailQuota
+ispmanVarAlias: Default User Mail Quota
+ispmanModule: account_vars
+ispmanVal: 50
+ispmanQuestion: The default mail quota for new users
+
+dn: ispmanVar=defaultUserFtpQuota, ispmanModule=account_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: defaultUserFtpQuota
+ispmanVarAlias: Default User FTP Quota
+ispmanModule: account_vars
+ispmanVal: 1
+ispmanQuestion: The default ftp quota for new users
+
+dn: ispmanVar=defaultDomainFtpQuota, ispmanModule=account_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: defaultDomainFtpQuota
+ispmanVarAlias: Default Domain FTP Quota
+ispmanModule: account_vars
+ispmanVal: 20
+ispmanQuestion: The default ftp quota for new domains
+
+dn: ispmanVar=defaultVhostFtpQuota, ispmanModule=account_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: defaultVhostFtpQuota
+ispmanVarAlias: Default Vhost FTP Quota
+ispmanModule: account_vars
+ispmanVal: 10
+ispmanQuestion: The default ftp quota for new vhost
+
+dn: ispmanVar=defaultMaxAccounts, ispmanModule=account_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: defaultMaxAccounts
+ispmanVarAlias: Default Max Accounts
+ispmanModule: account_vars
+ispmanVal: -1
+ispmanQuestion: The default max accounts for new domains (-1=unlimited)
+
+dn: ispmanVar=defaultMaxVhosts, ispmanModule=account_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: defaultMaxVhosts
+ispmanVarAlias: Default Max Vhosts
+ispmanModule: account_vars
+ispmanVal: -1
+ispmanQuestion: The default max accounts for new domains (-1=unlimited)
+
+dn: ispmanVar=availableShells, ispmanModule=account_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: availableShells
+ispmanVarAlias: List of available shells
+ispmanModule: account_vars
+ispmanVal: /bin/false /bin/bash
+ispmanQuestion: List of available shells a domain admin can select for a user.<br>
+ Separate shell by a blank space. Specify "none" to disable edit capability.
+
+dn: ispmanVar=allowCrossDomainAliases, ispmanModule=account_vars, ou=conf, %%ldapBaseDN%%
+objectclass: ispmanConfVar
+ispmanVar: allowCrossDomainAliases
+ispmanVarAlias: Allow cross-domain mail aliases
+ispmanModule: account_vars
+ispmanVal: no
+ispmanQuestion: Setting this entry to "yes" disables mail aliases check for 
+ out-of-bounds domains.
+

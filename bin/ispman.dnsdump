@@ -1,0 +1,131 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'dt', \%opts );
+    getopt( 'v:', \%opts );
+    unless ( $opts{'d'} && $opts{'t'} ) {
+        print "$FindBin::Script -d domain -t type [-v] \n";
+        print "  where type can be one of the following:\n";
+        print "  A       List of host addresses\n";
+	print "  AAAA    List of ipv6 addresses\n";
+        print "  NS      List of Name servers\n";
+        print "  MX      List of Mail servers\n";
+        print "  CNAME   List of Canonical names\n";
+        print "  ANY     All of the above\n";
+        print "\n";
+        print "if you want to list for all domains, use -d all\n";
+        print "Example: $FindBin::Script -d all -t MX\n";
+        print "\n";
+        exit;
+    }
+}
+
+use ISPMan;
+use CGI;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+$opts{'t'} = lc( $opts{'t'} );
+
+require "functions/dnsdump.functions.pl";
+
+if ( lc( $opts{'d'} ) eq "all" || lc( $opts{'d'} ) eq "any" ) {
+    my $domains =
+      $ispman->makeDomainHash(
+        $ispman->getDomains("ispmanDomainType=primary") );
+    for ( keys %$domains ) {
+        print "$_\n" if defined $opts{'v'};
+        &{"dump_$opts{'t'}"}($_);
+
+    }
+    exit;
+}
+
+unless ( $ispman->branchExists( $ispman->getDNSDN( $opts{'d'} ) ) ) {
+    print "Domain $opts{'d'} not found\n";
+    exit;
+}
+
+&{"dump_$opts{'t'}"}( $opts{'d'} );
+
+1;
+__END__
+
+=head1 NAME 
+
+ispman.dnsshow - ispman command to view various dns settings
+
+=head1 SYNOPSIS
+  
+B<ispman.dnsshow -d domain.name -t type>
+
+
+=head1 DESCRIPTION
+
+ispman.dnsshow allows you see  dns informations such as MX, NS, A records to domains from CLI (command line)
+
+
+=head1 Examples
+
+To see A records for domain ispman.org
+
+B<ispman.dnsshow -d ispman.org -t A >
+
+To see NS records for domain ispman.org
+
+B<ispman.dnsshow -d ispman.org -t NS>
+
+To see MX records for  domain ispman.org
+
+B<ispman.dnsshow -d ispman.org -t MX>
+
+To see  CNAME aliases for domain ispman.org
+
+B<ispman.dnsshow -d ispman.org -t CNAME >
+
+To see  SOA record for domain ispman.org
+
+B<ispman.dnsshow -d ispman.org -t SOA >
+
+To see all records for domain ispman.org
+
+B<ispman.dnsshow -d ispman.org -t any >
+
+
+To see all NS records for all domains
+
+B<ispman.dnsshow -d all -t NS >
+
+To see all MX records for all domains
+
+B<ispman.dnsshow -d all -t MX >
+
+
+To see all all records for all domains (I don't know why though)
+
+B<ispman.dnsshow -d all -t any >
+
+
+
+=head1 Author
+
+Atif Ghaffar
+
+=head1 Homepage
+
+http://ispman.sourceforge.org
+
+=head1 MailingLists
+
+ispman-developers@lists.sourceforge.org  - For developers
+
+ispman-users@lists.sourceforge.org  - For users
+
+=head1 Bug reporting / Support / Patches / Feature requests
+
+http://sourceforge.net/tracker/?group_id=8390
+
+=cut
+

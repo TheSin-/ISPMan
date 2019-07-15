@@ -1,0 +1,47 @@
+<html>
+<head>
+<LINK HREF="<perl>$customer->getConfig('ispmanUrlPrefix')</perl>/control_panel/style.css" REL="stylesheet" TYPE="text/css">
+</head>
+<body>
+
+<form>
+<table>
+<tr>
+    <td colspan=2 valign=top class=header>
+        <perl>$customer->getText('DNS settings')</perl> / <perl>($r->param("changetype") eq "add")?"Add":"Modify"</perl> <perl>$customer->getText('MX record')</perl> <br>
+        </td>
+</tr>
+<tr>
+        <td>Origion</td>
+        <td><input type=text name="origion" value="<perl>$r->param("origion")</perl>"</td>
+</tr>
+        
+
+<tr>
+        <td>Host</td>
+        <td><input type=text name="host" value="<perl>$r->param("host")</perl>"</td>
+</tr>
+<tr>
+        <td>Preference</td>
+        <td><input type=text name="pref" value="<perl>$r->param("pref")</perl>"</td>
+</tr>
+
+<input type=hidden name=dns_partial_dn value="<perl>($r->param("changetype") eq "add")?"":$customer->getCustomer_mXRecordDn($r->param("origion"), $r->param("pref"), $r->param("host"))</perl>">
+<input type=hidden name="mode" value="<perl>($r->param("changetype") eq "add")?"addDNSRecord":"updateDNSRecord"</perl>">
+
+
+
+<input type=hidden name="type" value="mx">
+
+
+        
+</table>
+<input type=submit value="Update record">
+
+
+
+</form>
+
+</body>
+</html>
+

@@ -1,0 +1,68 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 40-slapd.ldapv3.conf.dpatch by  <root@localhost>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: slapd.ldapv3.conf (example)
+
+@DPATCH@
+
+--- dummy/install-data/examples/openldap/slapd.ldapv3.conf.tmpl.orig	2006-11-12 20:17:22.000000000 +0100
++++ dummy/install-data/examples/openldap/slapd.ldapv3.conf.tmpl	2006-11-12 20:16:55.000000000 +0100
+@@ -1,31 +1,31 @@
+ #
+ # See slapd.conf(5) for details on configuration options.
+ # This file should NOT be world readable.
+ #
+-include         %%ldapInstallPath%%/schema/core.schema
+-include         %%ldapInstallPath%%/schema/cosine.schema
+-include         %%ldapInstallPath%%/schema/nis.schema
+-include         %%ldapInstallPath%%/schema/misc.schema
+-include         %%ldapInstallPath%%/schema/inetorgperson.schema
+-include         %%ldapInstallPath%%/schema/dnszone.schema
+-include         %%ldapInstallPath%%/schema/pureftpd.schema
+-include         %%ldapInstallPath%%/schema/ispman.schema
+-include         %%ldapInstallPath%%/schema/RADIUS-LDAPv3.schema
++include         /etc/ldap/schema/core.schema
++include         /etc/ldap/schema/cosine.schema
++include         /etc/ldap/schema/nis.schema
++include         /etc/ldap/schema/misc.schema
++include         /etc/ldap/schema/inetorgperson.schema
++include         /usr/share/ispman/conf/schema/dnszone.schema
++include         /usr/share/ispman/conf/schema/pureftpd.schema
++include         /usr/share/ispman/conf/schema/ispman.schema
++include         /usr/share/ispman/conf/schema/RADIUS-LDAPv3.schema
+ 
+ 
+ # Define global ACLs to disable default read access.
+ 
+ # Do not enable referrals until AFTER you have a working directory
+ # service AND an understanding of referrals.
+ #referral	ldap://root.openldap.org
+ 
+-pidfile		/var/run/slapd.pid
+-argsfile	/var/run/slapd.args
++pidfile         /var/run/slapd/slapd.pid
++argsfile        /var/run/slapd/slapd.args
+ 
+ # Load dynamic backend modules:
+-# modulepath	/usr/lib/ldap
++modulepath	/usr/lib/ldap
+ moduleload	back_bdb
+ 
+ #
+ # Sample Access Control
+ #	Allow read access of root DSE
+@@ -48,11 +48,12 @@
+ # ldbm database definitions
+ #######################################################################
+ # For openldap2.1 and above
+ # Uncomment this.
+ # Does not work with openldap 2.0.x
+-#allow bind_v2
++# you need v3 bind for mod_ldap
++allow bind_v2
+ 
+ 
+ loglevel 256
+ 
+ database	bdb

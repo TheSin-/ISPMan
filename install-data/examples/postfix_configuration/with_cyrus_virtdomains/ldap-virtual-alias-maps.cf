@@ -1,0 +1,7 @@
+# ldap search for virtual_alias_maps
+version = 3
+server_host = ldap.example.com
+server_port = 389
+search_base = o=ispman
+query_filter = (|(mailLocalAddress=%s)(mailAlias=%s))
+result_attribute = mailForwardingAddress, mailRoutingAddress

@@ -1,0 +1,67 @@
+#
+# When deploying ISPMan on Debian you may find this list
+# of packages useful for setting up your system(s).
+# 
+# Package info is based on "etch". If you still run an older release
+# check with package.debian.org to find alternate packages.
+#
+# Install with apt-get
+# (provided by Dennis Kaplan)
+
+# Required Packages
+make
+perl
+perl-modules
+libio-socket-ssl-perl
+liblocale-maketext-lexicon-perl
+liblog-agent-perl
+libhtml-parser-perl
+libtext-iconv-perl
+libcgi-session-perl
+libtext-template-perl
+libcgi-perl
+libimap-admin-perl
+libnet-ssleay-perl
+liburi-perl
+libio-socket-ssl-perl
+libparse-recdescent-perl
+libunicode-string-perl
+libconvert-asn1-perl
+libio-stringy-perl
+libmail-rfc822-address-perl
+libxml-sax-perl
+libdns-zoneparse-perl
+liblocale-maketext-simple-perl
+libsoap-lite-perl
+libnet-perl
+libdigest-perl
+liblocale-maketext-lexicon-perl
+libmldbm-perl
+libsasl2-modules
+libsasl2
+liblog-agent-perl
+libnet-ldap-perl
+libclass-accessor-perl
+libio-pty-perl
+libipc-run-perl
+libxml-namespacesupport-perl
+libxml-parser-perl
+libauthen-sasl-perl
+libemail-valid-perl
+
+# Recommended packages
+slapd
+libnss-ldap
+libpam-ldap
+sasl2-bin
+libsasl2
+libsasl2-modules
+perdition-ldap
+postfix-ldap
+pure-ftpd-ldap
+autofs-ldap
+cyrus21-admin
+cyrus21-clients
+cyrus21-common
+cyrus21-pop3d
+cyrus21-imapd

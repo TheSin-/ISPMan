@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+use Data::Dumper;
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'h', \%opts );
+    unless ( $opts{'h'} ) {
+        print
+          "Usage: $FindBin::Script -h imap_server mailbox [mailbox] [mailbox] .. [mailbox]\n";
+        exit;
+    }
+}
+require "mailbox_actions.lib";
+
+my @mailboxes = @ARGV;
+
+for (@mailboxes) {
+    my @q = get_quota( $opts{'h'}, $_ );
+    print join( ",", @q ) . "\n";
+}
+
+exit;
+

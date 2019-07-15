@@ -1,0 +1,76 @@
+#!/usr/bin/perl
+package ISPMan;
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'f', \%opts );
+    unless ( $opts{'f'} ) {
+        print "$FinBin::Script . A utility to load data from ldif to ldap\n\n";
+        print "Usage: $FindBin::Script -f filename";
+        print "\n\n";
+        exit;
+    }
+}
+
+use vars qw($Config);
+
+use Net::LDAP::LDIF;
+use ISPMan::LDAP;
+
+require "ispman.conf";
+
+# open LDIF filee
+$ldif = Net::LDAP::LDIF->new( $opts{'f'} );
+
+# FIXME
+# Don't want to log for just this. So lets make ISPMan::LDAP happy.
+sub log_event { 1; }
+print "$Config->{'ldapHost'}\n";
+
+# initiate LDAP connection
+my $ldap = ISPMan::LDAP->new(
+    $Config->{'ldapBaseDN'}, $Config->{'ldapHost'},
+    $Config->{'ldapRootDN'}, $Config->{'ldapRootPass'}
+);
+
+#pass config to ISPMan::LDAP
+$ldap->setConfig($Config);
+if ( !$ldap->connected() ) {
+    $ldap->connect();
+    print "Connected\n\n";
+}
+
+# read in LDIF data
+while ( not $ldif->eof() ) {
+    $entry = $ldif->read_entry();
+    if ( $ldif->error() ) {
+        print "Error msg: ",    $ldif->error(),       "\n";
+        print "Error lines:\n", $ldif->error_lines(), "\n";
+    }
+    else {
+        print $entry->changetype . "\t" . $entry->dn();
+
+        my $result = $entry->update($ISPMan::LDAP::LDAP);
+        if ( $result->code == 0 ) {
+
+            # add succeeded
+            print "... ok!\n";
+        }
+        elsif ( $result->code == 68 ) {
+
+            # entry already exists
+            print "... already exists, skipping.\n";
+        }
+        else {
+
+            # other error
+            print "... failed with error: " . $result->error . "\n";
+        }
+    }
+}
+$ldif->done();
+
+__END__

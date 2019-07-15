@@ -1,0 +1,2 @@
+<mailstore_1_hostname>.<box_domain>.<tld> <cyrus_admin_defined_on_ispman.conf>:<pass_defined_on_ispman.conf>
+<mailstore_2_hostname>.<box_domain>.<tld> <cyrus_admin_defined_on_ispman.conf>:<pass_defined_on_ispman.conf>

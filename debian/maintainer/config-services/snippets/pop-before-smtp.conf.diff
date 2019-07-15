@@ -1,0 +1,13 @@
+--- /etc/pop-before-smtp/pop-before-smtp.conf.orig	2006-11-15 19:24:41.000000000 +0100
++++ /etc/pop-before-smtp/pop-before-smtp.conf	2006-11-15 19:23:37.000000000 +0100
+@@ -174,8 +174,8 @@
+ #    '\d \d \d \d [\w\.]+ (\d+\.\d+\.\d+\.\d+)';
+ 
+ # For Cyrus (including a tweak for IP addrs that don't resolve):
+-#$pat = '^[LOGTIME] \S+ (?:cyrus/)?(?:pop3|imap)[ds]?\[\d+\]: ' .
+-#    'login: .*?\[[:f]*(\d+\.\d+\.\d+\.\d+)\]';
++$pat = '^[LOGTIME] \S+ (?:cyrus/)?(?:pop3|imap)[ds]?\[\d+\]: ' .
++    'login: .*?\[[:f]*(\d+\.\d+\.\d+\.\d+)\]';
+ 
+ # For Courier-POP3 and Courier-IMAP:
+ #$pat = '^[LOGTIME] (?:\[|\S+ )(?:pop3|imap|couriertcp)(?:d|d-ssl|login)\]?: ' .

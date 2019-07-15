@@ -1,0 +1,144 @@
+$ftpFile   = $ispman->getConf("ftpFile");
+$ftpHeader = $ispman->getConf("ftpHeader");
+$ftpFooter = $ispman->getConf("ftpFooter");
+
+$apacheReloadCommand        = $ispman->getConf("apacheReloadCommand");
+$apacheStopCommand          = $ispman->getConf("apacheStopCommand");
+$apacheStartCommand         = $ispman->getConf("apacheStartCommand");
+$sleepSecondsBetweenRestart = $ispman->getConf("sleepSecondsBetweenRestart");
+
+sub read_vhosts_hash {
+    my $vhostsFile = shift;
+    $VAR1 = {};
+    do $vhostsFile;
+    return $VAR1;
+}
+
+sub write_vhosts_hash {
+    my ( $file, $hash ) = @_;
+    open "F", ">$file";
+    print F Dumper($hash);
+    print F "\n1;\n";
+    close("F");
+}
+
+sub add_vhost {
+    my ( $vhost, $domain ) = @_;
+    my $vhostInfo  = $ispman->getVhostInfo( $vhost, $domain );
+    my $domainInfo = $ispman->getDomainInfo($domain);
+    my $vhostHash  = read_vhosts_hash("$ftpFile.hash");
+
+    $vhostHash->{$domain}{$vhost} = {
+        servername  => "$vhost.$domain",
+        uidnumber   => $domainInfo->{'uidnumber'},
+        gidnumber   => $domainInfo->{'gidnumber'},
+        serverroot  => $domainInfo->{'homedirectory'},
+        serveralias => $vhostInfo->{'serveralias'},
+        ipaddress   => $vhostInfo->{'ipaddress'},
+        extraconf   => $vhostInfo->{'extraconf'},
+    };
+
+    if ( $vhostInfo->{'documentroot'} !~ /^\// ) {
+        $vhostHash->{$domain}{$vhost}{'documentroot'} = join "/",
+          (
+            $domainInfo->{'homedirectory'},
+            "vhosts", $vhostInfo->{'documentroot'}
+          );
+    }
+
+    if ( $vhostInfo->{'scriptdir'} !~ /^\// ) {
+        $vhostHash->{$domain}{$vhost}{'scriptdir'} = join "/",
+          (
+            $domainInfo->{'homedirectory'},
+            "vhosts", $vhostInfo->{'scriptdir'}
+          );
+    }
+    $vhostHash->{$domain}{$vhost}{'logdir'} = join "/",
+      ( $vhostHash->{$domain}{$vhost}{'serverroot'}, "vhosts", $vhost, "logs" );
+
+    write_vhosts_hash( "$ftpFile.hash", $vhostHash );
+}
+
+sub modify_vhost {
+    my ( $vhost, $domain ) = @_;
+    my $vhostInfo = $ispman->getVhostInfo( $vhost, $domain );
+    my $vhostHash = read_vhosts_hash("$ftpFile.hash");
+
+    $vhostHash->{$domain}{$vhost}{'serveralias'} = $vhostInfo->{'serveralias'},
+      $vhostHash->{$domain}{$vhost}{'ipaddress'} = $vhostInfo->{'ipaddress'},
+      $vhostHash->{$domain}{$vhost}{'extraconf'} = $vhostInfo->{'extraconf'},
+
+      write_vhosts_hash( "$ftpFile.hash", $vhostHash );
+}
+
+sub delete_vhost {
+    my ( $vhost, $domain ) = @_;
+    my $vhostHash = read_vhosts_hash("$ftpFile.hash");
+    delete $vhostHash->{$domain}{$vhost};
+    write_vhosts_hash( "$ftpFile.hash", $vhostHash );
+}
+
+sub make_vhosts_conf {
+    my $template  = shift;
+    my $vhostHash = read_vhosts_hash("$ftpFile.hash");
+    my $vhostText = "";
+
+    my $name;
+    do { $name = tmpnam() }
+      until sysopen( VHOSTS, $name, O_RDWR | O_CREAT | O_EXCL );
+    my $ips;
+    print "Writing to tmpfile $name\n";
+
+    for my $domain ( keys %$vhostHash ) {
+        for my $vh ( keys %{ $vhostHash->{$domain} } ) {
+            $ips->{ $vhostHash->{$domain}{$vh}{'ipaddress'} }
+              ++; # get all ip addresses in a hash so we can make NameVirtaulHost with them.
+
+#uncomments this for checking if the directory exists. else apache will compalin and will not start.
+#unless (-e $vhostHash->{$domain}{$vh}{'logdir'}){
+#   $ispman->log_event("Directory ", $vhostHash->{$domain}{$vh}{'logdir'}, "does not exist. Skipping virtualhost $vh");
+#   next;
+#}
+
+            $vhostText .=
+              $template->fill_in( HASH => $vhostHash->{$domain}{$vh} );
+        }
+    }
+    print VHOSTS join "\n", map { "NameVirtualHost $_" } keys %$ips;
+    print VHOSTS "\n$vhostText\n";
+    close("VHOSTS");
+
+#uncomment this if you want checking of the generated file and replace "/opt/ispman/bin/httpd -T -f  $name"
+#with whatever the command on your system is to check the integrity of the conf.
+#perhaps cat /etc/httpd/httpd.conf $name | httpd -T
+# $name is name of the temporary file that is generated.
+#return 0 unless  (system("/opt/ispman/bin/httpd -T -f  $name  >/dev/null") == 0) ;
+
+    if ( system("diff -q $ftpFile $name > /dev/null") ) {
+        system("mv -f $name $ftpFile");
+        print "File $name moved to $ftpFile\n";
+    }
+    else {
+        unlink("$name");
+        print "No Changes. File $name removed\n";
+    }
+    return 1;
+}
+
+sub reloadApache {
+    if ($apacheReloadCommand) {
+        print "Reloading Apache\n";
+        system($apacheReloadCommand);
+    }
+    else {
+        print "Stopping Apache\n";
+        system($apacheStopCommand);
+        sleep $sleepSecondsBetweenRestart;
+        print "Starting Apache\n";
+        system($apacheStartCommand);
+    }
+    print $?;
+}
+
+1;
+

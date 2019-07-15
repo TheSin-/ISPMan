@@ -1,0 +1,24 @@
+<HTML>
+<TITLE>ISPMan help</TITLE>
+<link HREF="/ispman.css" REL="stylesheet" TYPE="text/css">
+<BODY>
+<table class="table" cellspacing=5 border=0>
+<tr><td class=menuheader>Apache Config</td>
+<tr><td>Here are the settings I used for Apache 1.3 on Debian:
+<pre>ISPMAN - Apache Configuration
+ Apache stop command - /etc/init.d/apache stop
+ Webalizer command - /usr/bin/webalizer
+ Apache vhost file - /etc/apache/vhosts.conf
+   (Must add "Include /etc/apache/vhosts.conf" to apache's httpd.conf)
+ Apache start command - /etc/init.d/apache start
+ Apache graceful reload command - /etc/init.d/apache reload
+ Default vhost IP -- * (Allows it to work on any machine)
+ Apache reload command - /etc/init.d/apache reload
+</pre>
+
+<p>
+<tr><td><A HREF="configuration.html">Return to Configuring ISPMan</A>
+</BODY>
+</HTML>
+
+

@@ -1,0 +1,123 @@
+#!/usr/bin/perl
+package ISPMan;
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopts( 'hvn', \%opts );
+
+    if ( $opts{'h'} ) {
+        print "$FindBin::Script [-h] [-v] [-n]\n\n";
+        print "-h\tPrint this help screen\n";
+        print "-v\tBe Verbose\n";
+        print "-n\tDry run. Just show what will happen\n";
+        exit;
+    }
+
+}
+
+use vars qw($Config);
+$|++;
+
+# In this small program, we don't need to load all the ISPMan::* modules
+# which are loaded when we call use ISPMan
+
+# instead we just require the conf file and load only ISPMan::LDAP module
+
+use ISPMan::LDAP;
+require "ispman.conf";    # this will get us all the Config->{} variables.
+use Net::LDAP::LDIF;
+my $out = Net::LDAP::LDIF->new( "-", "w" );
+
+# Don't want to log for just this. So lets make ISPMan::LDAP happy.
+sub log_event { 1; }
+
+my $ldap = ISPMan::LDAP->new(
+    $Config->{'ldapBaseDN'}, $Config->{'ldapHost'},
+    $Config->{'ldapRootDN'}, $Config->{'ldapRootPass'}
+);
+$ldap->setConfig($Config);    #pass config to ISPMan::LDAP
+if ( !$ldap->connected() ) {
+    $ldap->connect();
+}
+
+@entries = ();
+
+#get base.
+
+print STDERR "Dumping Base: $Config->{'ldapBaseDN'}\n"
+  if $opts{'n'} || $opts{'v'};
+$entry = $ldap->getEntry( $Config->{'ldapBaseDN'} );
+push @entries, $entry unless $opts{'n'};
+
+#get conf
+push @entries,
+  $ldap->getEntries( join ",", ( "ou=conf", $Config->{'ldapBaseDN'} ) );
+
+#get admins
+push @entries,
+  $ldap->getEntries( join ",", ( "ou=admins", $Config->{'ldapBaseDN'} ) );
+
+#get counters
+push @entries,
+  $ldap->getEntries( join ",", ( "ou=counters", $Config->{'ldapBaseDN'} ) );
+
+#get hosts
+push @entries,
+  $ldap->getEntries( join ",", ( "ou=hosts", $Config->{'ldapBaseDN'} ) );
+
+#get hostgroups
+push @entries,
+  $ldap->getEntries( join ",", ( "ou=hostgroups", $Config->{'ldapBaseDN'} ) );
+
+#get domainServices
+push @entries,
+  $ldap->getEntries( join ",",
+    ( "ou=domainServices", $Config->{'ldapBaseDN'} ) );
+
+#get processes
+push @entries,
+  $ldap->getEntries( join ",", ( "ou=processes", $Config->{'ldapBaseDN'} ) );
+
+#get DNS
+push @entries,
+  $ldap->getEntries( join ",", ( "ou=DNS", $Config->{'ldapBaseDN'} ) );
+
+#get Resellers and clients
+push @entries,
+  $ldap->getEntries( join ",", ( "ou=ispman", $Config->{'ldapBaseDN'} ) );
+
+#get domains
+@domains = $ldap->getEntries( $Config->{'ldapBaseDN'},
+    "objectclass=ispmanDomain", [], "one" );
+
+#push @entries, @domains;
+
+for $domain (@domains) {
+    push @entries, $domain;
+    print STDERR "Adding Domain: ", $domain->dn(), "\n"
+      if $opts{'n'} || $opts{'v'};
+    @branches = $ldap->getEntries( $domain->dn(), undef, undef, "one" );
+    for $branch (@branches) {
+        print STDERR "Adding Branch:   ", $branch->dn(), "\n"
+          if $opts{'n'} || $opts{'v'};
+        @branchedata = $ldap->getEntries( $branch->dn() );
+        push @entries, @branchedata;
+        for $bd (@branchedata) {
+            print STDERR "Branch Child:    ", $bd->dn(), "\n"
+              if $opts{'n'} || $opts{'v'};
+        }
+    }
+}
+
+$out->write_entry(@entries);
+
+sub getBranches {
+}
+
+__END__
+
+
+

@@ -1,0 +1,29 @@
+
+<tr>
+    <td><perl>_("Default DB Host")</perl> </td>
+    <td>
+        <select name="ispmanDomainDefaultDBHost" id="ispmanDomainDefaultDBHost">
+        <perl>
+        my $text="";
+        my @ispmanDomainDefaultDBHosts=$ispman->getGroupMembers("databasegroup");
+        my $defaulthost=$ispman->{'domain'}->{'ispmanDomainDefaultDBHost'};
+
+        for (@ispmanDomainDefaultDBHosts){
+            my $tag="";
+            if ($_ eq $defaulthost) { $tag="selected" };
+            $text.="<option VALUE=\"$_\" $tag>$_</option>";
+        }
+
+        if  ($#ispmanDomainDefaultDBHosts<0){
+            $text.="<option VALUE=''>";
+            $text.=_("WARNING: No members in group [_1] defined", "databasegroup");
+            $text.="</option>";
+        }
+
+        $text
+        </perl>
+        </select>
+    </td>
+</tr>
+
+

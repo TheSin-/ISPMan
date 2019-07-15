@@ -1,0 +1,180 @@
+
+<HTML>
+<HEAD>
+<TITLE>ISPMan summary</TITLE>
+<LINK HREF="../ispman.css" REL="stylesheet" TYPE="text/css">
+
+
+</HEAD>
+
+<BODY>
+<form>
+<input type=hidden name=mode value=summary>
+
+
+<FONT FACE="Helvetica, Arial" size=2>
+
+<font class=pageTitle>Summary of domains</font> -> 
+<a href="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=summary&hidereplicas=true">Hide Replicas</a>
+| <a href="<perl>$ENV{'SCRIPT_NAME'}</perl>?mode=summary">Show Replicas</a>
+
+| Legend 
+<font class=primary> primary </font>
+&nbsp;
+<font class=slave> slave </font>
+&nbsp;
+<font class=replica> replica </font>
+&nbsp;
+<font class=nodns> no dns </font>
+
+
+<br>
+<div align=right>
+Search where 
+<select class=select name=attr>
+<option value="ispmanDomain">Domain</option>
+<option value="ispmanDomainOwner">Owner</option>
+<option value="ispmanDomainCustomer">Customer</option>
+</select> contains <input class=search type=text name=domainsearchfilter>
+</div>
+ 
+
+
+<table border=0 cellpadding=2 cellspacing=2 bgcolor=white >
+<tr class=menuheader>
+<th class=menuheader></th>
+<th class=menuheader>Domain</th>
+<th class=menuheader>Type</th>
+<th class=menuheader>Owner</th>
+<th class=menuheader>Customer</th>
+<th class=menuheader>Comments</th>
+<th class=menuheader># replicas</th>
+<th class=menuheader># users</th>
+<th class=menuheader># vhosts</th>
+<th class=menuheader>locked</th>
+<th class=menuheader>admin</th>
+</tr>
+
+
+
+<perl>
+
+my $text="";
+my $ispmanDomainType;
+my $users;
+my $thisDomainType;
+
+
+
+
+
+my $filter="";
+
+if ($r->param('domainsearchfilter') && $r->param('attr')){
+        $filter="@{[$r->param('attr')]}=*@{[$r->param('domainsearchfilter')]}*";
+} else {
+        return "";
+}
+
+
+
+
+
+
+my $domains=$ispman->makeDomainHash($ispman->getDomains($filter));
+
+
+my $domainInfo;
+my $domainInfos;
+my $masters={};
+
+for my $domain(  keys %$domains ) {                                                                   
+        
+        $domainInfo=$ispman->getDomainInfo($domain);
+        $domainInfos->{$domain}=$domainInfo;
+        
+        if ($domainInfo->{'ispmanDomainType'} eq "replica"){
+                $replicas->{$domainInfo->{'ispmanReplicaMaster'}}{$domain}=$domainInfo;
+        } else {
+                $masters->{$domain}=$domainInfo;
+        };
+                                
+        
+        
+}
+if ($filter){
+        for my $domain(  keys %$domainInfos ) {                                                                   
+                $text.="<tr class=@{[$ispman->getDomainType($domain)]}>";
+                $text.="<td><A HREF='javascript:parent.whois(\"$domain\")'>W</a></td>";
+
+                if ($ispman->getDomainType($domain) eq "replica"){
+                        $text.="<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A onClick='self.location=\"$ENV{'SCRIPT_NAME'}?mode=editDomain&ispmanDomain=$domain\"' target='main_menu' HREF='$ENV{'SCRIPT_NAME'}?mode=menu&ispmanDomain=$domain'>$domain </a> ==> replica of  $ispman->{'domaininfo'}{$domain}->{'ispmanReplicaMaster'}</td>";
+                } else {
+                        $text.="<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A onClick='self.location=\"$ENV{'SCRIPT_NAME'}?mode=editDomain&ispmanDomain=$domain\"' target='main_menu' HREF='$ENV{'SCRIPT_NAME'}?mode=menu&ispmanDomain=$domain'>$domain </a> </td>";
+                }
+                                
+                $text.= join "\n", map {"<td>&nbsp; $_ &nbsp; </td>"} (
+                        $ispman->getDomainType($domain),
+                        $ispman->{'domaininfo'}{$domain}->{'ispmanDomainOwner'} || "&nbsp;",
+                        $ispman->{'domaininfo'}{$domain}->{'ispmanDomainCustomer'} || "&nbsp;",
+                        $ispman->{'domaininfo'}{$domain}->{'ispmanDomainComment'} || "&nbsp;",
+                        $ispman->getReplicaCountForDomain($domain) || "&nbsp;",
+                        $ispman->getUserCount($domain) || "&nbsp;",
+                        $ispman->getVhostCount($domain) || "&nbsp;",
+                        $ispman->{'domaininfo'}{$domain}->{'locked'} || "&nbsp;",
+                        $ispman->{'domaininfo'}{$domain}->{'lockedby'} || "&nbsp;"
+
+                        );
+                $text.="</tr>";
+        
+        }
+} else {
+        for my $domain( sort  keys %$masters ) {                                                                   
+                        
+                $text.="<tr class=@{[$ispman->getDomainType($domain)]}>";
+                $text.= join "\n", map {"<td>$_</td>"} (
+                        "<A HREF='javascript:parent.whois(\"$domain\")'>W</a>",
+                        "<A onClick='self.location=\"$ENV{'SCRIPT_NAME'}?mode=editDomain&ispmanDomain=$domain\"' target='main_menu' HREF='$ENV{'SCRIPT_NAME'}?mode=menu&ispmanDomain=$domain'>$domain</a>",
+                        $ispman->getDomainType($domain),
+                        $ispman->{'domaininfo'}{$domain}->{'ispmanDomainOwner'} || "&nbsp;",
+                        $ispman->{'domaininfo'}{$domain}->{'ispmanDomainCustomer'} || "&nbsp;",
+                        $ispman->{'domaininfo'}{$domain}->{'ispmanDomainComment'} || "&nbsp;",
+                        $ispman->getReplicaCountForDomain($domain) || "&nbsp;",
+                        $ispman->getUserCount($domain) || "&nbsp;",
+                        $ispman->getVhostCount($domain) || "&nbsp;",
+                        $ispman->{'domaininfo'}{$domain}->{'locked'} || "&nbsp;",
+                        $ispman->{'domaininfo'}{$domain}->{'lockedby'} || "&nbsp;"
+                        );
+                $text.="</tr>";
+                unless ($r->param("hidereplicas")){
+                        for my $replica( keys %{$replicas->{$domain}} ) {                                                                   
+                        $text.="<tr class=@{[$ispman->getDomainType($replica)]}>";
+                        $text.= join "\n", map {"<td>&nbsp; <i>$_ &nbsp;</i> </td>"} (
+                        "<A HREF='javascript:parent.whois(\"$replica\")'>W</a>",
+                                "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A onClick='self.location=\"$ENV{'SCRIPT_NAME'}?mode=editDomain&ispmanDomain=$replica\"' target='main_menu' HREF='$ENV{'SCRIPT_NAME'}?mode=menu&ispmanDomain=$replica'>$replica </a> ==> replica ==> $domain",
+                                "replica",
+                        $ispman->{'domaininfo'}{$domain}->{'ispmanDomainOwner'},
+                        $ispman->{'domaininfo'}{$domain}->{'ispmanDomainCustomer'},
+                        $ispman->{'domaininfo'}{$domain}->{'ispmanDomainComment'},
+                                '&nbsp;',
+                                '&nbsp;',
+                                '&nbsp;',
+                                '&nbsp;',
+                                '&nbsp;'
+                                );
+                        $text.="</tr>";
+                        }
+                }
+        }
+
+}
+
+$text
+</perl>
+
+
+
+
+</table>
+</form>
+

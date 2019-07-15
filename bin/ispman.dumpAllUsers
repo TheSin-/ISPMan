@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+# Small script that dumps domain user
+# useful to be used with shell scripting etc
+
+# example, this script can be used to set an attribute on all users
+# ispman.dumpAllUsers | awk '{system("ispman.addUserAttribute -d " $1 " -u " $2 " -a mailHost someHost")}'
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+}
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+
+my $users = $ispman->getEntriesAsHashRef( $ispman->{'Config'}{'ldapBaseDN'},
+    "objectclass=ispmanDomainUser" );
+
+USER: for ( keys %$users ) {
+    $dnParts = $ispman->explodeDN($_);
+    print $dnParts->{'ispmanDomain'}, "\t", $dnParts->{'uid'}, "\n";
+}
+

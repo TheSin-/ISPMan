@@ -1,0 +1,56 @@
+# your primary domain
+mydomain = example.com
+myorigin = $mydomain
+
+# accept mail for this hosts/domains/networks (no virtual domains here!)
+mydestination = $myhostname, localhost.$mydomain, $mydomain
+mynetworks = $config_directory/mynetworks
+
+# lokal aliases for your primary domain
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+
+# optional canonical mapping (map replica domains to their master)
+canonical_maps = ldap:ldapcanonical
+
+# tell postfix about the virtual domains, which deliver mail here
+virtual_alias_domains = ldap:ldapvirtualdomains
+
+# virtual_alias_maps
+virtual_alias_maps = ldap:ldapvirtualmaps
+
+# tell postfix about domains we relay to other MTAs
+relay_domains = ldap:ldaprelaydomains
+
+# ldap search for virtual_alias_maps
+ldapvirtualmaps_server_host = ldap.example.com
+ldapvirtualmaps_server_port = 389
+ldapvirtualmaps_version = 3
+ldapvirtualmaps_search_base = o=ispman
+ldapvirtualmaps_query_filter = (|(mailLocalAddress=%s)(mailAlias=%s))
+ldapvirtualmaps_result_attribute = mailRoutingAddress,mailForwardingAddress
+
+# ldap search for virtual domain maps
+ldapvirtualdomains_server_host = ldap.example.com
+ldapvirtualdomains_server_port = 389
+ldapvirtualdomains_version = 3
+ldapvirtualdomains_search_base = o=ispman
+ldapvirtualdomains_query_filter = (&(objectclass=ispmanDomain)(ispmanDomainMailDeliveryMethod=local)(ispmanDomain=%s))
+ldapvirtualdomains_result_attribute = ispmanDomain
+
+# ldap search for relay domain maps
+ldaprelaydomains_server_host = ldap.example.com
+ldaprelaydomains_server_port = 389
+ldaprelaydomains_version = 3
+ldaprelaydomains_search_base = o=ispman
+ldaprelaydomains_query_filter = (&(objectclass=ispmanDomain)(ispmanDomainMailDeliveryMethod=smtp)(ispmanDomain=%s))
+ldaprelaydomains_result_attribute = ispmanDomain
+
+# ldap canonical maps
+ldapcanonical_server_host = ldap.example.com
+ldapcanonical_server_port = 389
+ldapcanonical_version = 3
+ldapcanonical_search_base = o=ispman
+ldapcanonical_query_filter = (&(objectclass=dnsdomain)(domaintype=replica)(mailacceptinggeneralid=%s))
+ldapcanonical_result_attribute = maillocaladdress
+

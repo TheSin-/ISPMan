@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ "$1" = "configure" ]; then
+        ucf /usr/share/ispman/conf/ispman.conf.example /etc/ispman/ispman.conf
+	chgrp www-data /etc/ispman/ispman.conf
+	chmod 640 /etc/ispman/ispman.conf
+	[ -L /usr/share/ispman/conf/ispman.conf ] || ln -s /etc/ispman/ispman.conf /usr/share/ispman/conf/ispman.conf
+fi
+

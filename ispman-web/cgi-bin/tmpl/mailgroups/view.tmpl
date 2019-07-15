@@ -1,0 +1,32 @@
+<LINK HREF="<perl>$ispman->getConfig('ispmanUrlPrefix')</perl>/ispman.css" REL="stylesheet" TYPE="text/css">
+<table border=0>
+<form>
+<tr><td colspan=2>
+    <b><perl>_("Mailgroup")</perl>: </b> 
+    <perl>$ispman->{'mailgroup'}{'cn'}</perl>@<perl>$r->param('ispmanDomain')</perl>
+    <br><hr noshade></td></tr>
+
+<tr>
+    <td valign=top><perl>_("Mail group members")</perl></td><td>( <perl>_("local or  remote")</perl> ) </td>
+</tr>
+
+<tr>
+    <td colspan=2 bgcolor=white>
+       <perl>
+       my $text="";
+       if (ref $ispman->{'mailgroup'}->{"mailForwardingAddress"} eq "ARRAY"){
+        my @maildrops=@{$ispman->{'mailgroup'}->{"mailForwardingAddress"}};
+           for   (@maildrops){
+              $text.= "$_<br>\n";
+           }
+        } else {
+            $text=$ispman->{'mailgroup'}->{"mailForwardingAddress"};
+        }
+       $text;
+       </perl>
+   </td>
+</tr>
+
+</table>
+ 
+

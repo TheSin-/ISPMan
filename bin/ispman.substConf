@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+
+sub randcrypt {
+    my $string = shift;
+
+    #print "Getting $string\n\n";
+    return
+      crypt( $string, join '',
+        ( '.', '/', 0 .. 9, 'A' .. 'Z', 'a' .. 'z' )[ rand 64, rand 64 ] );
+}
+
+
+# read ispman.conf
+require "ispman.conf" || die "Cant require ispman.conf";
+
+# read STDIN and substitute any %%token%% or @@eval@@
+for (<>) {
+    s/%%(\w+)?%%/$ISPMan::Config->{$1}/g;
+    s/\@\@(randcrypt.*?)\@\@/eval($1)/ge;
+    print;
+}
+
+
+

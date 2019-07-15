@@ -1,0 +1,4 @@
+objectClass: posixAccount
+ispmanDnsMasters: <perl>$r->param("ispmanDnsMasters")</perl>
+
+

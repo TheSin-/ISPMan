@@ -1,0 +1,53 @@
+#!/usr/bin/perl
+# Creat sub mailbox for user such as INBOX.Junk, INBOX.SPam etc
+
+# As paramater, it can accept uid_filter
+# such as *_ispman_org : default: *
+# and the name of the folder to create such as Junk, Spam etc
+
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'h', \%opts );
+    unless ( $opts{'h'} ) {
+        print "Usage: $FindBin::Script  -h imap_server uidexpr folder\n";
+        print "uidexpr: such as 'blafasel', '*' or '*_some_domain'\n";
+        print "folder: the folder to create under INBOX\n";
+        exit;
+    }
+    if ( $ARGV[1] =~ /[^a-z0-9-_]/i ) {
+        print "bad folder syntax. Only a-z, A-Z, 0-9, - , _ allowed\n";
+        exit;
+    }
+}
+
+use ISPMan;
+use vars qw($ispman);
+$ispman = ISPMan->new();
+
+require "mailbox_actions.lib";
+
+my $uid_filter = $ARGV[0];
+my $folder     = $ARGV[1];
+
+my $users = $ispman->getEntriesAsHashRef( $ispman->{'Config'}{'ldapBaseDN'},
+    "&(objectclass=ispmanDomainUser)(uid=$uid_filter)" );
+
+for ( keys %$users ) {
+    @uids = $ispman->as_array( $users->{$_}{'uid'} );
+    $uid  = $uids[0];
+
+    my $rc = create_folder( $opts{'h'}, $uid, $folder );
+    if ( $rc == 0 ) {
+        print "Folder $folder was successfully created.\n";
+        exit 0;
+    }
+    else {
+        print "Error: Folder $folder could not be created (rc=$rc)!\n";
+        exit $rc;
+    }
+}
+
+__END__

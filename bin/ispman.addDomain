@@ -1,0 +1,119 @@
+#!/usr/bin/perl
+BEGIN {
+    use FindBin;
+    unshift @INC,
+      ( $FindBin::Bin, "$FindBin::Bin/../lib", "$FindBin::Bin/../conf" );
+    use Getopt::Std;
+    getopt( 'dfmw', \%opts );
+
+    # 2003-08-06
+    # Adding -d switch because almost all command use it except this one
+    # This may lead to accidents if an admin try to create a domain and by
+    # habbit types
+    # ispman.addDomain -d example.com examplePassword
+    # this would have created a domain called "-d" and all sort of wierd
+    # behaviours will be seen
+
+    unless ( $opts{'d'} ) {
+
+        # perhaps using old syntax.
+        # check if there are at least two arguments
+        # and that the first one looks like a doamain
+        # if yes then feed it to $opts{'d'}
+
+        if ( $ARGV[1] ) {
+
+            # Yes we have atlease 2 arguments 0 and 1
+            unless ( $ARGV[0] =~ m/\w+?\.?\w+/ ) {
+                print "First argument does not look like a domain\n";
+                print "A domain should have at least a dot in it\n";
+                exit;
+            }
+            print
+"\nReminder: \nNew usage is $FindBin::Script -d domain [-w defaultWebHost] [-f defaultFileHost] [-m defaultMailHost] domainPassword\n";
+            print "Note the -d switch. Please use that next time\n";
+            $opts{'d'} = shift @ARGV;
+        }
+        else {
+            print "\nUsage:\n";
+            print
+"$FindBin::Script -d domain [-w defaultWebHost] [-f defaultFileHost] [-m defaultMailHost]  domainPassword";
+            print "\n";
+            exit;
+        }
+    }
+}
+
+use vars qw($ispman $r $domain );
+$domain   = $opts{'d'};
+$password = shift @ARGV;
+
+use ISPMan;
+use CGI;
+$ispman = ISPMan->new();
+$r      = new CGI();
+$r->param( "domain",       $domain );
+$r->param( "ispmanDomain", $domain );
+
+#($domain, $password) =@ARGV;
+
+# change these to meet your site specifics
+
+$d = {
+    'ispmanDomainType'               => 'primary',
+    'ispmanDomainMailDeliveryMethod' => 'local',
+    'ispmanDomainServices'           => 'web,mail',
+    'FTPStatus'                      => 'enabled',
+    'FTPQuotaMBytes'                 => 25,
+    'userPassword'                   => $password,
+};
+
+if ( $opts{'w'} ) {
+    $d->{'ispmanDomainDefaultWebHost'} = $opts{'w'};
+}
+else {
+    if ( my $defaultWebHost = $ispman->getHostGroupFirstMember('httpgroup') ) {
+        $d->{'ispmanDomainDefaultWebHost'} = $defaultWebHost;
+    }
+}
+
+if ( $opts{'f'} ) {
+    $d->{'ispmanDomainDefaultFileServer'} = $opts{'f'};
+}
+else {
+    if ( my $ispmanDomainDefaultFileServer =
+        $ispman->getHostGroupFirstMember('fileservergroup') )
+    {
+        $d->{'ispmanDomainDefaultFileServer'} = $ispmanDomainDefaultFileServer;
+    }
+    else {
+        print qq[
+No host found in fileserver group!
+You cannot add domains until you define some hosts in the fileservergroup.
+];
+        exit;
+    }
+}
+
+if ( $opts{'m'} ) {
+    $d->{'ispmanDomainDefaultMailDropHost'} = $opts{'m'};
+}
+else {
+    if ( my $ispmanDomainDefaultMailDropHost =
+        $ispman->getHostGroupFirstMember('mailstoregroup') )
+    {
+        $d->{'ispmanDomainDefaultMailDropHost'} =
+          $ispmanDomainDefaultMailDropHost;
+    }
+}
+
+$d->{'homeDirectory'} =
+  join( '/', $ispman->getConf("defaultHomeDirectoryPath"), $domain );
+
+for ( keys %$d ) {
+    $r->param( $_, $d->{$_} );
+}
+
+$ispman->addDomain($r);
+__END__
+
