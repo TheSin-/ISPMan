@@ -207,7 +207,7 @@ if ($thisDomainType){
   unless ($thisDomainType eq "replica"){
     $text.=qq|
    <tr class="light" onclick="doThis('editWebmail')" 
-       onmouseover="this.className='lightOver'; window.status='@{[_("Edit Webmail Options for [_1]", $thisDomain)]}'"
+       onmouseover="this.className='lightOver'; window.status='@{[_("Edit Webmail Options")]}'"
        onmouseout="this.className='light'; window.status=''">
      <td><A class=menu HREF="#">Edit Webmail Options</a></td>
    </tr>
