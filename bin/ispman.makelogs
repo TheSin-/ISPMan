@@ -109,7 +109,7 @@ else {
 my (@NEWARGS);
 my $quiet = "";
 foreach my $arg (@ARGV) {
-        if ($arg == "-q") {
+        if ($arg eq "-q") {
                 $quiet = $arg;
         } else {
                 push(@NEWARGS, $arg);
