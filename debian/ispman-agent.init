@@ -26,14 +26,14 @@ set -e
 case "$1" in
   start)
 	echo -n "Starting $DESC: "
-	start-stop-daemon -m -b --start --quiet --pidfile /var/run/$NAME.pid \
+	start-stop-daemon -m -b --start --quiet --pidfile /run/$NAME.pid \
 		--exec $DAEMON -- $DAEMON_OPTS
 	echo "$NAME."
 	;;
   stop)
 	echo -n "Stopping $DESC: "
-	start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/$NAME.pid 
-	rm -f /var/run/$NAME.pid
+	start-stop-daemon --stop --quiet --oknodo --pidfile /run/$NAME.pid 
+	rm -f /run/$NAME.pid
 	echo "$NAME."
 	;;
   #reload)
@@ -46,7 +46,7 @@ case "$1" in
 	#
 	# echo "Reloading $DESC configuration files."
 	# start-stop-daemon --stop --signal 1 --quiet --pidfile \
-	#	/var/run/$NAME.pid --exec $DAEMON
+	#	/run/$NAME.pid --exec $DAEMON
   #;;
   restart|force-reload)
 	#
@@ -55,10 +55,10 @@ case "$1" in
 	#	just the same as "restart".
 	#
 	echo -n "Restarting $DESC: "
-	start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/$NAME.pid 
-	rm -f /var/run/$NAME.pid
+	start-stop-daemon --stop --quiet --oknodo --pidfile /run/$NAME.pid 
+	rm -f /run/$NAME.pid
 	sleep 1
-	start-stop-daemon -m -b --start --quiet --pidfile /var/run/$NAME.pid \
+	start-stop-daemon -m -b --start --quiet --pidfile /run/$NAME.pid \
 	--exec $DAEMON -- $DAEMON_OPTS
 	echo "$NAME."
 	;;
