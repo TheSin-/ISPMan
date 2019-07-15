@@ -22,6 +22,11 @@ objectclass: ispmanHostGroup
 ispmanHostGroupName: httpgroup 
 ispmanHostGroupInfo: Group of servers that run Apache
 
+dn: ispmanHostGroupName=webmailgroup, ou=hostgroups, %%ldapBaseDN%%
+objectclass: ispmanHostGroup
+ispmanHostGroupName: webmailgroup
+ispmanHostGroupInfo: Group of servers that run Webmail
+
 dn: ispmanHostGroupName=mailstoregroup, ou=hostgroups, %%ldapBaseDN%%
 objectclass: ispmanHostGroup
 ispmanHostGroupName: mailstoregroup

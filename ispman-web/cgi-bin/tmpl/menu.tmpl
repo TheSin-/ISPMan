@@ -49,6 +49,10 @@
       }
    }
 
+   function editWebmail(domain){
+      doThis("editWebmail","domain="+domain);
+   }
+
    function addWebUser(){
       if(ispmanUserId=prompt("Name of webuser" , "")){
           if(userPassword=prompt("Password" , "")){
@@ -192,12 +196,19 @@ $text.="\n</select>";
 $text.="</td></tr></form></table>\n";
 
 if ($thisDomainType){
-    $text.=qq|
+  $text.=qq|
 <table width=100% border=0>
    <tr class="light" onclick="doThis('editDomain')" 
        onmouseover="this.className='lightOver'; window.status='@{[_("Edit [_1]", $thisDomain)]}'"
        onmouseout="this.className='light'; window.status=''">
      <td><A class=menu HREF="#">Edit $thisDomain</a></td>
+|;
+  unless ($thisDomainType eq "replica"){
+    $text.=qq|
+     <td><A class=menu HREF="#">Edit Webmail Options</a></td>
+|;
+  }
+    $text.=qq|
    </tr>
 </table>
 |;

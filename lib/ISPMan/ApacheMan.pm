@@ -75,6 +75,19 @@ push @EXPORT, qw(
   changeVhostPassword
   getVhostAttribute
   setVhostAttribute
+  getWebmailPackages
+  editWebmail
+  enableWebmail
+  newWebmail
+  addWebmail
+  disableWebmail
+  deleteWebmail
+  updateWebmail
+  addWebmailProcess
+  getWebmailInfo
+  getWebmailDN
+  delete_webmail
+  update_webmail
 );
 $VERSION = '0.01';
 
@@ -648,6 +661,265 @@ sub setVhostAttribute {
     $self->modifyAttribute( $dn, $attribute, $value );
 }
 
+sub getWebmailDN {
+   my $self=shift;
+   my $domain=shift;
+   return "ispmanWebmailName=webmail, ou=webmail, ". $self->getDomainDN($domain);
+}
+
+sub editWebmail {
+  my $self=shift;
+  my $r=shift;
+  my $domain=$r->param("domain");
+  my $dn=$self->getWebmailDN($domain);
+  $self->{'webmail'}=$self->getWebmailInfo($domain);
+
+  my $template;
+
+  if ($self->isWebmailEnabled($dn)) {
+      $template=$self->getTemplate("webmail/edit.tmpl");
+  } else {
+      $template=$self->getTemplate("webmail/view.tmpl");
+  }
+  print $template->fill_in(PACKAGE => "ISPMan");
+}
+
+sub newWebmail {
+   my $self=shift;
+   my $r=shift;
+
+   my $template;
+
+   $template=$self->getTemplate("webmail/add.tmpl");
+
+   print $template->fill_in(PACKAGE => "ISPMan");
+}
+
+sub enableWebmail {
+   my $self=shift;
+   my $r=shift;
+
+   if ($self->addWebmail($r)){
+       print $self->refreshSignal($r->param("ispmanDomain"));
+       $self->editWebmail($r);
+   };
+}
+
+sub disableWebmail {
+   my $self=shift;
+   my $r=shift;
+
+   if ($self->deleteWebmail($r)){
+       print $self->refreshSignal($r->param("domain"));
+       $self->editWebmail($r);
+   };
+}
+
+sub addWebmail {
+   my $self=shift;
+   my $r=shift;
+
+   my $ispmanWebmailName=$r->param("ispmanWebmailName");
+   $ispmanWebmailName=lc($ispmanWebmailName);
+   $ispmanWebmailName=~s/[^a-zA-Z0-9\.]//g;
+   $r->param("ispmanWebmailName", $ispmanWebmailName);
+   my $domain=$r->param("domain");
+   my $domain_info=$self->getDomainInfo($domain);
+   my $dn=$self->getWebmailDN($domain);
+   $self->prepareBranchForDN("ou=webmail, ispmanDomain=$domain, " . $self->getConf("ldapBaseDN"));
+   $r->param("dn", $dn);
+
+   my $documentrootoptions=$self->as_arrayref($r->param("ispmanWebmailDocumentRootOption"));
+   my $scriptdiroptions=$self->as_arrayref($r->param("ispmanWebmailScriptDirOption"));
+
+
+   my $data;
+   $data ={
+            "ispmanWebmailName" =>  $r->param("ispmanWebmailName"),
+            "cn" =>  $r->param("ispmanWebmailName"),
+            'uidNumber' => $domain_info->{'uidNumber'},
+            'gidNumber' => $domain_info->{'gidNumber'},
+            "ispmanDomain" => $domain,
+            "ispmanWebmailServerAlias" => $r->param("ispmanWebmailServerAlias") || "",
+   };
+   $data->{'uid'}=join '.' , ($r->param("ispmanWebmailName"), $r->param("domain"));
+
+   $data->{'objectClass'}=$self->{'Config'}{'ispmanWebmailObjectclasses'};
+   $data->{'homeDirectory'}=join '/' , ($domain_info->{'homeDirectory'}, "webmail");
+   $data->{"cn"} = join '.', ($r->param("ispmanWebmailName"), $domain);
+
+
+
+   $data->{"ispmanWebmailExtraConf"} = $r->param("ispmanWebmailExtraConf") if $r->param("ispmanWebmailExtraConf");
+
+   $data->{"ispmanWebmailDocumentRootOption"} = $documentrootoptions;
+   $data->{"ispmanWebmailScriptDirOption"} = $scriptdiroptions;
+
+
+   $data->{"ispmanWebmailDocumentRoot"} = $r->param("ispmanWebmailDocumentRoot");
+   $data->{"ispmanWebmailScriptDir"} = $r->param("ispmanWebmailScriptDir");
+   $data->{"ispmanWebmailIpAddress"} = $r->param("ispmanWebmailIpAddress") || $self->getConf("apacheVhostsIP") || "*";
+   $data->{"ispmanWebmailOrg"} = $r->param("ispmanWebmailOrg") || $self->getConf("webmailOrg");
+   $data->{"ispmanWebmailOrgURL"} = $r->param("ispmanWebmailOrgURL") || $self->getConf("webmailOrgURL");
+   $data->{"ispmanWebmailFooter"} = $r->param("ispmanWebmailFooter") || "";
+   $data->{"ispmanWebmailThemeFile"} = $r->param("ispmanWebmailThemeFile") || $self->getConf("webmailThemeFile");
+   $data->{"ispmanWebmailLogoFile"} = $r->param("ispmanWebmailLogoFile") || $self->getConf("webmailLogoFile");
+   $data->{"webmailHost"} = $r->param("webmailHost")  || $domain_info->{'ispmanDomainDefaultWebmailHost'};;
+
+
+
+   if ($data->{"webmailHost"}){
+         if ($self->addNewEntryWithData($dn, $data)){
+            if (! $self->isArecord($r->param("ispmanWebmailName"), $r->param("domain"))) {
+               $self->newDNSRecord($r->param("domain"), "aRecord", $r->param("ispmanWebmailName"), $self->getHostIp($data->{'webmailHost'}), {'tXTRecord' => "ispmanWebmailHost:$data->{'cn'}"} );
+            }
+            $self->addWebmailProcess($r->param("domain"), $data->{"webmailHost"}, "AddWebmailHost", $r->param("ispmanWebmailName"));
+
+            $self->addProcessToGroup($r->param("domain"), "fileservergroup", "AddWebmailHostDirectories",
+            join ",", (
+               $r->param("ispmanWebmailName"),
+               $domain_info->{'homeDirectory'},
+               $domain_info->{'uidNumber'},
+               $domain_info->{'gidNumber'},
+               $self->getConf('apacheUser')
+               )
+            );
+            return 1;
+         }
+   }
+}
+
+sub deleteWebmail {
+    my $self=shift;
+    my $r=shift;
+    if ($self->delete_webmail($r->param("domain"))) {
+        print $self->refreshSignal($r->param("domain"));
+        print "Webmail for ",  $r->param("domain"), " scheduled for deletion<br>";
+        return 1;
+    } else {
+        print "Error: ISPMan::ApacheMan::deleteWebmail. Could not delete entry<br>";
+    }
+}
+
+sub delete_webmail {
+    my $self=shift;
+    my $ispmanDomain=shift;
+    my $ispmanWebmailName="webmail";
+    my $dn=$self->getWebmailDN($ispmanDomain);
+    if ($self->branchExists($dn)) {
+        my $webmailInfo=$self->getWebmailInfo($ispmanDomain);
+        my $domainInfo=$self->getDomainInfo($ispmanDomain);
+        if ($self->deleteEntry($dn)) {
+            $self->addWebmailProcess($ispmanDomain, $ispmanWebmailName,
+                       "DeleteWebmailHost", $ispmanWebmailName);
+            $self->addProcessToGroup($ispmanDomain, "fileservergroup",
+                       "DeleteWebmailHostDirectories",
+                       join ",", (
+                           $ispmanWebmailName,
+                           $domainInfo->{'homeDirectory'},
+                       )
+            );
+            return 1;
+        }
+    } else {
+        print "Webmail does not exist under $ispmanDomain<br>\n";
+    }
+}
+
+sub addWebmailProcess {
+    my $self=shift;
+    my ($domain, $webmail, $process, $param)=@_;
+    my $webmailInfo=$self->getWebmailInfo($domain);
+    if ($webmailInfo->{'webmailHost'}){
+        $self->addProcessToHost($domain, $webmailInfo->{'webmailHost'} , $process, $param);
+    } else {
+        $self->addProcessToGroup($domain, 'webmailgroup' , $process, $param);
+    }
+}
+
+sub updateWebmail {
+    my $self=shift;
+    my $r=shift;
+    if ($self->update_webmail($r)) {
+        $self->editWebmail($r);
+    }
+}
+
+sub update_webmail {
+    my $self=shift;
+    my $r=shift;
+    my $domain=$r->param("domain");
+    my $dn=$self->getWebmailDN($domain);
+    my $domain_info=$self->getDomainInfo($domain);
+
+    if ($r->param("ispmanWebmailServerAlias")){
+        my $serveralias=[split(/\s\s*/, $r->param("ispmanWebmailServerAlias"))];
+        $r->param("ispmanWebmailServerAlias", $serveralias) if $serveralias;
+    } else {
+        $r->param("ispmanWebmailServerAlias", " ");
+    }
+
+    my $data;
+    $data = {
+             "ispmanWebmailName" =>  $r->param("ispmanWebmailName"),
+             "cn" =>  $r->param("ispmanWebmailName"),
+             'uidNumber' => $domain_info->{'uidNumber'},
+             'gidNumber' => $domain_info->{'gidNumber'},
+             "ispmanDomain" => $domain,
+    };
+    $data->{'uid'}=join '.' , ($r->param("ispmanWebmailName"), $r->param("ispmanDomain"));
+    $data->{'homeDirectory'}=join '/' , ($domain_info->{'homeDirectory'}, "webmail");
+
+    for (qw(ispmanWebmailServerAlias ispmanWebmailExtraConf
+        ispmanWebmailIpAddress ispmanWebmailDocumentRoot
+        ispmanWebmailScriptDir ispmanWebmailOrg
+        ispmanWebmailOrgURL ispmanWebmailFooter
+        ispmanWebmailThemeFile ispmanWebmailLogoFile)) {
+        if ($r->param($_)) {
+            $data->{$_}=$r->param($_);
+        }
+    }
+
+    #update the objectclasses if they are different
+    $data->{'objectClass'}=$self->{'Config'}{'ispmanWebmailObjectclasses'};
+
+    for (qw(ispmanWebmailDocumentRootOption ispmanWebmailScriptDirOption)) {
+        if ($r->param($_)) {
+            $data->{$_}=[$r->param($_)];
+        } else {
+            $data->{$_}="";
+        }
+    }
+
+    if ($self->{'ldap'}->updateEntryWithData($dn, $data)){
+         $self->addWebmailProcess($r->param("ispmanDomain"),
+             $r->param("ispmanWebmailName"), "ModifyWebmailHost",
+             $r->param("ispmanWebmailName"));
+    }
+    return 1;
+}
+
+sub getWebmailPackages {
+   my $self=shift;
+   my $packages = [qw(SquirrelMail RoundCube)];
+   return $packages;
+}
+
+sub getWebmailInfo {
+   my $self=shift;
+   my $domain=shift;
+   my $ispmanWebmailName="webmail";
+   my $dn;
+
+   $dn="ispmanWebmailName=webmail, ou=webmail, ispmanDomain=$domain, ";
+   $dn.=$self->getConf("ldapBaseDN");
+
+   #uncomment this block  if you want it to cache the result
+   #unless ($self->{'vhostInfo'}{$domain}{$ispmanVhostName}){
+       $self->{'webmailInfo'}{$domain}{$ispmanWebmailName}=$self->getEntryAsHashRef($dn);
+   #}
+   return $self->{'webmailInfo'}{$domain}{$ispmanWebmailName};
+}
 1;
 
 __END__

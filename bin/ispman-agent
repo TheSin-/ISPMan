@@ -331,6 +331,57 @@ sub AUTOLOAD {
 sub DESTROY {
     close("STDERR");
 }
+
+sub DeleteWebmailHostDirectories {
+  my ($domain, $params) = @_;
+  my ($webmail, $home_directory) = split(",", $params);
+
+  my $module = "$install_dir/lib/delete_webmail_directories.lib";
+  do $module;
+
+  &delete_webmail_directories_handler($webmail, $home_directory);
+  return 1;
+}
+
+sub AddWebmailHost {
+  my ($domain, $params) = @_;
+
+  my $module = "$install_dir/lib/webmail.lib";
+  do $module;
+
+  my $template = $ispman->getTemplate("$install_dir/templates/webmail.conf.template");
+  return 1 if (add_webmail($params, $domain) && make_webmail_conf($template) && reloadApache());
+}
+
+sub ModifyWebmailHost {
+  my ($domain, $params) = @_;
+
+  my $module = "$install_dir/lib/webmail.lib";
+  do $module;
+
+  my $template = $ispman->getTemplate("$install_dir/templates/webmail.conf.template");
+  return 1 if (modify_webmail($params, $domain) && make_webmail_conf($template) && reloadApache());
+}
+
+sub DeleteWebmailHost {
+  my ($domain, $params) = @_;
+
+  my $module = "$install_dir/lib/webmail.lib";
+  do $module;
+
+  my $template = $ispman->getTemplate("$install_dir/templates/webmail.conf.template");
+  return 1 if (delete_webmail($params, $domain) && make_webmail_conf($template) && reloadApache());
+}
+
+sub AddWebmailHostDirectories {
+  my ($domain, $params) = @_;
+
+  my $module = "$install_dir/lib/create_webmail_directories.lib";
+  do $module;
+
+  return 1 if (&create_webmail_directories_handler(split(",", $params)));
+}
+
 __END__
 
 =head1 NAME

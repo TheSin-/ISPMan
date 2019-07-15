@@ -5,7 +5,7 @@ CONFLDIFS = \
 	base.ldif \
 	conf.ldif conf.ftp_vars.ldif conf.dns_vars.ldif conf.ldap_vars.ldif \
 	conf.mail_vars.ldif conf.sys_vars.ldif conf.account_vars.ldif \
-	conf.apache_vars.ldif conf.db_vars.ldif \
+	conf.apache_vars.ldif conf.webmail_vars.ldif conf.db_vars.ldif \
 	counters.ldif hosts.ldif dns.ldif hostgroups.ldif \
 	domainServices.ldif radiusprofiles.ldif processes.ldif
 

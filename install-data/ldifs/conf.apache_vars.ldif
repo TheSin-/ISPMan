@@ -148,6 +148,14 @@ objectclass: ispmanConfVar
 ispmanVal: Access restricted!!!
 ispmanQuestion: When access to a vhost log file is restricted, this message is shown on the login window if not set for vhost
 
+dn: ispmanVar=apacheUser, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
+ispmanVar: apacheUser
+ispmanVarAlias: User Apache Runs As
+ispmanModule: apache_vars
+objectclass: ispmanConfVar
+ispmanVal: www
+ispmanQuestion: User that the apache webserver run as
+
 dn: ispmanVar=apacheDocumentRootOptions, ispmanModule=apache_vars, ou=conf, %%ldapBaseDN%%
 ispmanVar: apacheDocumentRootOptions
 ispmanVarAlias: Apache Document Root Options

@@ -82,6 +82,7 @@ use ISPMan::DomainMan::NoDNSDomain;
   setDomainAttribute
   setMailTransport
   getDomainsCount
+  isWebmailEnabled
   isDomainEditable
   isDomainLocked
   domainLockedBy
@@ -1210,6 +1211,17 @@ ispman-agent)
 
 =cut
 
+}
+
+sub isWebmailEnabled {
+   my $self=shift;
+   my $dn=shift;
+
+   if ($self->branchExists($dn)) {
+       return 1;
+   } else {
+       return 0;
+   }
 }
 
 sub isDomainEditable {
